@@ -16,10 +16,10 @@ test("the public-facing Santa profile uses Jim Hope's known identity without inv
   });
 });
 
-test("the gallery presents all ten supplied Jim Hope photographs", () => {
-  assert.equal(galleryItems.length, 10);
-  assert.equal(new Set(galleryItems.map((item) => item.src)).size, 10);
-  assert.ok(galleryItems.every((item) => item.src.startsWith("/images/jim-hope-")));
+test("the gallery presents all seventeen supplied Jim Hope photographs", () => {
+  assert.equal(galleryItems.length, 17);
+  assert.equal(new Set(galleryItems.map((item) => item.src)).size, 17);
+  assert.ok(galleryItems.every((item) => /^\/images\/(?:jim-hope|santa-jim-hope)-/.test(item.src)));
   assert.ok(galleryItems.some((item) => item.caption === "Storytime visits"));
   assert.ok(galleryItems.some((item) => item.caption === "Pet-friendly moments"));
   assert.ok(galleryItems.some((item) => item.caption === "Community celebrations"));

@@ -21,6 +21,7 @@ import {
   heroMedia,
   santaProfile,
   snowflakes,
+  socialReels,
   visitSteps,
 } from "@/components/santa/site-content";
 
@@ -238,6 +239,35 @@ export default function Home() {
               <figcaption>{item.caption}</figcaption>
             </figure>
           ))}
+        </div>
+        <div className="social-reels">
+          <div className="social-reels__heading">
+            <p className="eyebrow">See Santa Jim in action</p>
+            <h3>Christmas moments, caught in motion.</h3>
+            <p>Watch a couple of recent highlights from Santa Jim&apos;s community appearances.</p>
+          </div>
+          <div className="social-reels__grid">
+            {socialReels.map((reel) => {
+              const reelUrl = `https://www.facebook.com/reel/${reel.reelId}/`;
+              const embedUrl = `https://www.facebook.com/plugins/video.php?height=476&href=${encodeURIComponent(reelUrl)}&show_text=false&width=267&t=0`;
+
+              return (
+                <figure className="social-reel" key={reel.reelId}>
+                  <div className="social-reel__frame">
+                    <iframe
+                      src={embedUrl}
+                      title={reel.title}
+                      loading="lazy"
+                      scrolling="no"
+                      allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                      allowFullScreen
+                    />
+                  </div>
+                  <figcaption>{reel.caption}</figcaption>
+                </figure>
+              );
+            })}
+          </div>
         </div>
       </section>
 

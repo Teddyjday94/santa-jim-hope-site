@@ -1,6 +1,7 @@
 export type Experience = { title: string; description: string; iconSrc: string };
 export type VisitStep = { number: string; title: string; description: string; iconSrc: string };
 export type GalleryItem = { src: string; alt: string; caption: string };
+export type SocialReel = { reelId: string; title: string; caption: string };
 export type SampleTestimonial = { quote: string; attribution: string };
 export type FaqItem = { question: string; answer: string };
 export type Snowflake = {
@@ -72,6 +73,18 @@ export const galleryItems: GalleryItem[] = [
   { src: "/images/jim-hope-hug.webp", alt: "A guest giving Santa Jim Hope a joyful hug", caption: "Joyful moments" },
   { src: "/images/jim-hope-guest.webp", alt: "Santa Jim Hope seated beside a guest for a holiday portrait", caption: "Portrait moments" },
   { src: "/images/jim-hope-elf.webp", alt: "Santa Jim Hope seated with a young visitor dressed as an elf", caption: "Christmas wonder" },
+  { src: "/images/santa-jim-hope-holiday-swing.jpg", alt: "Santa Jim Hope seated with a guest on a decorated holiday swing", caption: "Christmas connections" },
+  { src: "/images/santa-jim-hope-community-tree.jpg", alt: "Santa Jim Hope seated beneath a glowing wreath at a community holiday display", caption: "Ready to welcome guests" },
+  { src: "/images/santa-jim-hope-red-suit-portrait.jpg", alt: "Santa Jim Hope standing in his red holiday suit", caption: "Santa Jim · 2025" },
+  { src: "/images/santa-jim-hope-group-celebration.jpg", alt: "Santa Jim Hope with a large group gathered beside a community Christmas tree", caption: "Holiday celebrations together" },
+  { src: "/images/santa-jim-hope-mrs-claus-2025.jpg", alt: "Santa Jim Hope and Mrs. Claus posing by a decorated Christmas throne", caption: "Santa and Mrs. Claus · 2025" },
+  { src: "/images/santa-jim-hope-community-selfie.jpg", alt: "Santa Jim Hope smiling for a selfie at a community Christmas gathering", caption: "A joyful day in the community" },
+  { src: "/images/santa-jim-hope-throne-family.jpg", alt: "Santa Jim Hope sharing a warm holiday moment with two young guests", caption: "Christmas wonder up close" },
+];
+
+export const socialReels: SocialReel[] = [
+  { reelId: "4142406926072498", title: "Santa Jim Hope community reel", caption: "Santa Jim in the community" },
+  { reelId: "1569989050662565", title: "Santa Jim Hope holiday reel", caption: "A little Christmas magic in motion" },
 ];
 
 export const sampleTestimonials: SampleTestimonial[] = [

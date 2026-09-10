@@ -25,12 +25,11 @@ test("the gallery includes every newly supplied Santa Jim photo", async () => {
   }
 });
 
-test("the social video section contains both supplied Facebook reels", () => {
+test("the social video section excludes the unavailable Facebook reel", () => {
   assert.deepEqual(
     socialReels.map(({ reelId, title }) => ({ reelId, title })),
     [
       { reelId: "4142406926072498", title: "Santa Jim Hope community reel" },
-      { reelId: "1569989050662565", title: "Santa Jim Hope holiday reel" },
     ],
   );
 });

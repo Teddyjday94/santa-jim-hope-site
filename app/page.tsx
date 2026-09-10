@@ -244,7 +244,7 @@ export default function Home() {
           <div className="social-reels__heading">
             <p className="eyebrow">See Santa Jim in action</p>
             <h3>Christmas moments, caught in motion.</h3>
-            <p>Watch a couple of recent highlights from Santa Jim&apos;s community appearances.</p>
+            <p>Watch a recent highlight from one of Santa Jim&apos;s community appearances.</p>
           </div>
           <div className="social-reels__grid">
             {socialReels.map((reel) => {

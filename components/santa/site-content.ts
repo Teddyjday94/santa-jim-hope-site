@@ -84,7 +84,6 @@ export const galleryItems: GalleryItem[] = [
 
 export const socialReels: SocialReel[] = [
   { reelId: "4142406926072498", title: "Santa Jim Hope community reel", caption: "Santa Jim in the community" },
-  { reelId: "1569989050662565", title: "Santa Jim Hope holiday reel", caption: "A little Christmas magic in motion" },
 ];
 
 export const sampleTestimonials: SampleTestimonial[] = [

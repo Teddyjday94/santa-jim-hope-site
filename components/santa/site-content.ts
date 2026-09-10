@@ -1,5 +1,5 @@
-export type Experience = { title: string; description: string; icon: string };
-export type VisitStep = { number: string; title: string; description: string; icon: string };
+export type Experience = { title: string; description: string; iconSrc: string };
+export type VisitStep = { number: string; title: string; description: string; iconSrc: string };
 export type GalleryItem = { src: string; alt: string; caption: string };
 export type SampleTestimonial = { quote: string; attribution: string };
 export type FaqItem = { question: string; answer: string };
@@ -47,18 +47,18 @@ export const heroMedia = {
 } as const;
 
 export const experiences: Experience[] = [
-  { title: "Home visits", description: "A personal visit shaped around your family's Christmas traditions.", icon: "House" },
-  { title: "Birthday surprises", description: "A joyful Santa appearance for a birthday celebrated during the season.", icon: "CakeSlice" },
-  { title: "Corporate events", description: "A polished holiday presence for team gatherings and customer celebrations.", icon: "Building2" },
-  { title: "Schools & groups", description: "A warm, age-aware visit for classrooms, churches, and youth organizations.", icon: "School" },
-  { title: "Community celebrations", description: "A welcoming Santa for festivals, markets, and neighborhood traditions.", icon: "MapPinned" },
-  { title: "Photo sessions", description: "A calm, camera-ready experience planned with your photographer or venue.", icon: "Camera" },
+  { title: "Home visits", description: "A personal visit shaped around your family's Christmas traditions.", iconSrc: "/icons/north-pole-home.webp" },
+  { title: "Birthday surprises", description: "A joyful Santa appearance for a birthday celebrated during the season.", iconSrc: "/icons/north-pole-birthday.webp" },
+  { title: "Corporate events", description: "A polished holiday presence for team gatherings and customer celebrations.", iconSrc: "/icons/north-pole-corporate.webp" },
+  { title: "Schools & groups", description: "A warm, age-aware visit for classrooms, churches, and youth organizations.", iconSrc: "/icons/north-pole-school.webp" },
+  { title: "Community celebrations", description: "A welcoming Santa for festivals, markets, and neighborhood traditions.", iconSrc: "/icons/north-pole-community.webp" },
+  { title: "Photo sessions", description: "A calm, camera-ready experience planned with your photographer or venue.", iconSrc: "/icons/north-pole-camera.webp" },
 ];
 
 export const visitSteps: VisitStep[] = [
-  { number: "01", title: "Send an inquiry", description: "Share your date, location, event type, and the size of your gathering.", icon: "Mail" },
-  { number: "02", title: "Personalize the visit", description: "Once details are confirmed, shape the moments and traditions that matter to your group.", icon: "Sparkles" },
-  { number: "03", title: "Welcome Santa", description: "Gather your guests and enjoy a visit designed to feel warm, natural, and memorable.", icon: "BellRing" },
+  { number: "01", title: "Send an inquiry", description: "Share your date, location, event type, and the size of your gathering.", iconSrc: "/icons/north-pole-letter.webp" },
+  { number: "02", title: "Personalize the visit", description: "Once details are confirmed, shape the moments and traditions that matter to your group.", iconSrc: "/icons/north-pole-list.webp" },
+  { number: "03", title: "Welcome Santa", description: "Gather your guests and enjoy a visit designed to feel warm, natural, and memorable.", iconSrc: "/icons/north-pole-bell.webp" },
 ];
 
 export const galleryItems: GalleryItem[] = [

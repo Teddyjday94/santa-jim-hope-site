@@ -4,19 +4,11 @@ import {
   ArrowUpRight,
   BellRing,
   BookOpen,
-  Building2,
-  CakeSlice,
   CalendarDays,
-  Camera,
   Gift,
   HeartHandshake,
-  House,
-  Mail,
-  MapPinned,
-  School,
   Sparkles,
   Star,
-  type LucideIcon,
 } from "lucide-react";
 import { SiteHeader } from "@/components/santa/site-header";
 import { InquiryForm } from "@/components/santa/inquiry-form";
@@ -31,21 +23,6 @@ import {
   snowflakes,
   visitSteps,
 } from "@/components/santa/site-content";
-
-const experienceIcons: Record<string, LucideIcon> = {
-  House,
-  CakeSlice,
-  Building2,
-  School,
-  MapPinned,
-  Camera,
-};
-
-const visitIcons: Record<string, LucideIcon> = {
-  Mail,
-  Sparkles,
-  BellRing,
-};
 
 export default function Home() {
   return (
@@ -182,18 +159,23 @@ export default function Home() {
           </p>
         </div>
         <div className="experience-grid">
-          {experiences.map((experience) => {
-            const Icon = experienceIcons[experience.icon];
-            return (
-              <article className="experience-card" key={experience.title}>
-                <span className="icon-frame"><Icon size={22} strokeWidth={1.7} aria-hidden="true" /></span>
-                <div className="experience-card__copy">
-                  <h3>{experience.title}</h3>
-                  <p>{experience.description}</p>
-                </div>
-              </article>
-            );
-          })}
+          {experiences.map((experience) => (
+            <article className="experience-card" key={experience.title}>
+              <span className="experience-card__keepsake" aria-hidden="true">
+                <Image
+                  src={experience.iconSrc}
+                  alt=""
+                  width={112}
+                  height={112}
+                  sizes="(max-width: 620px) 76px, 112px"
+                />
+              </span>
+              <div className="experience-card__copy">
+                <h3>{experience.title}</h3>
+                <p>{experience.description}</p>
+              </div>
+            </article>
+          ))}
         </div>
       </section>
 
@@ -209,21 +191,26 @@ export default function Home() {
           </p>
         </div>
         <div className="visit-steps">
-          {visitSteps.map((step) => {
-            const Icon = visitIcons[step.icon];
-            return (
-              <article className="visit-step" key={step.number}>
-                <div className="visit-step__marker">
-                  <span className="visit-step__icon"><Icon size={22} strokeWidth={1.7} aria-hidden="true" /></span>
-                  <span className="visit-step__number">Step {step.number}</span>
-                </div>
-                <div className="visit-step__copy">
-                  <h3>{step.title}</h3>
-                  <p>{step.description}</p>
-                </div>
-              </article>
-            );
-          })}
+          {visitSteps.map((step) => (
+            <article className="visit-step" key={step.number}>
+              <div className="visit-step__marker">
+                <span className="visit-step__keepsake" aria-hidden="true">
+                  <Image
+                    src={step.iconSrc}
+                    alt=""
+                    width={120}
+                    height={120}
+                    sizes="(max-width: 620px) 72px, 120px"
+                  />
+                </span>
+                <span className="visit-step__number">Step {step.number}</span>
+              </div>
+              <div className="visit-step__copy">
+                <h3>{step.title}</h3>
+                <p>{step.description}</p>
+              </div>
+            </article>
+          ))}
         </div>
       </section>
 

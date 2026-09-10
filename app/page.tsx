@@ -284,14 +284,14 @@ export default function Home() {
           <p className="eyebrow">Plan the visit</p>
           <h2>Begin with the details that matter.</h2>
           <p>
-            Tell us the shape of your celebration. This first version lets you
-            preview the booking flow without sending any information.
+            Tell us the shape of your celebration, and Santa Jim will follow up
+            about availability and next steps.
           </p>
           <div className="booking-note">
             <CalendarDays size={20} aria-hidden="true" />
             <span>
-              Dates and availability will be confirmed directly once Jim&apos;s
-              booking details are connected.
+              Dates and availability will be confirmed directly after your
+              inquiry is received.
             </span>
           </div>
         </div>
@@ -300,7 +300,7 @@ export default function Home() {
 
       <footer className="footer-preview">
         <span className="wordmark">{santaProfile.displayName}</span>
-        <span>Contact and booking details coming soon.</span>
+        <span>Booking inquiries are now open.</span>
       </footer>
     </main>
   );

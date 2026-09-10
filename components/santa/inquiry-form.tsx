@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { ArrowRight, CalendarDays, Check, MapPin } from "lucide-react";
 import { validateInquiry } from "@/lib/booking-validation.mjs";
+import { submitInquiry, type InquiryValues } from "@/lib/inquiry-delivery.mjs";
 
 const eventTypes = [
   "Home visit",
@@ -16,18 +17,21 @@ const eventTypes = [
 export function InquiryForm() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [deliveryError, setDeliveryError] = useState("");
   const successRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (submitted) successRef.current?.focus();
   }, [submitted]);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
     const values = Object.fromEntries(new FormData(form).entries()) as Record<string, string>;
     const nextErrors = validateInquiry(values);
     setErrors(nextErrors);
+    setDeliveryError("");
 
     const firstInvalid = Object.keys(nextErrors)[0];
     if (firstInvalid) {
@@ -35,17 +39,27 @@ export function InquiryForm() {
       return;
     }
 
-    setSubmitted(true);
+    setSending(true);
+    try {
+      await submitInquiry(values as InquiryValues);
+      setSubmitted(true);
+    } catch (error) {
+      setDeliveryError(error instanceof Error
+        ? error.message
+        : "We could not send your inquiry. Please try again.");
+    } finally {
+      setSending(false);
+    }
   }
 
   if (submitted) {
     return (
       <div className="form-success" role="status" tabIndex={-1} ref={successRef}>
         <span className="success-icon" aria-hidden="true"><Check size={24} /></span>
-        <p className="eyebrow">Inquiry preview complete</p>
-        <h3>Your event details look ready.</h3>
-        <p>This prototype has not sent or stored your information. Live delivery will be connected after the client&apos;s contact destination is confirmed.</p>
-        <button className="button button--quiet" type="button" onClick={() => setSubmitted(false)}>Edit inquiry</button>
+        <p className="eyebrow">Inquiry sent</p>
+        <h3>Your inquiry has been sent.</h3>
+        <p>Thank you for sharing your celebration details. Santa Jim will follow up about availability and next steps.</p>
+        <button className="button button--quiet" type="button" onClick={() => setSubmitted(false)}>Send another inquiry</button>
       </div>
     );
   }
@@ -53,7 +67,8 @@ export function InquiryForm() {
   const errorFor = (name: string) => errors[name] ? <span className="field-error" id={`${name}-error`} role="alert">{errors[name]}</span> : null;
 
   return (
-    <form className="inquiry-form" noValidate onSubmit={handleSubmit}>
+    <form className="inquiry-form" action="https://formsubmit.co/thomasdbiz26@gmail.com" method="POST" noValidate onSubmit={handleSubmit}>
+      <input name="_honey" tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ display: "none" }} />
       <div className="field-grid">
         <label className="field">
           <span>Your name *</span>
@@ -98,9 +113,12 @@ export function InquiryForm() {
         </label>
       </div>
       <div className="form-footer">
-        <p>This preview checks your details locally. Nothing is sent or stored.</p>
-        <button className="button button--gold" type="submit">Review inquiry <ArrowRight size={17} aria-hidden="true" /></button>
+        <p>Your details will be sent securely so Santa Jim can follow up.</p>
+        <button className="button button--gold" type="submit" disabled={sending}>
+          {sending ? "Sending…" : "Send inquiry"} <ArrowRight size={17} aria-hidden="true" />
+        </button>
       </div>
+      {deliveryError ? <p className="field-error" role="alert">{deliveryError}</p> : null}
     </form>
   );
 }

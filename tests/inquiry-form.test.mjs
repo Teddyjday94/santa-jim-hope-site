@@ -10,9 +10,13 @@ test("the inquiry form collects the planned event details", async () => {
   }
 });
 
-test("the confirmation says that data was not sent or stored", async () => {
+test("the inquiry form sends through the delivery module and reports status", async () => {
   const form = await readFile(new URL("../components/santa/inquiry-form.tsx", import.meta.url), "utf8");
 
-  assert.match(form, /has not sent or stored your information/);
+  assert.match(form, /submitInquiry/);
+  assert.match(form, /Your inquiry has been sent/);
+  assert.match(form, /name="_honey"/);
   assert.match(form, /role="status"/);
+  assert.match(form, /role="alert"/);
+  assert.doesNotMatch(form, /has not sent or stored your information/);
 });

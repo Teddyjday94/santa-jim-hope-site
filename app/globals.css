@@ -279,6 +279,9 @@ main { position: relative; isolation: isolate; }
 }
 
 @media (max-width: 760px) {
+  .hero { grid-template-columns: 1fr; min-height: auto; gap: 2.75rem; padding: 3.25rem 0 4.5rem; }
+  .hero__copy { max-width: 38rem; }
+  .hero__media { width: min(100%, 32rem); margin: 0 auto; aspect-ratio: 4 / 4.9; }
   .hero__film { display: none; }
   .meet-jim { grid-template-columns: 1fr; }
   .meet-jim__photos { min-height: 36rem; order: 2; }
@@ -289,12 +292,52 @@ main { position: relative; isolation: isolate; }
 }
 
 @media (max-width: 620px) {
+  .site-header { grid-template-columns: 1fr; width: calc(100% - 1.5rem); padding: 1rem 0 .8rem; row-gap: .75rem; }
+  .wordmark > span:last-child { max-width: none; line-height: 1.12; }
+  .site-header nav { justify-content: flex-start; gap: 1.35rem; padding-bottom: .25rem; scrollbar-width: none; }
+  .site-header nav::-webkit-scrollbar { display: none; }
+  .site-header > .button { display: none; }
+
+  .hero { width: calc(100% - 1.5rem); gap: 2.25rem; padding: 2.5rem 0 3.75rem; }
+  .hero .eyebrow { margin-bottom: 1rem; }
+  h1 { max-width: 9ch; font-size: clamp(3rem, 15vw, 4.35rem); line-height: .96; }
+  h2 { font-size: clamp(2.35rem, 11vw, 3.35rem); }
+  .hero__lead { margin-top: 1.25rem; font-size: 1rem; }
+  .hero__actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; margin-top: 1.5rem; }
+  .hero__actions .button { width: 100%; padding-inline: .75rem; }
+  .hero__aside { align-items: flex-start; font-size: .78rem; line-height: 1.45; }
   .hero__copy::before { display: none; }
-  .meet-jim__photos { min-height: 31rem; }
-  .meet-photo--story { right: 16%; }
-  .meet-photo--dog { width: 46%; }
-  .gallery-card, .gallery-card--1, .gallery-card--2, .gallery-card--3, .gallery-card--4, .gallery-card--5 { grid-column: span 6; grid-row: span 5; }
-  .gallery-card--1, .gallery-card--5 { grid-row: span 6; }
+  .hero__media { aspect-ratio: 4 / 4.8; padding: 1rem; border-radius: 44% 44% 1.4rem 1.4rem; }
+  .hero__note { max-width: calc(100% - .5rem); border-radius: 1rem; font-size: .78rem; line-height: 1.25; }
+
+  .trust-strip { width: calc(100% - 1.5rem); }
+  .trust-strip span { min-height: 4.6rem; justify-content: flex-start; padding: .9rem .35rem; text-align: left; }
+  .section { width: calc(100% - 1.5rem); padding: 4.25rem 0; }
+  .section-heading { margin-bottom: 2.25rem; }
+
+  .meet-jim { gap: 2.25rem; }
+  .meet-jim__photos { min-height: 27rem; }
+  .meet-photo--story { right: 13%; border-radius: 42% 42% 1.25rem 1.25rem; }
+  .meet-photo--dog { width: 43%; border-radius: 42% 42% 1rem 1rem; }
+  .meet-jim__signals { gap: .5rem; margin-top: 1.5rem; }
+  .meet-jim__signals span { padding: .6rem .75rem; font-size: .8rem; }
+
+  .experience-card { min-height: 13rem; padding: 1.5rem; }
+  .experience-card .icon-frame { margin-bottom: 2rem; }
+  .visit-step { padding: 1.5rem; }
+
+  .gallery-preview__copy { margin-bottom: 2rem; }
+  .gallery-grid { grid-template-columns: 1fr; grid-auto-rows: auto; gap: .85rem; }
+  .gallery-card, .gallery-card--1, .gallery-card--2, .gallery-card--3, .gallery-card--4, .gallery-card--5 { grid-column: auto; grid-row: auto; min-height: 22rem; }
+  .gallery-card--1, .gallery-card--5 { min-height: 26rem; }
+
+  .faq-preview { gap: 2.25rem; }
+  .faq-item summary { padding: 1.15rem 2.5rem 1.15rem 0; font-size: 1.12rem; }
+  .inquiry-form, .form-success { padding: 1rem; }
+  .field-grid { gap: .9rem; }
+  .form-footer .button { width: 100%; }
+  .footer-preview { width: calc(100% - 1.5rem); }
+  .snowflake:nth-child(3n) { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

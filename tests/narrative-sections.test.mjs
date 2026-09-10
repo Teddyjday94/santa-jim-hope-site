@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
+import { visitSteps } from "../components/santa/site-content.ts";
 
 test("the editable content module includes six event experiences", async () => {
   const content = await readFile(new URL("../components/santa/site-content.ts", import.meta.url), "utf8");
@@ -23,4 +24,8 @@ test("the page is transparent about details that are still to come", async () =>
 
   assert.match(page, /service area, and booking details are coming soon/i);
   assert.match(page, /will be added once those details are confirmed/i);
+});
+
+test("each stop on Santa's route has a distinct thematic marker", () => {
+  assert.deepEqual(visitSteps.map((step) => step.icon), ["Mail", "Sparkles", "BellRing"]);
 });

@@ -38,3 +38,9 @@ test("the narrow gallery resolves to one full-width card per row", () => {
   assert.equal(declarationAtWidth(".gallery-grid", "grid-template-columns", 390), "1fr");
   assert.equal(declarationAtWidth(".gallery-card", "grid-column", 390), "auto");
 });
+
+test("the celebration and visit sections stay open instead of becoming framed card stacks", () => {
+  assert.equal(declarationAtWidth(".experience-grid", "border", 390), "0");
+  assert.equal(declarationAtWidth(".visit-steps", "border", 390), "0");
+  assert.equal(declarationAtWidth(".visit-step", "background", 390), "transparent");
+});

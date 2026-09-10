@@ -1,5 +1,5 @@
 export type Experience = { title: string; description: string; icon: string };
-export type VisitStep = { number: string; title: string; description: string };
+export type VisitStep = { number: string; title: string; description: string; icon: string };
 export type GalleryItem = { src: string; alt: string; caption: string };
 export type SampleTestimonial = { quote: string; attribution: string };
 export type FaqItem = { question: string; answer: string };
@@ -56,9 +56,9 @@ export const experiences: Experience[] = [
 ];
 
 export const visitSteps: VisitStep[] = [
-  { number: "01", title: "Send an inquiry", description: "Share your date, location, event type, and the size of your gathering." },
-  { number: "02", title: "Personalize the visit", description: "Once details are confirmed, shape the moments and traditions that matter to your group." },
-  { number: "03", title: "Welcome Santa", description: "Gather your guests and enjoy a visit designed to feel warm, natural, and memorable." },
+  { number: "01", title: "Send an inquiry", description: "Share your date, location, event type, and the size of your gathering.", icon: "Mail" },
+  { number: "02", title: "Personalize the visit", description: "Once details are confirmed, shape the moments and traditions that matter to your group.", icon: "Sparkles" },
+  { number: "03", title: "Welcome Santa", description: "Gather your guests and enjoy a visit designed to feel warm, natural, and memorable.", icon: "BellRing" },
 ];
 
 export const galleryItems: GalleryItem[] = [

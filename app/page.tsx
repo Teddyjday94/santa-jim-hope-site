@@ -11,6 +11,7 @@ import {
   Gift,
   HeartHandshake,
   House,
+  Mail,
   MapPinned,
   School,
   Sparkles,
@@ -38,6 +39,12 @@ const experienceIcons: Record<string, LucideIcon> = {
   School,
   MapPinned,
   Camera,
+};
+
+const visitIcons: Record<string, LucideIcon> = {
+  Mail,
+  Sparkles,
+  BellRing,
 };
 
 export default function Home() {
@@ -180,8 +187,10 @@ export default function Home() {
             return (
               <article className="experience-card" key={experience.title}>
                 <span className="icon-frame"><Icon size={22} strokeWidth={1.7} aria-hidden="true" /></span>
-                <h3>{experience.title}</h3>
-                <p>{experience.description}</p>
+                <div className="experience-card__copy">
+                  <h3>{experience.title}</h3>
+                  <p>{experience.description}</p>
+                </div>
               </article>
             );
           })}
@@ -200,13 +209,21 @@ export default function Home() {
           </p>
         </div>
         <div className="visit-steps">
-          {visitSteps.map((step) => (
-            <article className="visit-step" key={step.number}>
-              <span>{step.number}</span>
-              <h3>{step.title}</h3>
-              <p>{step.description}</p>
-            </article>
-          ))}
+          {visitSteps.map((step) => {
+            const Icon = visitIcons[step.icon];
+            return (
+              <article className="visit-step" key={step.number}>
+                <div className="visit-step__marker">
+                  <span className="visit-step__icon"><Icon size={22} strokeWidth={1.7} aria-hidden="true" /></span>
+                  <span className="visit-step__number">Step {step.number}</span>
+                </div>
+                <div className="visit-step__copy">
+                  <h3>{step.title}</h3>
+                  <p>{step.description}</p>
+                </div>
+              </article>
+            );
+          })}
         </div>
       </section>
 

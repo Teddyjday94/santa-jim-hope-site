@@ -8,7 +8,8 @@ const valid = {
   phone: "225-555-0147",
   eventType: "Home visit",
   preferredDate: "2026-12-12",
-  preferredTime: "18:30",
+  startTime: "18:30",
+  endTime: "20:00",
   location: "Gonzales, Louisiana",
   guestCount: "12",
   notes: "A small family gathering",
@@ -19,8 +20,13 @@ test("returns no errors for a complete inquiry", () => {
 });
 
 test("reports every required empty field", () => {
-  const errors = validateInquiry({ name: "", email: "", phone: "", eventType: "", preferredDate: "", preferredTime: "", location: "", guestCount: "", notes: "" });
-  assert.deepEqual(Object.keys(errors).sort(), ["email", "eventType", "location", "name", "preferredDate", "preferredTime"].sort());
+  const errors = validateInquiry({ name: "", email: "", phone: "", eventType: "", preferredDate: "", startTime: "", endTime: "", location: "", guestCount: "", notes: "" });
+  assert.deepEqual(Object.keys(errors).sort(), ["email", "endTime", "eventType", "location", "name", "preferredDate", "startTime"].sort());
+});
+
+test("requires the end time to be later than the start time", () => {
+  assert.equal(validateInquiry({ ...valid, endTime: "18:30" }).endTime, "Choose an end time later than the start time.");
+  assert.equal(validateInquiry({ ...valid, endTime: "17:30" }).endTime, "Choose an end time later than the start time.");
 });
 
 test("rejects malformed email and negative guest count", () => {

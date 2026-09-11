@@ -5,7 +5,7 @@ import { readFile } from "node:fs/promises";
 test("the inquiry form collects the planned event details", async () => {
   const form = await readFile(new URL("../components/santa/inquiry-form.tsx", import.meta.url), "utf8");
 
-  for (const name of ["name", "email", "phone", "eventType", "preferredDate", "preferredTime", "location", "guestCount", "notes"]) {
+  for (const name of ["name", "email", "phone", "eventType", "preferredDate", "startTime", "endTime", "location", "guestCount", "notes"]) {
     assert.match(form, new RegExp(`name=["']${name}["']`));
   }
 });

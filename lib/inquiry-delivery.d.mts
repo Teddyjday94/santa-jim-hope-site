@@ -4,7 +4,8 @@ export type InquiryValues = {
   phone: string;
   eventType: string;
   preferredDate: string;
-  preferredTime: string;
+  startTime: string;
+  endTime: string;
   location: string;
   guestCount: string;
   notes: string;

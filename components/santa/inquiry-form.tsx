@@ -97,11 +97,18 @@ export function InquiryForm() {
           <input name="preferredDate" type="date" aria-invalid={Boolean(errors.preferredDate)} aria-describedby={errors.preferredDate ? "preferredDate-error" : undefined} />
           {errorFor("preferredDate")}
         </label>
-        <label className="field">
-          <span><Clock size={16} aria-hidden="true" /> Preferred time *</span>
-          <input name="preferredTime" type="time" aria-invalid={Boolean(errors.preferredTime)} aria-describedby={errors.preferredTime ? "preferredTime-error" : undefined} />
-          {errorFor("preferredTime")}
-        </label>
+        <div className="time-range">
+          <label className="field">
+            <span><Clock size={16} aria-hidden="true" /> Start time *</span>
+            <input name="startTime" type="time" aria-invalid={Boolean(errors.startTime)} aria-describedby={errors.startTime ? "startTime-error" : undefined} />
+            {errorFor("startTime")}
+          </label>
+          <label className="field">
+            <span><Clock size={16} aria-hidden="true" /> End time *</span>
+            <input name="endTime" type="time" aria-invalid={Boolean(errors.endTime)} aria-describedby={errors.endTime ? "endTime-error" : undefined} />
+            {errorFor("endTime")}
+          </label>
+        </div>
         <label className="field">
           <span><MapPin size={16} aria-hidden="true" /> Event location *</span>
           <input name="location" autoComplete="address-level2" placeholder="City and state" aria-invalid={Boolean(errors.location)} aria-describedby={errors.location ? "location-error" : undefined} />

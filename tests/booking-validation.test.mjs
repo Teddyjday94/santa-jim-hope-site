@@ -8,6 +8,7 @@ const valid = {
   phone: "225-555-0147",
   eventType: "Home visit",
   preferredDate: "2026-12-12",
+  preferredTime: "18:30",
   location: "Gonzales, Louisiana",
   guestCount: "12",
   notes: "A small family gathering",
@@ -18,8 +19,8 @@ test("returns no errors for a complete inquiry", () => {
 });
 
 test("reports every required empty field", () => {
-  const errors = validateInquiry({ name: "", email: "", phone: "", eventType: "", preferredDate: "", location: "", guestCount: "", notes: "" });
-  assert.deepEqual(Object.keys(errors).sort(), ["email", "eventType", "location", "name", "preferredDate"].sort());
+  const errors = validateInquiry({ name: "", email: "", phone: "", eventType: "", preferredDate: "", preferredTime: "", location: "", guestCount: "", notes: "" });
+  assert.deepEqual(Object.keys(errors).sort(), ["email", "eventType", "location", "name", "preferredDate", "preferredTime"].sort());
 });
 
 test("rejects malformed email and negative guest count", () => {

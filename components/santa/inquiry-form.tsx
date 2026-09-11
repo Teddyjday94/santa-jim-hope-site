@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { ArrowRight, CalendarDays, Check, MapPin } from "lucide-react";
+import { ArrowRight, CalendarDays, Check, Clock, MapPin } from "lucide-react";
 import { validateInquiry } from "@/lib/booking-validation.mjs";
 import { submitInquiry, type InquiryValues } from "@/lib/inquiry-delivery.mjs";
 
@@ -96,6 +96,11 @@ export function InquiryForm() {
           <span><CalendarDays size={16} aria-hidden="true" /> Preferred date *</span>
           <input name="preferredDate" type="date" aria-invalid={Boolean(errors.preferredDate)} aria-describedby={errors.preferredDate ? "preferredDate-error" : undefined} />
           {errorFor("preferredDate")}
+        </label>
+        <label className="field">
+          <span><Clock size={16} aria-hidden="true" /> Preferred time *</span>
+          <input name="preferredTime" type="time" aria-invalid={Boolean(errors.preferredTime)} aria-describedby={errors.preferredTime ? "preferredTime-error" : undefined} />
+          {errorFor("preferredTime")}
         </label>
         <label className="field">
           <span><MapPin size={16} aria-hidden="true" /> Event location *</span>

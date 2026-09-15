@@ -3,6 +3,7 @@ import "./globals.css";
 import "./journey.css";
 import "./experience-media.css";
 import "./wreath-frames.css";
+import "./reel-showcase.css";
 
 const siteTitle = "Santa Jim Hope | Holiday Visits & Event Appearances";
 const siteDescription = "Invite Santa Jim Hope to family celebrations, birthdays, schools, businesses, community events, and holiday photo sessions.";

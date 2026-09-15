@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1200 1900" role="img" aria-labelledby="title desc">
+  <title id="title">Santa Jim Hope Christmas wreath frame client preview</title>
+  <desc id="desc">Static preview showing Santa Jim photos framed with evergreen, holly, berries, pinecones and warm lights.</desc>
+  <defs>
+    <linearGradient id="creamBg" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#f3e7ca"/></linearGradient>
+    <linearGradient id="darkBg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0b3026"/><stop offset=".65" stop-color="#071914"/><stop offset="1" stop-color="#19090b"/></linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#f0dda7"/><stop offset="1" stop-color="#cfa95b"/></linearGradient>
+    <filter id="shadow" x="-25%" y="-25%" width="150%" height="150%"><feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="#2d160b" flood-opacity=".22"/></filter>
+    <clipPath id="storyClip"><path d="M165 260C165 116 268 40 400 40s235 76 235 220v530c0 24-19 43-43 43H208c-24 0-43-19-43-43Z"/></clipPath>
+    <clipPath id="dogClip"><path d="M700 560C700 493 747 445 808 445s108 48 108 115v247c0 15-12 27-27 27H727c-15 0-27-12-27-27Z"/></clipPath>
+    <clipPath id="heroClip"><path d="M205 1240C205 1080 330 985 600 985s395 95 395 255v415c0 28-22 50-50 50H255c-28 0-50-22-50-50Z"/></clipPath>
+  </defs>
+
+  <rect width="1200" height="1900" fill="#fff8e8"/>
+  <rect x="0" y="0" width="1200" height="950" fill="url(#creamBg)"/>
+  <rect x="0" y="950" width="1200" height="950" fill="url(#darkBg)"/>
+
+  <text x="600" y="85" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="700" letter-spacing="4" fill="#8a5b1c">SANTA JIM HOPE · CLIENT PREVIEW</text>
+  <text x="600" y="145" text-anchor="middle" font-family="Georgia, serif" font-size="56" fill="#241a13">Christmas wreath photo frames</text>
+  <text x="600" y="188" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#6a5d4a">Static concept preview before the production site redeploys</text>
+
+  <g filter="url(#shadow)">
+    <path d="M150 250C150 110 255 28 400 28s250 82 250 222v555c0 30-24 54-54 54H204c-30 0-54-24-54-54Z" fill="#eadfc6"/>
+    <image href="https://cdn.jsdelivr.net/gh/Teddyjday94/santa-jim-hope-site@client-preview-wreath/public/images/jim-hope-storytime.webp" x="165" y="40" width="470" height="793" preserveAspectRatio="xMidYMid slice" clip-path="url(#storyClip)"/>
+    <image href="https://cdn.jsdelivr.net/gh/Teddyjday94/santa-jim-hope-site@client-preview-wreath/public/decor/christmas-wreath-arch.svg" x="135" y="8" width="530" height="860" preserveAspectRatio="none"/>
+  </g>
+
+  <g filter="url(#shadow)">
+    <image href="https://cdn.jsdelivr.net/gh/Teddyjday94/santa-jim-hope-site@client-preview-wreath/public/images/jim-hope-dog.webp" x="700" y="445" width="216" height="389" preserveAspectRatio="xMidYMid slice" clip-path="url(#dogClip)"/>
+    <image href="https://cdn.jsdelivr.net/gh/Teddyjday94/santa-jim-hope-site@client-preview-wreath/public/decor/christmas-wreath-inset.svg" x="680" y="422" width="255" height="430" preserveAspectRatio="none"/>
+  </g>
+
+  <text x="600" y="910" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#65141b">Meet Santa Jim photo pair</text>
+
+  <text x="600" y="1025" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="3" fill="#ead49a">HERO PHOTO TREATMENT</text>
+  <g filter="url(#shadow)">
+    <image href="https://cdn.jsdelivr.net/gh/Teddyjday94/santa-jim-hope-site@client-preview-wreath/public/images/jim-hope-throne.webp" x="205" y="985" width="790" height="720" preserveAspectRatio="xMidYMid slice" clip-path="url(#heroClip)"/>
+    <image href="https://cdn.jsdelivr.net/gh/Teddyjday94/santa-jim-hope-site@client-preview-wreath/public/decor/christmas-wreath-arch.svg" x="175" y="950" width="850" height="790" preserveAspectRatio="none"/>
+    <rect x="280" y="1570" width="640" height="95" rx="34" fill="#071914" fill-opacity=".82" stroke="#fff8e8" stroke-opacity=".32" stroke-width="2"/>
+    <text x="600" y="1629" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" fill="#fff8e8">★  Real moments with Santa Jim Hope</text>
+  </g>
+
+  <rect x="245" y="1760" width="710" height="92" rx="46" fill="url(#gold)"/>
+  <text x="600" y="1818" text-anchor="middle" font-family="Arial, sans-serif" font-size="30" font-weight="800" fill="#201408">Check Santa's availability ↗</text>
+</svg>

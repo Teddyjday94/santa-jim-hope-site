@@ -1,8 +1,25 @@
-export type Experience = { title: string; description: string; iconSrc: string };
-export type VisitStep = { number: string; title: string; description: string; iconSrc: string };
-export type GalleryItem = { src: string; alt: string; caption: string };
+export type Experience = {
+  title: string;
+  kicker: string;
+  description: string;
+  iconSrc: string;
+};
+
+export type VisitStep = {
+  label: string;
+  title: string;
+  description: string;
+  iconSrc: string;
+};
+
+export type GalleryItem = {
+  src: string;
+  alt: string;
+  caption: string;
+  category: string;
+};
+
 export type SocialReel = { reelId: string; title: string; caption: string };
-export type SampleTestimonial = { quote: string; attribution: string };
 export type FaqItem = { question: string; answer: string };
 export type Snowflake = {
   id: number;
@@ -48,52 +65,104 @@ export const heroMedia = {
 } as const;
 
 export const experiences: Experience[] = [
-  { title: "Home visits", description: "A personal visit shaped around your family's Christmas traditions.", iconSrc: "/icons/north-pole-home.webp" },
-  { title: "Birthday surprises", description: "A joyful Santa appearance for a birthday celebrated during the season.", iconSrc: "/icons/north-pole-birthday.webp" },
-  { title: "Corporate events", description: "A polished holiday presence for team gatherings and customer celebrations.", iconSrc: "/icons/north-pole-corporate.webp" },
-  { title: "Schools & groups", description: "A warm, age-aware visit for classrooms, churches, and youth organizations.", iconSrc: "/icons/north-pole-school.webp" },
-  { title: "Community celebrations", description: "A welcoming Santa for festivals, markets, and neighborhood traditions.", iconSrc: "/icons/north-pole-community.webp" },
-  { title: "Photo sessions", description: "A calm, camera-ready experience planned with your photographer or venue.", iconSrc: "/icons/north-pole-camera.webp" },
+  {
+    title: "Home visits",
+    kicker: "At home",
+    description: "A personal visit shaped around your family's Christmas traditions and the moments you want everyone to remember.",
+    iconSrc: "/icons/north-pole-home.webp",
+  },
+  {
+    title: "Birthday surprises",
+    kicker: "Seasonal birthdays",
+    description: "A joyful Santa appearance for a birthday celebrated during the Christmas season.",
+    iconSrc: "/icons/north-pole-birthday.webp",
+  },
+  {
+    title: "Corporate events",
+    kicker: "Teams and guests",
+    description: "A polished holiday presence for company gatherings, customer celebrations, and seasonal events.",
+    iconSrc: "/icons/north-pole-corporate.webp",
+  },
+  {
+    title: "Schools & groups",
+    kicker: "Classrooms and organizations",
+    description: "A warm, age-aware visit for classrooms, churches, youth groups, and other organizations.",
+    iconSrc: "/icons/north-pole-school.webp",
+  },
+  {
+    title: "Community celebrations",
+    kicker: "Festivals and traditions",
+    description: "A welcoming Santa presence for markets, neighborhood traditions, festivals, and community gatherings.",
+    iconSrc: "/icons/north-pole-community.webp",
+  },
+  {
+    title: "Photo sessions",
+    kicker: "Camera-ready moments",
+    description: "A calm, photo-ready experience coordinated with your photographer, studio, venue, or event team.",
+    iconSrc: "/icons/north-pole-camera.webp",
+  },
 ];
 
 export const visitSteps: VisitStep[] = [
-  { number: "01", title: "Send an inquiry", description: "Share your date, location, event type, and the size of your gathering.", iconSrc: "/icons/north-pole-letter.webp" },
-  { number: "02", title: "Personalize the visit", description: "Once details are confirmed, shape the moments and traditions that matter to your group.", iconSrc: "/icons/north-pole-list.webp" },
-  { number: "03", title: "Welcome Santa", description: "Gather your guests and enjoy a visit designed to feel warm, natural, and memorable.", iconSrc: "/icons/north-pole-bell.webp" },
+  {
+    label: "First hello",
+    title: "Send the details",
+    description: "Share your preferred date, location, event type, timing, and the size of your gathering.",
+    iconSrc: "/icons/north-pole-letter.webp",
+  },
+  {
+    label: "Make it yours",
+    title: "Shape the visit",
+    description: "Once the date is confirmed, share the traditions, names, surprises, and special moments that matter to your group.",
+    iconSrc: "/icons/north-pole-list.webp",
+  },
+  {
+    label: "The big arrival",
+    title: "Welcome Santa",
+    description: "Gather your guests and enjoy a visit designed to feel warm, natural, photo-ready, and memorable.",
+    iconSrc: "/icons/north-pole-bell.webp",
+  },
 ];
 
 export const galleryItems: GalleryItem[] = [
-  { src: "/images/jim-hope-throne.webp", alt: "Santa Jim Hope seated on an ornate holiday throne", caption: "Santa Jim · 2025" },
-  { src: "/images/jim-hope-storytime.webp", alt: "Santa Jim Hope reading a Christmas story with a baby", caption: "Storytime visits" },
-  { src: "/images/jim-hope-dog.webp", alt: "Santa Jim Hope smiling while holding a small dog", caption: "Pet-friendly moments" },
-  { src: "/images/jim-hope-group-2024.webp", alt: "Santa Jim Hope posing with a large group at a 2024 holiday gathering", caption: "Community celebrations" },
-  { src: "/images/jim-hope-baby.webp", alt: "Santa Jim Hope holding a baby during a Christmas visit", caption: "Little first Christmases" },
-  { src: "/images/jim-hope-inclusive-visit.webp", alt: "Santa Jim Hope visiting with a child using a wheelchair", caption: "Welcoming visits" },
-  { src: "/images/jim-hope-community.webp", alt: "Santa Jim Hope posing with two guests at a holiday event", caption: "Festive gatherings" },
-  { src: "/images/jim-hope-hug.webp", alt: "A guest giving Santa Jim Hope a joyful hug", caption: "Joyful moments" },
-  { src: "/images/jim-hope-guest.webp", alt: "Santa Jim Hope seated beside a guest for a holiday portrait", caption: "Portrait moments" },
-  { src: "/images/jim-hope-elf.webp", alt: "Santa Jim Hope seated with a young visitor dressed as an elf", caption: "Christmas wonder" },
-  { src: "/images/santa-jim-hope-holiday-swing.jpg", alt: "Santa Jim Hope seated with a guest on a decorated holiday swing", caption: "Christmas connections" },
-  { src: "/images/santa-jim-hope-community-tree.jpg", alt: "Santa Jim Hope seated beneath a glowing wreath at a community holiday display", caption: "Ready to welcome guests" },
-  { src: "/images/santa-jim-hope-red-suit-portrait.jpg", alt: "Santa Jim Hope standing in his red holiday suit", caption: "Santa Jim · 2025" },
-  { src: "/images/santa-jim-hope-group-celebration.jpg", alt: "Santa Jim Hope with a large group gathered beside a community Christmas tree", caption: "Holiday celebrations together" },
-  { src: "/images/santa-jim-hope-mrs-claus-2025.jpg", alt: "Santa Jim Hope and Mrs. Claus posing by a decorated Christmas throne", caption: "Santa and Mrs. Claus · 2025" },
-  { src: "/images/santa-jim-hope-community-selfie.jpg", alt: "Santa Jim Hope smiling for a selfie at a community Christmas gathering", caption: "A joyful day in the community" },
-  { src: "/images/santa-jim-hope-throne-family.jpg", alt: "Santa Jim Hope sharing a warm holiday moment with two young guests", caption: "Christmas wonder up close" },
+  { src: "/images/jim-hope-throne.webp", alt: "Santa Jim Hope seated on an ornate holiday throne", caption: "Santa Jim · 2025", category: "Portraits" },
+  { src: "/images/jim-hope-storytime.webp", alt: "Santa Jim Hope reading a Christmas story with a baby", caption: "Storytime visits", category: "Families" },
+  { src: "/images/jim-hope-dog.webp", alt: "Santa Jim Hope smiling while holding a small dog", caption: "Pet-friendly moments", category: "Pets" },
+  { src: "/images/jim-hope-group-2024.webp", alt: "Santa Jim Hope posing with a large group at a 2024 holiday gathering", caption: "Community celebrations", category: "Community" },
+  { src: "/images/jim-hope-baby.webp", alt: "Santa Jim Hope holding a baby during a Christmas visit", caption: "Little first Christmases", category: "Families" },
+  { src: "/images/jim-hope-inclusive-visit.webp", alt: "Santa Jim Hope visiting with a child using a wheelchair", caption: "Welcoming visits", category: "Families" },
+  { src: "/images/jim-hope-community.webp", alt: "Santa Jim Hope posing with two guests at a holiday event", caption: "Festive gatherings", category: "Community" },
+  { src: "/images/jim-hope-hug.webp", alt: "A guest giving Santa Jim Hope a joyful hug", caption: "Joyful moments", category: "Families" },
+  { src: "/images/jim-hope-guest.webp", alt: "Santa Jim Hope seated beside a guest for a holiday portrait", caption: "Portrait moments", category: "Portraits" },
+  { src: "/images/jim-hope-elf.webp", alt: "Santa Jim Hope seated with a young visitor dressed as an elf", caption: "Christmas wonder", category: "Families" },
+  { src: "/images/santa-jim-hope-holiday-swing.jpg", alt: "Santa Jim Hope seated with a guest on a decorated holiday swing", caption: "Christmas connections", category: "Portraits" },
+  { src: "/images/santa-jim-hope-community-tree.jpg", alt: "Santa Jim Hope seated beneath a glowing wreath at a community holiday display", caption: "Ready to welcome guests", category: "Community" },
+  { src: "/images/santa-jim-hope-red-suit-portrait.jpg", alt: "Santa Jim Hope standing in his red holiday suit", caption: "Santa Jim · 2025", category: "Portraits" },
+  { src: "/images/santa-jim-hope-group-celebration.jpg", alt: "Santa Jim Hope with a large group gathered beside a community Christmas tree", caption: "Holiday celebrations together", category: "Community" },
+  { src: "/images/santa-jim-hope-mrs-claus-2025.jpg", alt: "Santa Jim Hope and Mrs. Claus posing by a decorated Christmas throne", caption: "Santa and Mrs. Claus · 2025", category: "Santa & Mrs. Claus" },
+  { src: "/images/santa-jim-hope-community-selfie.jpg", alt: "Santa Jim Hope smiling for a selfie at a community Christmas gathering", caption: "A joyful day in the community", category: "Community" },
+  { src: "/images/santa-jim-hope-throne-family.jpg", alt: "Santa Jim Hope sharing a warm holiday moment with two young guests", caption: "Christmas wonder up close", category: "Families" },
 ];
 
 export const socialReels: SocialReel[] = [
   { reelId: "4142406926072498", title: "Santa Jim Hope community reel", caption: "Santa Jim in the community" },
 ];
 
-export const sampleTestimonials: SampleTestimonial[] = [
-  { quote: "This sample shows where a short family review will appear once the client provides an approved testimonial.", attribution: "Sample testimonial layout" },
-  { quote: "This sample demonstrates how an event organizer's feedback will be presented without inventing a customer claim.", attribution: "Sample testimonial layout" },
-];
-
 export const faqs: FaqItem[] = [
-  { question: "How early should I inquire?", answer: "Holiday dates can be limited. Send your preferred date and time, and availability will be confirmed directly." },
-  { question: "Can the visit be personalized?", answer: "Use the inquiry notes to describe your celebration. Personalization options will be confirmed before booking." },
-  { question: "What kinds of events can I ask about?", answer: "You may inquire about home visits, birthdays, schools, organizations, business events, community celebrations, and photo sessions." },
-  { question: "Where does Santa travel?", answer: "The final service area will be added after the client confirms travel boundaries. Include your event location in the inquiry." },
+  {
+    question: "How early should I inquire?",
+    answer: "Holiday dates can fill quickly. Send your preferred date and time as early as you can, and Santa Jim will confirm availability directly.",
+  },
+  {
+    question: "Can the visit be personalized?",
+    answer: "Yes. Use the inquiry notes to share the occasion, names, traditions, surprises, or special moments you would like Santa Jim to know about. Final visit details are confirmed before the event.",
+  },
+  {
+    question: "What kinds of events can I ask about?",
+    answer: "You can inquire about home visits, seasonal birthdays, schools, organizations, business events, community celebrations, and photo sessions.",
+  },
+  {
+    question: "Where does Santa travel?",
+    answer: "Include your event location with the inquiry. Santa Jim will confirm travel availability for your date and location when he follows up.",
+  },
 ];

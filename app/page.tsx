@@ -14,6 +14,7 @@ import { SiteHeader } from "@/components/santa/site-header";
 import { InquiryForm } from "@/components/santa/inquiry-form";
 import { FaqList } from "@/components/santa/faq-list";
 import { GalleryLightbox } from "@/components/santa/gallery-lightbox";
+import { experiencePhotos } from "@/components/santa/experience-photos";
 import {
   ambientOrbs,
   experiences,
@@ -170,25 +171,39 @@ export default function Home() {
           </p>
         </div>
         <div className="experience-grid experience-grid--keepsakes">
-          {experiences.map((experience) => (
-            <article className="experience-card experience-card--keepsake" key={experience.title}>
-              <span className="experience-card__hanger" aria-hidden="true" />
-              <span className="experience-card__keepsake" aria-hidden="true">
-                <Image
-                  src={experience.iconSrc}
-                  alt=""
-                  width={112}
-                  height={112}
-                  sizes="(max-width: 620px) 76px, 112px"
-                />
-              </span>
-              <div className="experience-card__copy">
-                <span className="experience-card__kicker">{experience.kicker}</span>
-                <h3>{experience.title}</h3>
-                <p>{experience.description}</p>
-              </div>
-            </article>
-          ))}
+          {experiences.map((experience) => {
+            const photo = experiencePhotos[experience.title];
+
+            return (
+              <article className="experience-card experience-card--keepsake" key={experience.title}>
+                <span className="experience-card__hanger" aria-hidden="true" />
+                <span className="experience-card__keepsake" aria-hidden="true">
+                  <Image
+                    src={experience.iconSrc}
+                    alt=""
+                    width={112}
+                    height={112}
+                    sizes="(max-width: 620px) 76px, 112px"
+                  />
+                </span>
+                <div className="experience-card__copy">
+                  <span className="experience-card__kicker">{experience.kicker}</span>
+                  <h3>{experience.title}</h3>
+                  <p>{experience.description}</p>
+                </div>
+                {photo ? (
+                  <div className="experience-card__photo">
+                    <Image
+                      src={photo.src}
+                      alt={photo.alt}
+                      fill
+                      sizes="(max-width: 620px) 92vw, (max-width: 1100px) 16vw, 10vw"
+                    />
+                  </div>
+                ) : null}
+              </article>
+            );
+          })}
         </div>
       </section>
 

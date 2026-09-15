@@ -13,6 +13,7 @@ import {
 import { SiteHeader } from "@/components/santa/site-header";
 import { InquiryForm } from "@/components/santa/inquiry-form";
 import { FaqList } from "@/components/santa/faq-list";
+import { GalleryLightbox } from "@/components/santa/gallery-lightbox";
 import {
   ambientOrbs,
   experiences,
@@ -53,6 +54,13 @@ export default function Home() {
         ))}
       </div>
 
+      <div className="journey-thread" aria-hidden="true">
+        <span className="journey-thread__line" />
+        <span className="journey-thread__star journey-thread__star--one" />
+        <span className="journey-thread__star journey-thread__star--two" />
+        <span className="journey-thread__star journey-thread__star--three" />
+      </div>
+
       <SiteHeader />
 
       <section className="hero" aria-labelledby="hero-title">
@@ -71,7 +79,7 @@ export default function Home() {
           </div>
           <p className="hero__aside">
             <Sparkles size={16} aria-hidden="true" />
-            Dates, service area, and booking details are coming soon.
+            Booking inquiries are open for holiday visits and events.
           </p>
         </div>
 
@@ -96,6 +104,9 @@ export default function Home() {
           >
             <source src={heroMedia.videoSrc} type="video/mp4" />
           </video>
+          <span className="hero__bokeh hero__bokeh--one" aria-hidden="true" />
+          <span className="hero__bokeh hero__bokeh--two" aria-hidden="true" />
+          <span className="hero__bokeh hero__bokeh--three" aria-hidden="true" />
           <div className="hero__shade" aria-hidden="true" />
           <div className="hero__note">
             <Star size={16} aria-hidden="true" />
@@ -133,13 +144,12 @@ export default function Home() {
           <p className="eyebrow eyebrow--dark">Meet Santa Jim</p>
           <h2>A warm face in the middle of the magic.</h2>
           <p>
-            The moments captured so far show Jim Hope sharing Christmas stories,
-            welcoming children and families, greeting pets, and joining community
-            celebrations.
+            Jim Hope brings a calm, welcoming Santa presence to the moments that
+            families and communities look forward to all season.
           </p>
           <p>
-            More about Jim&apos;s background, traditions, service area, and booking
-            policies will be added once those details are confirmed.
+            From Christmas stories and first holiday photos to pets, group celebrations,
+            and quiet one-on-one moments, each visit starts with the people in the room.
           </p>
           <div className="meet-jim__signals">
             <span><BookOpen size={18} aria-hidden="true" /> Storytime moments</span>
@@ -152,16 +162,17 @@ export default function Home() {
         <div className="section-heading">
           <div>
             <p className="eyebrow eyebrow--dark">Ways to celebrate</p>
-            <h2>A Santa experience for every gathering.</h2>
+            <h2>Choose the kind of Christmas moment you want to create.</h2>
           </div>
           <p>
-            From a quiet family surprise to a room full of guests, start with the
-            occasion you are creating.
+            Every gathering has a different rhythm. Start with the occasion, then
+            shape the visit around the people and traditions that make it yours.
           </p>
         </div>
-        <div className="experience-grid">
+        <div className="experience-grid experience-grid--keepsakes">
           {experiences.map((experience) => (
-            <article className="experience-card" key={experience.title}>
+            <article className="experience-card experience-card--keepsake" key={experience.title}>
+              <span className="experience-card__hanger" aria-hidden="true" />
               <span className="experience-card__keepsake" aria-hidden="true">
                 <Image
                   src={experience.iconSrc}
@@ -172,6 +183,7 @@ export default function Home() {
                 />
               </span>
               <div className="experience-card__copy">
+                <span className="experience-card__kicker">{experience.kicker}</span>
                 <h3>{experience.title}</h3>
                 <p>{experience.description}</p>
               </div>
@@ -193,7 +205,7 @@ export default function Home() {
         </div>
         <div className="visit-steps">
           {visitSteps.map((step) => (
-            <article className="visit-step" key={step.number}>
+            <article className="visit-step" key={step.label}>
               <div className="visit-step__marker">
                 <span className="visit-step__keepsake" aria-hidden="true">
                   <Image
@@ -204,7 +216,7 @@ export default function Home() {
                     sizes="(max-width: 620px) 72px, 120px"
                   />
                 </span>
-                <span className="visit-step__number">Step {step.number}</span>
+                <span className="visit-step__number">{step.label}</span>
               </div>
               <div className="visit-step__copy">
                 <h3>{step.title}</h3>
@@ -220,26 +232,13 @@ export default function Home() {
           <p className="eyebrow">Santa Jim in the moment</p>
           <h2>Real visits. Real smiles. A little Christmas wonder.</h2>
           <p>
-            A first look at Jim&apos;s appearances with families, friends, pets,
-            and community guests.
+            Explore moments from family visits, community celebrations, portraits,
+            pets, and time with Santa and Mrs. Claus. Select any photo to see it larger.
           </p>
         </div>
-        <div className="gallery-grid">
-          {galleryItems.map((item, index) => (
-            <figure
-              className={`gallery-card gallery-card--${(index % 5) + 1}`}
-              key={item.src}
-            >
-              <Image
-                src={item.src}
-                alt={item.alt}
-                fill
-                sizes="(max-width: 620px) 88vw, (max-width: 980px) 45vw, 30vw"
-              />
-              <figcaption>{item.caption}</figcaption>
-            </figure>
-          ))}
-        </div>
+
+        <GalleryLightbox items={galleryItems} />
+
         <div className="social-reels">
           <div className="social-reels__heading">
             <p className="eyebrow">See Santa Jim in action</p>
@@ -284,14 +283,20 @@ export default function Home() {
           <p className="eyebrow">Plan the visit</p>
           <h2>Begin with the details that matter.</h2>
           <p>
-            Tell us the shape of your celebration, and Santa Jim will follow up
-            about availability and next steps.
+            Tell Santa Jim about the celebration you are planning. He will follow up
+            directly to confirm availability and the next steps for your visit.
           </p>
+          <div className="booking-availability">
+            <span className="booking-availability__pulse" aria-hidden="true" />
+            <div>
+              <strong>Holiday inquiries are open</strong>
+              <span>Send your preferred date and location to check availability.</span>
+            </div>
+          </div>
           <div className="booking-note">
             <CalendarDays size={20} aria-hidden="true" />
             <span>
-              Dates and availability will be confirmed directly after your
-              inquiry is received.
+              Dates and timing are confirmed directly after your inquiry is reviewed.
             </span>
           </div>
         </div>
@@ -300,8 +305,12 @@ export default function Home() {
 
       <footer className="footer-preview">
         <span className="wordmark">{santaProfile.displayName}</span>
-        <span>Booking inquiries are now open.</span>
+        <span>Booking inquiries are open for holiday visits and events.</span>
       </footer>
+
+      <a className="mobile-booking-cta" href="#booking">
+        Check Santa&apos;s availability <ArrowUpRight size={17} aria-hidden="true" />
+      </a>
     </main>
   );
 }

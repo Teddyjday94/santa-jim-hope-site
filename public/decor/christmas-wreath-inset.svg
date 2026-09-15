@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1060" fill="none">
+  <defs>
+    <linearGradient id="pine" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#204a35"/><stop offset=".55" stop-color="#0f2f22"/><stop offset="1" stop-color="#315b3f"/>
+    </linearGradient>
+    <radialGradient id="berry" cx="35%" cy="25%" r="75%">
+      <stop stop-color="#ff7169"/><stop offset=".45" stop-color="#b8222c"/><stop offset="1" stop-color="#6d1018"/>
+    </radialGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="9" stdDeviation="9" flood-color="#0d1c16" flood-opacity=".34"/>
+    </filter>
+    <g id="berries">
+      <circle cx="0" cy="0" r="15" fill="url(#berry)"/>
+      <circle cx="24" cy="9" r="13" fill="url(#berry)"/>
+      <circle cx="10" cy="27" r="12" fill="url(#berry)"/>
+      <path d="M-4 2c-18-14-24-28-22-40M17 1c18-12 28-26 30-39" stroke="#416443" stroke-width="6" stroke-linecap="round"/>
+    </g>
+    <g id="cone">
+      <ellipse cx="0" cy="0" rx="20" ry="29" fill="#704626"/>
+      <path d="M-12-16 0-25l12 9M-15-2 0-12 15-2M-14 11 0 2l14 9M-10 22 0 14l10 8" stroke="#bd8950" stroke-width="4.5" stroke-linecap="round"/>
+    </g>
+  </defs>
+
+  <path d="M450 42C224 42 60 201 60 430v548c0 24 19 43 43 43h694c24 0 43-19 43-43V430C840 201 676 42 450 42Z" stroke="url(#pine)" stroke-width="76" stroke-linecap="round" stroke-linejoin="round" filter="url(#shadow)"/>
+  <path d="M450 42C224 42 60 201 60 430v548c0 24 19 43 43 43h694c24 0 43-19 43-43V430C840 201 676 42 450 42Z" stroke="#4f764f" stroke-width="18" stroke-dasharray="4 15" opacity=".72"/>
+
+  <g>
+    <use href="#berries" transform="translate(450 64)"/>
+    <use href="#berries" transform="translate(190 125) scale(.88)"/>
+    <use href="#berries" transform="translate(710 125) scale(-.88 .88)"/>
+    <use href="#berries" transform="translate(78 505) scale(.82) rotate(-15)"/>
+    <use href="#berries" transform="translate(822 505) scale(-.82 .82) rotate(-15)"/>
+    <use href="#berries" transform="translate(80 835) scale(.8)"/>
+    <use href="#berries" transform="translate(820 835) scale(-.8 .8)"/>
+    <use href="#berries" transform="translate(245 1004) scale(.75)"/>
+    <use href="#berries" transform="translate(655 1004) scale(-.75 .75)"/>
+  </g>
+
+  <g>
+    <use href="#cone" transform="translate(105 315) rotate(-18)"/>
+    <use href="#cone" transform="translate(795 315) rotate(18)"/>
+    <use href="#cone" transform="translate(112 920) rotate(10)"/>
+    <use href="#cone" transform="translate(788 920) rotate(-10)"/>
+  </g>
+
+  <g fill="#ffe5a0">
+    <circle cx="315" cy="82" r="6"/><circle cx="585" cy="82" r="6"/>
+    <circle cx="78" cy="650" r="6"/><circle cx="822" cy="650" r="6"/>
+    <circle cx="350" cy="1010" r="6"/><circle cx="550" cy="1010" r="6"/>
+  </g>
+</svg>

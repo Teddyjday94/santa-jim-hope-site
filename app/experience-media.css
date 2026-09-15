@@ -1,0 +1,175 @@
+/* Ways to celebrate photo treatment */
+
+.experience-grid--keepsakes {
+  align-items: stretch;
+}
+
+.experience-card--keepsake,
+.experience-card--keepsake:nth-child(even) {
+  display: grid;
+  grid-template-columns: 5.7rem minmax(0, 1fr) minmax(8.75rem, 10.75rem);
+  align-items: center;
+  gap: 1.15rem;
+  min-height: 16rem;
+  padding: 1.15rem;
+}
+
+.experience-card--keepsake .experience-card__keepsake {
+  position: relative;
+  top: auto;
+  left: auto;
+  grid-column: 1;
+  grid-row: 1;
+  width: 5.35rem;
+  align-self: center;
+}
+
+.experience-card--keepsake .experience-card__copy {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+  padding-block: .8rem;
+}
+
+.experience-card__photo {
+  position: relative;
+  grid-column: 3;
+  grid-row: 1;
+  width: 100%;
+  height: 100%;
+  min-height: 13.5rem;
+  overflow: hidden;
+  border: 1px solid rgba(101, 20, 27, .15);
+  border-radius: 1.15rem .35rem 1.15rem .35rem;
+  background: #eadfc6;
+  box-shadow: 0 16px 30px rgba(67, 38, 18, .15);
+  transform: rotate(.8deg);
+  transition: transform 360ms cubic-bezier(.2,.7,.2,1), box-shadow 360ms ease;
+}
+
+.experience-card__photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(255, 248, 232, .03), transparent 46%),
+    linear-gradient(0deg, rgba(38, 9, 12, .12), transparent 38%);
+  pointer-events: none;
+}
+
+.experience-card__photo img {
+  object-fit: cover;
+  object-position: center;
+  transition: transform 650ms cubic-bezier(.2,.7,.2,1);
+}
+
+.experience-card--keepsake:nth-child(even) .experience-card__photo {
+  transform: rotate(-.8deg);
+}
+
+.experience-card--keepsake:nth-child(1) .experience-card__photo img { object-position: 50% 38%; }
+.experience-card--keepsake:nth-child(2) .experience-card__photo img { object-position: 50% 34%; }
+.experience-card--keepsake:nth-child(3) .experience-card__photo img { object-position: 50% 42%; }
+.experience-card--keepsake:nth-child(4) .experience-card__photo img { object-position: 50% 34%; }
+.experience-card--keepsake:nth-child(5) .experience-card__photo img { object-position: 50% 38%; }
+.experience-card--keepsake:nth-child(6) .experience-card__photo img { object-position: 50% 35%; }
+
+.experience-card--keepsake:hover .experience-card__photo {
+  transform: translateY(-3px) rotate(0deg);
+  box-shadow: 0 22px 36px rgba(67, 38, 18, .2);
+}
+
+.experience-card--keepsake:hover .experience-card__photo img {
+  transform: scale(1.045);
+}
+
+.experience-card__hanger {
+  left: 3.85rem;
+}
+
+@media (max-width: 1100px) {
+  .experience-card--keepsake,
+  .experience-card--keepsake:nth-child(even) {
+    grid-template-columns: 5rem minmax(0, 1fr) minmax(7.4rem, 8.8rem);
+    gap: .9rem;
+  }
+
+  .experience-card--keepsake .experience-card__keepsake {
+    width: 4.85rem;
+  }
+
+  .experience-card__photo {
+    min-height: 12.5rem;
+  }
+}
+
+@media (max-width: 760px) {
+  .experience-card--keepsake,
+  .experience-card--keepsake:nth-child(even),
+  .experience-card--keepsake:nth-child(3),
+  .experience-card--keepsake:nth-child(6) {
+    grid-template-columns: 4.7rem minmax(0, 1fr) minmax(7.25rem, 8.5rem);
+    min-height: 14.5rem;
+    padding: 1rem;
+    gap: .8rem;
+  }
+
+  .experience-card--keepsake .experience-card__keepsake {
+    width: 4.45rem;
+  }
+
+  .experience-card__photo {
+    min-height: 11.8rem;
+  }
+}
+
+@media (max-width: 620px) {
+  .experience-card--keepsake,
+  .experience-card--keepsake:nth-child(even),
+  .experience-card--keepsake:nth-child(3),
+  .experience-card--keepsake:nth-child(6) {
+    display: grid;
+    grid-template-columns: 4.35rem minmax(0, 1fr);
+    grid-template-rows: auto 11rem;
+    gap: .85rem .9rem;
+    min-height: 0;
+    padding: 1rem;
+  }
+
+  .experience-card--keepsake .experience-card__keepsake {
+    grid-column: 1;
+    grid-row: 1;
+    width: 4.15rem;
+    align-self: start;
+  }
+
+  .experience-card--keepsake .experience-card__copy {
+    grid-column: 2;
+    grid-row: 1;
+    padding-block: .15rem;
+  }
+
+  .experience-card__photo {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    min-height: 0;
+    height: 11rem;
+    border-radius: .95rem .3rem .95rem .3rem;
+    transform: none;
+  }
+
+  .experience-card--keepsake:nth-child(even) .experience-card__photo {
+    transform: none;
+  }
+
+  .experience-card__hanger {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .experience-card__photo,
+  .experience-card__photo img {
+    transition: none;
+  }
+}

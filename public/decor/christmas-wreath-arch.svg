@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1240" fill="none">
+  <defs>
+    <linearGradient id="pine" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#183f2f"/>
+      <stop offset=".5" stop-color="#0f2d22"/>
+      <stop offset="1" stop-color="#25513a"/>
+    </linearGradient>
+    <linearGradient id="pineHi" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#4d7650"/>
+      <stop offset="1" stop-color="#274932"/>
+    </linearGradient>
+    <radialGradient id="berry" cx="35%" cy="25%" r="75%">
+      <stop stop-color="#ff6e68"/>
+      <stop offset=".42" stop-color="#b51f27"/>
+      <stop offset="1" stop-color="#651118"/>
+    </radialGradient>
+    <radialGradient id="light" cx="50%" cy="50%" r="50%">
+      <stop stop-color="#fff8cf"/>
+      <stop offset=".45" stop-color="#f5d67b"/>
+      <stop offset="1" stop-color="#d6a438" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#122019" flood-opacity=".34"/>
+    </filter>
+    <filter id="glow" x="-300%" y="-300%" width="700%" height="700%">
+      <feGaussianBlur stdDeviation="8"/>
+    </filter>
+    <g id="berryCluster">
+      <circle cx="0" cy="0" r="16" fill="url(#berry)"/>
+      <circle cx="25" cy="8" r="14" fill="url(#berry)"/>
+      <circle cx="10" cy="28" r="13" fill="url(#berry)"/>
+      <path d="M-4 4C-26-12-32-28-28-42M18 0C35-14 45-28 46-42" stroke="#4b6b43" stroke-width="7" stroke-linecap="round"/>
+      <path d="M-31-46c19-7 31-1 37 14-20 3-32-1-37-14ZM44-46c-19-6-31 1-35 16 19 2 31-3 35-16Z" fill="#325f3d"/>
+    </g>
+    <g id="pinecone">
+      <ellipse cx="0" cy="0" rx="22" ry="32" fill="#6d4324"/>
+      <path d="M-14-18 0-28l14 10M-17-4 0-15 17-4M-17 10 0 0l17 10M-12 23 0 14l12 9" stroke="#c08b4d" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <g id="sprig">
+      <path d="M0 0c24-26 42-36 68-42" stroke="url(#pineHi)" stroke-width="9" stroke-linecap="round"/>
+      <path d="M12-8 2-34M24-17 20-46M37-25 36-55M49-32 55-59" stroke="#47704b" stroke-width="6" stroke-linecap="round"/>
+      <path d="M16-10 34 3M30-19 52-7M44-27 66-17M56-34 77-26" stroke="#315b3d" stroke-width="6" stroke-linecap="round"/>
+    </g>
+  </defs>
+
+  <path d="M500 44C249 44 66 224 66 475V1152c0 28 22 50 50 50h768c28 0 50-22 50-50V475C934 224 751 44 500 44Z" stroke="url(#pine)" stroke-width="78" stroke-linecap="round" stroke-linejoin="round" filter="url(#shadow)"/>
+  <path d="M500 44C249 44 66 224 66 475V1152c0 28 22 50 50 50h768c28 0 50-22 50-50V475C934 224 751 44 500 44Z" stroke="#416a46" stroke-width="22" stroke-linecap="round" stroke-dasharray="3 17" opacity=".72"/>
+
+  <g opacity=".95">
+    <use href="#sprig" transform="translate(170 178) rotate(-126)"/>
+    <use href="#sprig" transform="translate(278 88) rotate(-150)"/>
+    <use href="#sprig" transform="translate(402 54) rotate(-171)"/>
+    <use href="#sprig" transform="translate(598 54) scale(-1 1) rotate(-171)"/>
+    <use href="#sprig" transform="translate(722 88) scale(-1 1) rotate(-150)"/>
+    <use href="#sprig" transform="translate(830 178) scale(-1 1) rotate(-126)"/>
+    <use href="#sprig" transform="translate(86 430) rotate(-84)"/>
+    <use href="#sprig" transform="translate(78 670) rotate(-88)"/>
+    <use href="#sprig" transform="translate(78 920) rotate(-91)"/>
+    <use href="#sprig" transform="translate(914 430) scale(-1 1) rotate(-84)"/>
+    <use href="#sprig" transform="translate(922 670) scale(-1 1) rotate(-88)"/>
+    <use href="#sprig" transform="translate(922 920) scale(-1 1) rotate(-91)"/>
+    <use href="#sprig" transform="translate(245 1190) rotate(12)"/>
+    <use href="#sprig" transform="translate(755 1190) scale(-1 1) rotate(12)"/>
+  </g>
+
+  <g>
+    <use href="#berryCluster" transform="translate(500 70)"/>
+    <use href="#berryCluster" transform="translate(245 126) scale(.9)"/>
+    <use href="#berryCluster" transform="translate(755 126) scale(-.9 .9)"/>
+    <use href="#berryCluster" transform="translate(86 520) scale(.82) rotate(-18)"/>
+    <use href="#berryCluster" transform="translate(914 520) scale(-.82 .82) rotate(-18)"/>
+    <use href="#berryCluster" transform="translate(86 860) scale(.8) rotate(16)"/>
+    <use href="#berryCluster" transform="translate(914 860) scale(-.8 .8) rotate(16)"/>
+    <use href="#berryCluster" transform="translate(220 1172) scale(.78)"/>
+    <use href="#berryCluster" transform="translate(780 1172) scale(-.78 .78)"/>
+  </g>
+
+  <g>
+    <use href="#pinecone" transform="translate(122 350) rotate(-18)"/>
+    <use href="#pinecone" transform="translate(878 350) rotate(18)"/>
+    <use href="#pinecone" transform="translate(118 1036) rotate(12)"/>
+    <use href="#pinecone" transform="translate(882 1036) rotate(-12)"/>
+  </g>
+
+  <g>
+    <circle cx="335" cy="83" r="26" fill="url(#light)" filter="url(#glow)"/>
+    <circle cx="335" cy="83" r="7" fill="#ffe6a2"/>
+    <circle cx="665" cy="83" r="26" fill="url(#light)" filter="url(#glow)"/>
+    <circle cx="665" cy="83" r="7" fill="#ffe6a2"/>
+    <circle cx="94" cy="630" r="24" fill="url(#light)" filter="url(#glow)"/>
+    <circle cx="94" cy="630" r="6" fill="#ffe6a2"/>
+    <circle cx="906" cy="630" r="24" fill="url(#light)" filter="url(#glow)"/>
+    <circle cx="906" cy="630" r="6" fill="#ffe6a2"/>
+    <circle cx="92" cy="995" r="24" fill="url(#light)" filter="url(#glow)"/>
+    <circle cx="92" cy="995" r="6" fill="#ffe6a2"/>
+    <circle cx="908" cy="995" r="24" fill="url(#light)" filter="url(#glow)"/>
+    <circle cx="908" cy="995" r="6" fill="#ffe6a2"/>
+    <circle cx="390" cy="1191" r="24" fill="url(#light)" filter="url(#glow)"/>
+    <circle cx="390" cy="1191" r="6" fill="#ffe6a2"/>
+    <circle cx="610" cy="1191" r="24" fill="url(#light)" filter="url(#glow)"/>
+    <circle cx="610" cy="1191" r="6" fill="#ffe6a2"/>
+  </g>
+
+  <g transform="translate(500 48)" filter="url(#shadow)">
+    <path d="M-18 8C-84-26-135-40-168-11c26 50 76 71 146 50Z" fill="#8f1720" stroke="#d2a655" stroke-width="8"/>
+    <path d="M18 8C84-26 135-40 168-11c-26 50-76 71-146 50Z" fill="#8f1720" stroke="#d2a655" stroke-width="8"/>
+    <rect x="-26" y="-14" width="52" height="52" rx="12" fill="#a91f29" stroke="#d2a655" stroke-width="8"/>
+    <path d="M-12 34-57 103-6 78 8 40ZM12 34 57 103 6 78-8 40Z" fill="#7d131b" stroke="#d2a655" stroke-width="7" stroke-linejoin="round"/>
+  </g>
+</svg>

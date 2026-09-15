@@ -1,0 +1,98 @@
+/* Decorative Christmas wreath frames for the primary Santa photography. */
+
+.hero__media,
+.meet-photo {
+  isolation: isolate;
+}
+
+.hero__media {
+  border-color: transparent;
+}
+
+.hero__media::before {
+  display: none;
+}
+
+.hero__media::after {
+  content: "";
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: url("/decor/christmas-wreath-arch.svg") center / 100% 100% no-repeat;
+  filter: drop-shadow(0 10px 15px rgba(2, 17, 12, .24));
+}
+
+.hero__note {
+  z-index: 5;
+  margin: 0 1.05rem 1rem;
+}
+
+.hero__bokeh {
+  z-index: 3;
+}
+
+.meet-photo {
+  border-color: transparent;
+}
+
+.meet-photo::after {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  pointer-events: none;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  filter: drop-shadow(0 9px 12px rgba(55, 34, 18, .18));
+}
+
+.meet-photo--story::after {
+  background-image: url("/decor/christmas-wreath-arch.svg");
+}
+
+.meet-photo--dog {
+  border: 0;
+}
+
+.meet-photo--dog::after {
+  background-image: url("/decor/christmas-wreath-inset.svg");
+}
+
+/* Keep faces and key details clear while the greenery sits over the photo edge. */
+.hero__poster,
+.hero__film,
+.meet-photo img {
+  transform-origin: center;
+}
+
+@media (max-width: 760px) {
+  .hero__media::after,
+  .meet-photo--story::after {
+    background-size: 101.5% 101.5%;
+  }
+
+  .hero__note {
+    margin: 0 .55rem .45rem;
+    max-width: calc(100% - 1.1rem);
+  }
+}
+
+@media (max-width: 620px) {
+  .hero__media {
+    padding: .9rem;
+  }
+
+  .meet-photo--dog::after {
+    background-size: 102% 102%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__media::after,
+  .meet-photo::after {
+    filter: none;
+  }
+}

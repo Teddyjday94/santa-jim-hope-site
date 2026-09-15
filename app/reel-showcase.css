@@ -1,0 +1,210 @@
+/* Santa Jim reel section: use real visit photography to fill the open space around the video. */
+
+.social-reels {
+  position: relative;
+  overflow: visible;
+}
+
+.social-reels::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  top: 58%;
+  width: min(72vw, 48rem);
+  height: 18rem;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(207, 169, 91, .13), transparent 68%);
+  filter: blur(18px);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.social-reels__grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(190px, 1fr) 267px minmax(190px, 1fr);
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1.25rem, 4vw, 3.25rem);
+  width: min(100%, 64rem);
+  min-height: 34rem;
+  margin: 0 auto;
+  isolation: isolate;
+}
+
+.social-reel {
+  position: relative;
+  z-index: 5;
+  grid-column: 2;
+  width: 267px;
+  max-width: 100%;
+}
+
+.social-reels__grid::before,
+.social-reels__grid::after,
+.social-reel::before {
+  content: "";
+  position: absolute;
+  overflow: hidden;
+  border: .5rem solid rgba(255, 248, 232, .92);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  box-shadow: 0 24px 54px rgba(0, 0, 0, .28);
+  pointer-events: none;
+}
+
+.social-reels__grid::before {
+  z-index: 2;
+  left: 1.5%;
+  top: 3.5rem;
+  width: min(29%, 15.5rem);
+  aspect-ratio: .82;
+  border-radius: 1.45rem;
+  background-image:
+    linear-gradient(180deg, transparent 58%, rgba(7, 25, 20, .18)),
+    url("/images/jim-hope-hug.webp");
+  background-position: center 30%;
+  transform: rotate(-4.2deg);
+}
+
+.social-reels__grid::after {
+  z-index: 2;
+  right: 1%;
+  top: 2rem;
+  width: min(31%, 16rem);
+  aspect-ratio: .84;
+  border-radius: 44% 44% 1.45rem 1.45rem;
+  background-image:
+    linear-gradient(180deg, transparent 58%, rgba(7, 25, 20, .2)),
+    url("/images/santa-jim-hope-mrs-claus-2025.jpg");
+  background-position: center 28%;
+  transform: rotate(3.3deg);
+}
+
+.social-reel::before {
+  z-index: -1;
+  right: -9.6rem;
+  bottom: -1.25rem;
+  width: 8.7rem;
+  aspect-ratio: .84;
+  border-width: .38rem;
+  border-radius: 1.15rem;
+  background-image:
+    linear-gradient(180deg, transparent 54%, rgba(7, 25, 20, .18)),
+    url("/images/santa-jim-hope-community-selfie.jpg");
+  background-position: center 30%;
+  transform: rotate(-6deg);
+}
+
+.social-reels__grid::before,
+.social-reels__grid::after {
+  transition: transform 450ms cubic-bezier(.2, .7, .2, 1), box-shadow 450ms ease;
+}
+
+.social-reels__grid:hover::before {
+  transform: rotate(-2.6deg) translateY(-4px);
+  box-shadow: 0 30px 64px rgba(0, 0, 0, .32);
+}
+
+.social-reels__grid:hover::after {
+  transform: rotate(2deg) translateY(-4px);
+  box-shadow: 0 30px 64px rgba(0, 0, 0, .32);
+}
+
+.social-reel__frame {
+  border-color: rgba(234, 212, 154, .44);
+  box-shadow: 0 26px 70px rgba(0, 0, 0, .34), 0 0 0 .35rem rgba(255, 248, 232, .035);
+}
+
+@media (max-width: 980px) {
+  .social-reels__grid {
+    grid-template-columns: minmax(150px, 1fr) 267px minmax(150px, 1fr);
+    gap: 1rem;
+  }
+
+  .social-reels__grid::before {
+    left: 0;
+    width: min(26%, 12.5rem);
+  }
+
+  .social-reels__grid::after {
+    right: 0;
+    width: min(27%, 13rem);
+  }
+
+  .social-reel::before {
+    right: -7.4rem;
+    width: 7.2rem;
+  }
+}
+
+@media (max-width: 760px) {
+  .social-reels__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .85rem;
+    width: min(100%, 35rem);
+    min-height: 0;
+  }
+
+  .social-reel {
+    grid-column: 1 / -1;
+    justify-self: center;
+    margin-bottom: 1rem;
+  }
+
+  .social-reels__grid::before,
+  .social-reels__grid::after {
+    position: relative;
+    inset: auto;
+    display: block;
+    width: 100%;
+    max-width: none;
+    aspect-ratio: 4 / 5;
+    transform: none;
+  }
+
+  .social-reels__grid::before {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .social-reels__grid::after {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .social-reels__grid:hover::before,
+  .social-reels__grid:hover::after {
+    transform: none;
+  }
+
+  .social-reel::before {
+    display: none;
+  }
+}
+
+@media (max-width: 620px) {
+  .social-reels__grid {
+    width: min(100%, 29rem);
+  }
+
+  .social-reels__grid::before,
+  .social-reels__grid::after {
+    border-width: .35rem;
+    border-radius: 1rem;
+  }
+
+  .social-reels__grid::after {
+    border-radius: 40% 40% 1rem 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .social-reels__grid::before,
+  .social-reels__grid::after {
+    transition: none;
+  }
+}

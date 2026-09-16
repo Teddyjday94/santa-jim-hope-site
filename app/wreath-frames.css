@@ -1,75 +1,69 @@
 /* Decorative Christmas wreath frames for the primary Santa photography.
-   The wreath owns the outer edge while each photo sits safely inside the opening. */
+   The greenery now sits OUTSIDE the photo bounds instead of covering the image. */
 
 .hero__media,
 .meet-photo {
   isolation: isolate;
-}
-
-/* HERO FRAME */
-.hero__media {
   overflow: visible;
   border: 0;
   background: transparent;
   box-shadow: none;
-  padding: clamp(2.6rem, 5vw, 4rem);
 }
 
-/* Warm inner mat: gives the greenery breathing room instead of laying it over the photo. */
+/* HERO FRAME */
+.hero__media {
+  padding: 0;
+}
+
+/* Subtle outer mat/outline behind the wreath, not over the photo. */
 .hero__media::before {
   content: "";
   position: absolute;
   z-index: 0;
-  inset: 8.1%;
+  inset: -.8rem;
   display: block;
-  border: 1px solid rgba(234, 212, 154, .58);
-  border-radius: 43% 43% 1.45rem 1.45rem;
-  background: linear-gradient(155deg, rgba(255,248,232,.96), rgba(225,200,139,.88));
+  border: 1px solid rgba(234, 212, 154, .55);
+  border-radius: 49% 49% 2.2rem 2.2rem;
+  background: linear-gradient(155deg, rgba(255,248,232,.96), rgba(225,200,139,.9));
   box-shadow: 0 24px 55px rgba(20, 6, 7, .28);
   pointer-events: none;
 }
 
+/* Expand the wreath beyond the photo so its inner opening clears the image edge. */
 .hero__media::after {
   content: "";
   position: absolute;
   z-index: 4;
-  inset: 0;
-  border-radius: inherit;
+  inset: -12.5%;
   pointer-events: none;
   background: url("/decor/christmas-wreath-arch.svg") center / 100% 100% no-repeat;
   filter: drop-shadow(0 10px 15px rgba(2, 17, 12, .24));
 }
 
-/* Pull the actual media inward so no greenery covers the image. */
-.hero__poster {
-  z-index: 1;
-  inset: 9.45% 9.25% 9.1% !important;
-  width: auto !important;
-  height: auto !important;
-  border-radius: 41% 41% 1.05rem 1.05rem;
-  object-fit: cover;
+/* Restore the photo/video to the full original frame. */
+.hero__poster,
+.hero__film,
+.hero__shade {
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: inherit;
 }
 
+.hero__poster,
 .hero__film {
   z-index: 1;
-  inset: 9.45% 9.25% 9.1%;
-  width: auto;
-  height: auto;
-  border-radius: 41% 41% 1.05rem 1.05rem;
-  overflow: hidden;
   object-fit: cover;
 }
 
 .hero__shade {
   z-index: 2;
-  inset: 9.45% 9.25% 9.1%;
-  border-radius: 41% 41% 1.05rem 1.05rem;
 }
 
 .hero__note {
   z-index: 5;
-  margin: 0;
-  max-width: min(17rem, 78%);
+  margin: 0 1.05rem 1rem;
+  max-width: calc(100% - 2.1rem);
 }
 
 .hero__bokeh {
@@ -77,20 +71,13 @@
 }
 
 /* MEET JIM FRAME PAIR */
-.meet-photo {
-  overflow: visible;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
 .meet-photo::before {
   content: "";
   position: absolute;
   z-index: 0;
-  inset: 8.1%;
+  inset: -.65rem;
   border: 1px solid rgba(138, 91, 28, .24);
-  border-radius: 42% 42% 1.15rem 1.15rem;
+  border-radius: 47% 47% 1.8rem 1.8rem;
   background: linear-gradient(150deg, #fff8e8, #ead7a8);
   box-shadow: 0 22px 52px rgba(45, 20, 12, .18);
   pointer-events: none;
@@ -100,7 +87,7 @@
   content: "";
   position: absolute;
   z-index: 3;
-  inset: 0;
+  inset: -12.5%;
   pointer-events: none;
   background-position: center;
   background-repeat: no-repeat;
@@ -114,28 +101,30 @@
 
 .meet-photo--story img {
   z-index: 1;
-  inset: 9.45% 9.25% 9.1% !important;
-  width: auto !important;
-  height: auto !important;
-  border-radius: 40% 40% .95rem .95rem;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: inherit;
   object-fit: cover;
 }
 
+/* Smaller inset frame needs a little less wreath mass. */
 .meet-photo--dog::before {
-  inset: 9%;
-  border-radius: 39% 39% .95rem .95rem;
+  inset: -.45rem;
+  border-radius: 1.7rem;
 }
 
 .meet-photo--dog::after {
+  inset: -10.5%;
   background-image: url("/decor/christmas-wreath-inset.svg");
 }
 
 .meet-photo--dog img {
   z-index: 1;
-  inset: 10.4% 10.2% 10.1% !important;
-  width: auto !important;
-  height: auto !important;
-  border-radius: 37% 37% .78rem .78rem;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 1.4rem;
   object-fit: cover;
 }
 
@@ -145,44 +134,40 @@
   transform-origin: center;
 }
 
-/* Keep the existing hover life, but not enough to push the photo back under the wreath. */
+/* Keep hover movement subtle so the photo never drifts under the greenery. */
 .meet-photo:hover img {
-  transform: scale(1.012);
+  transform: scale(1.01);
 }
 
 @media (max-width: 760px) {
-  .hero__media {
-    padding: 2.5rem;
+  .hero__media::after,
+  .meet-photo--story::after {
+    inset: -11.5%;
   }
 
-  .hero__poster,
-  .hero__film,
-  .hero__shade {
-    inset: 9.8% 9.4% 9.3% !important;
+  .hero__media::before {
+    inset: -.6rem;
   }
 
   .hero__note {
-    max-width: 74%;
+    margin: 0 .7rem .65rem;
+    max-width: calc(100% - 1.4rem);
   }
 }
 
 @media (max-width: 620px) {
-  .hero__media {
-    padding: 2rem;
+  .hero__media::after,
+  .meet-photo--story::after {
+    inset: -10.5%;
   }
 
-  .hero__poster,
-  .hero__film,
-  .hero__shade {
-    inset: 10% 9.6% 9.5% !important;
+  .meet-photo--dog::after {
+    inset: -9%;
   }
 
-  .meet-photo--story img {
-    inset: 9.8% 9.5% 9.4% !important;
-  }
-
-  .meet-photo--dog img {
-    inset: 10.8% 10.5% 10.4% !important;
+  .hero__media::before,
+  .meet-photo::before {
+    inset: -.45rem;
   }
 }
 

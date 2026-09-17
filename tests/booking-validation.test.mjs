@@ -6,25 +6,29 @@ const valid = {
   name: "Jamie Parker",
   email: "jamie@example.com",
   phone: "225-555-0147",
-  eventType: "Home visit",
+  eventType: "home-visit",
   preferredDate: "2026-12-12",
   startTime: "18:30",
-  endTime: "20:00",
+  endTime: "19:30",
   location: "Gonzales, Louisiana",
   guestCount: "12",
   notes: "A small family gathering",
 };
 
-test("returns no errors for a complete inquiry", () => {
+test("returns no errors for a complete scheduler request", () => {
   assert.deepEqual(validateInquiry(valid), {});
+});
+
+test("scheduler form does not require customers to enter an end time", () => {
+  assert.equal(validateInquiry({ ...valid, endTime: "" }).endTime, undefined);
 });
 
 test("reports every required empty field", () => {
   const errors = validateInquiry({ name: "", email: "", phone: "", eventType: "", preferredDate: "", startTime: "", endTime: "", location: "", guestCount: "", notes: "" });
-  assert.deepEqual(Object.keys(errors).sort(), ["email", "endTime", "eventType", "location", "name", "preferredDate", "startTime"].sort());
+  assert.deepEqual(Object.keys(errors).sort(), ["email", "eventType", "location", "name", "preferredDate", "startTime"].sort());
 });
 
-test("requires the end time to be later than the start time", () => {
+test("rejects an invalid derived end time when one is present", () => {
   assert.equal(validateInquiry({ ...valid, endTime: "18:30" }).endTime, "Choose an end time later than the start time.");
   assert.equal(validateInquiry({ ...valid, endTime: "17:30" }).endTime, "Choose an end time later than the start time.");
 });

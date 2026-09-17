@@ -3,6 +3,7 @@ import { SANTA_SITE_ID } from "@/lib/santa-config";
 import { assertSantaAdmin, bearerToken, supabaseRest } from "@/lib/santa-supabase";
 
 const DAY_MODES = new Set(["normal", "photos_only", "blocked", "custom"]);
+type DayRuleRecord = Record<string, unknown>;
 
 async function adminToken(request: NextRequest) {
   const token = bearerToken(request);
@@ -20,7 +21,8 @@ export async function GET(request: NextRequest) {
     token,
   );
   if (!response.ok) return NextResponse.json({ error: "Could not load day rules." }, { status: 502 });
-  return NextResponse.json({ dayRules: await response.json() });
+  const dayRules = await response.json() as DayRuleRecord[];
+  return NextResponse.json({ dayRules });
 }
 
 export async function PUT(request: NextRequest) {
@@ -55,5 +57,6 @@ export async function PUT(request: NextRequest) {
     token,
   );
   if (!response.ok) return NextResponse.json({ error: "Could not save the day rule." }, { status: 502 });
-  return NextResponse.json({ dayRule: (await response.json())[0] ?? null });
+  const saved = await response.json() as DayRuleRecord[];
+  return NextResponse.json({ dayRule: saved[0] ?? null });
 }

@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { SANTA_SITE_ID } from "@/lib/santa-config";
 import { assertSantaAdmin, bearerToken, supabaseRest } from "@/lib/santa-supabase";
 
+type SettingsRecord = Record<string, unknown>;
+type ServiceRecord = Record<string, unknown>;
+
 function validDate(value: unknown) {
   return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value);
 }
@@ -27,8 +30,9 @@ export async function GET(request: NextRequest) {
   if (!settingsResponse.ok || !servicesResponse.ok) {
     return NextResponse.json({ error: "Could not load scheduler settings." }, { status: 502 });
   }
-  const settingsRows = await settingsResponse.json();
-  return NextResponse.json({ settings: settingsRows[0] ?? null, services: await servicesResponse.json() });
+  const settingsRows = await settingsResponse.json() as SettingsRecord[];
+  const services = await servicesResponse.json() as ServiceRecord[];
+  return NextResponse.json({ settings: settingsRows[0] ?? null, services });
 }
 
 export async function PUT(request: NextRequest) {

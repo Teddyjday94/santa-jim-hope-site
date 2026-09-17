@@ -38,6 +38,9 @@ type SchedulerConfig = {
   dayRules: SchedulerDayRule[];
 };
 
+type SchedulerConfigResponse = Partial<SchedulerConfig> & { error?: string };
+type SchedulerSlotsResponse = { slots?: SchedulerSlot[]; error?: string };
+
 function timeLabel(value: string) {
   const [hourText, minuteText] = value.split(":");
   const hour = Number(hourText);
@@ -94,8 +97,8 @@ export function InquiryForm() {
       setSchedulerError("");
       try {
         const response = await fetch("/api/santa/availability", { cache: "no-store" });
-        const result = await response.json().catch(() => ({}));
-        if (!response.ok || !result.settings || !Array.isArray(result.services)) {
+        const result = await response.json().catch(() => ({})) as SchedulerConfigResponse;
+        if (!response.ok || !result.settings || !Array.isArray(result.services) || !Array.isArray(result.dayRules)) {
           throw new Error(result.error || "Santa Jim's schedule could not be loaded.");
         }
         if (!cancelled) setScheduler(result as SchedulerConfig);
@@ -159,12 +162,12 @@ export function InquiryForm() {
       try {
         const params = new URLSearchParams({ date: selectedDate, service: selectedService });
         const response = await fetch(`/api/santa/availability?${params.toString()}`, { cache: "no-store" });
-        const result = await response.json().catch(() => ({}));
+        const result = await response.json().catch(() => ({})) as SchedulerSlotsResponse;
         if (!response.ok || !Array.isArray(result.slots)) {
           throw new Error(result.error || "Available times could not be loaded.");
         }
         if (!cancelled) {
-          setSlots(result.slots as SchedulerSlot[]);
+          setSlots(result.slots);
           setAvailabilityMessage(result.slots.length ? "" : "No times remain for this experience on that date.");
         }
       } catch (error) {

@@ -1,4 +1,7 @@
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+
 const SANTA_SITE_ID = "a0d14a7f-7e08-4042-a6c9-0f83c03eefb3";
+export {};
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",

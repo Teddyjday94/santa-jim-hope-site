@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { buildAvailableSlots, type SantaBookingInterval, type SantaDayRule } from "@/lib/santa-scheduler.mjs";
+import { mergeCalendarBusyIntervals, type CalendarBusyPeriod } from "@/lib/santa-calendar.mjs";
 import { SANTA_SITE_ID } from "@/lib/santa-config";
-import { supabaseRest } from "@/lib/santa-supabase";
+import { invokeSupabaseFunction, supabaseRest } from "@/lib/santa-supabase";
 
 type StoredDayRule = NonNullable<SantaDayRule> & { date: string };
 
@@ -87,12 +88,24 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Availability is temporarily unavailable." }, { status: 503 });
   }
   const busyRows = await busyResponse.json() as Array<Record<string, unknown>>;
-  const bookings: SantaBookingInterval[] = busyRows.map((row) => ({
+  const storedBookings: SantaBookingInterval[] = busyRows.map((row) => ({
     date: String(row.local_date),
     startTime: trimTime(String(row.local_start_time)),
     endTime: trimTime(String(row.local_blocked_until_time ?? row.local_end_time)),
     status: bookingStatus(row.status),
   }));
+  const calendarResponse = await invokeSupabaseFunction("santa-calendar-public", { date }).catch(() => null);
+  if (!calendarResponse) {
+    return NextResponse.json({ error: "Calendar service could not be reached." }, { status: 503 });
+  }
+  const calendarData = await calendarResponse.json().catch(() => ({})) as {
+    busy?: CalendarBusyPeriod[];
+    error?: string;
+  };
+  if (!calendarResponse.ok) {
+    return NextResponse.json({ error: calendarData.error || "Calendar availability is temporarily unavailable." }, { status: 503 });
+  }
+  const bookings = mergeCalendarBusyIntervals(date, storedBookings, calendarData.busy ?? []);
   const slots = buildAvailableSlots({ date, serviceSlug, services, settings, rule, bookings });
 
   return NextResponse.json({ settings, services, dayRules, date, serviceSlug, rule, slots });

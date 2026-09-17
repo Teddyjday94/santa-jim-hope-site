@@ -51,6 +51,15 @@ type ScheduleSettings = {
   timezone: string;
 };
 
+type CalendarConnection = {
+  configured: boolean;
+  connected: boolean;
+  calendarId: string | null;
+  connectedAt: string | null;
+  lastSyncAt: string | null;
+  error?: string;
+};
+
 const SESSION_KEY = "santa-jim-admin-access-token";
 
 function shortTime(value: string) {
@@ -91,17 +100,36 @@ export function AdminDashboard() {
   const [ruleServices, setRuleServices] = useState<string[]>([]);
   const [ruleStart, setRuleStart] = useState("10:00");
   const [ruleEnd, setRuleEnd] = useState("18:00");
+  const [calendar, setCalendar] = useState<CalendarConnection | null>(null);
+  const [calendarWorking, setCalendarWorking] = useState(false);
 
   const pendingBookings = useMemo(() => bookings.filter((booking) => booking.status === "pending"), [bookings]);
   const upcomingBookings = useMemo(() => bookings.filter((booking) => booking.status === "confirmed"), [bookings]);
 
   useEffect(() => {
     const stored = window.sessionStorage.getItem(SESSION_KEY);
-    if (stored) setToken(stored);
+    if (!stored) return;
+    const restoreSession = window.setTimeout(() => setToken(stored), 0);
+    return () => window.clearTimeout(restoreSession);
   }, []);
 
   useEffect(() => {
-    if (token) void loadDashboard(token);
+    if (!token) return;
+    const searchParams = new URLSearchParams(window.location.search);
+    const oauthError = searchParams.get("error");
+    if (oauthError) {
+      const detail = searchParams.get("error_description")?.replaceAll("+", " ");
+      window.history.replaceState({}, "", window.location.pathname);
+      void loadDashboard(token).then(() => {
+        setDashboardError(detail || "Google Calendar access was not approved.");
+      });
+    } else if (searchParams.get("code") && searchParams.get("state")) {
+      void finishCalendarConnection(token, searchParams);
+    } else {
+      void loadDashboard(token);
+    }
+  // The callback functions intentionally use the token that triggered this OAuth/dashboard cycle.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   async function authedFetch(path: string, accessToken: string, init: RequestInit = {}) {
@@ -116,12 +144,16 @@ export function AdminDashboard() {
     setLoading(true);
     setDashboardError("");
     try {
-      const [bookingsResponse, rulesResponse, settingsResponse] = await Promise.all([
+      const [bookingsResponse, rulesResponse, settingsResponse, calendarResponse] = await Promise.all([
         authedFetch("/api/santa/admin/bookings", accessToken),
         authedFetch("/api/santa/admin/day-rules", accessToken),
         authedFetch("/api/santa/admin/settings", accessToken),
+        authedFetch("/api/santa/admin/calendar", accessToken, {
+          method: "POST",
+          body: JSON.stringify({ action: "status" }),
+        }),
       ]);
-      if ([bookingsResponse, rulesResponse, settingsResponse].some((response) => response.status === 401)) {
+      if ([bookingsResponse, rulesResponse, settingsResponse, calendarResponse].some((response) => response.status === 401)) {
         signOut();
         throw new Error("Your admin session expired. Sign in again.");
       }
@@ -133,6 +165,7 @@ export function AdminDashboard() {
         settings: Record<string, unknown> | null;
         services: Array<Record<string, unknown>>;
       };
+      const calendarData = await calendarResponse.json().catch(() => ({})) as CalendarConnection;
       setBookings(bookingData.bookings ?? []);
       setDayRules(ruleData.dayRules ?? []);
       if (settingsData.settings) {
@@ -153,6 +186,14 @@ export function AdminDashboard() {
         bufferMinutes: Number(service.buffer_minutes),
         active: Boolean(service.active),
       })));
+      setCalendar(calendarResponse.ok ? calendarData : {
+        configured: false,
+        connected: false,
+        calendarId: null,
+        connectedAt: null,
+        lastSyncAt: null,
+        error: calendarData.error || "Google Calendar status is unavailable.",
+      });
     } catch (error) {
       setDashboardError(error instanceof Error ? error.message : "The scheduler dashboard could not be loaded.");
     } finally {
@@ -192,6 +233,7 @@ export function AdminDashboard() {
     setDayRules([]);
     setSettings(null);
     setServices([]);
+    setCalendar(null);
   }
 
   async function updateBooking(id: string, status: "confirmed" | "declined") {
@@ -201,13 +243,73 @@ export function AdminDashboard() {
       method: "PATCH",
       body: JSON.stringify({ id, status }),
     });
-    const result = await response.json().catch(() => ({})) as { error?: string };
+    const result = await response.json().catch(() => ({})) as { error?: string; warning?: string };
     if (!response.ok) {
       setDashboardError(result.error || "The booking request could not be updated.");
       return;
     }
-    setNotice(status === "confirmed" ? "Request accepted." : "Request declined and the time was released.");
+    setNotice(result.warning || (status === "confirmed" ? "Request accepted." : "Request declined and the time was released."));
     await loadDashboard();
+  }
+
+  async function connectGoogleCalendar() {
+    setCalendarWorking(true);
+    setDashboardError("");
+    try {
+      const redirectUri = `${window.location.origin}${window.location.pathname}`;
+      const response = await authedFetch("/api/santa/admin/calendar", token, {
+        method: "POST",
+        body: JSON.stringify({ action: "auth-url", redirectUri }),
+      });
+      const result = await response.json().catch(() => ({})) as { url?: string; error?: string };
+      if (!response.ok || !result.url) throw new Error(result.error || "Google Calendar connection could not be started.");
+      window.location.assign(result.url);
+    } catch (error) {
+      setDashboardError(error instanceof Error ? error.message : "Google Calendar connection could not be started.");
+      setCalendarWorking(false);
+    }
+  }
+
+  async function finishCalendarConnection(accessToken: string, searchParams: URLSearchParams) {
+    setCalendarWorking(true);
+    setDashboardError("");
+    try {
+      const code = searchParams.get("code");
+      const state = searchParams.get("state");
+      const redirectUri = `${window.location.origin}${window.location.pathname}`;
+      const response = await authedFetch("/api/santa/admin/calendar", accessToken, {
+        method: "POST",
+        body: JSON.stringify({ action: "exchange", code, state, redirectUri }),
+      });
+      const result = await response.json().catch(() => ({})) as { error?: string };
+      if (!response.ok) throw new Error(result.error || "Google Calendar could not be connected.");
+      window.history.replaceState({}, "", window.location.pathname);
+      setNotice("Google Calendar connected.");
+      await loadDashboard(accessToken);
+    } catch (error) {
+      setDashboardError(error instanceof Error ? error.message : "Google Calendar could not be connected.");
+    } finally {
+      setCalendarWorking(false);
+    }
+  }
+
+  async function disconnectGoogleCalendar() {
+    setCalendarWorking(true);
+    setDashboardError("");
+    try {
+      const response = await authedFetch("/api/santa/admin/calendar", token, {
+        method: "POST",
+        body: JSON.stringify({ action: "disconnect" }),
+      });
+      const result = await response.json().catch(() => ({})) as { error?: string };
+      if (!response.ok) throw new Error(result.error || "Google Calendar could not be disconnected.");
+      setNotice("Google Calendar disconnected.");
+      await loadDashboard();
+    } catch (error) {
+      setDashboardError(error instanceof Error ? error.message : "Google Calendar could not be disconnected.");
+    } finally {
+      setCalendarWorking(false);
+    }
   }
 
   async function saveSettings() {
@@ -303,6 +405,28 @@ export function AdminDashboard() {
         <div><span>Pending</span><strong>{pendingBookings.length}</strong></div>
         <div><span>Confirmed</span><strong>{upcomingBookings.length}</strong></div>
         <div><span>Special dates</span><strong>{dayRules.length}</strong></div>
+      </section>
+
+      <section className="admin-section admin-calendar-card">
+        <div>
+          <p className="eyebrow">Schedule protection</p>
+          <h2>Google Calendar</h2>
+          <p>
+            {calendar?.connected
+              ? `Connected to ${calendar.calendarId || "the primary calendar"}. Existing events now block customer time slots, and accepted requests are added automatically.`
+              : "Connect Santa Jim’s calendar so existing events block customer time slots and accepted requests are added automatically."}
+          </p>
+          {calendar?.error ? <small>{calendar.error}</small> : null}
+        </div>
+        {calendar?.connected ? (
+          <button className="button button--quiet" type="button" disabled={calendarWorking} onClick={() => void disconnectGoogleCalendar()}>
+            Disconnect
+          </button>
+        ) : (
+          <button className="button button--gold" type="button" disabled={calendarWorking || calendar?.configured === false} onClick={() => void connectGoogleCalendar()}>
+            {calendarWorking ? "Connecting…" : "Connect Google Calendar"}
+          </button>
+        )}
       </section>
 
       <section className="admin-section">

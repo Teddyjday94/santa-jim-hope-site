@@ -19,8 +19,14 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
       - name: Install dependencies
         run: npm ci
+      - name: Check Calendar Edge Functions
+        run: deno check supabase/functions/santa-calendar-admin/index.ts supabase/functions/santa-calendar-public/index.ts
       - name: Run tests
         id: tests
         continue-on-error: true

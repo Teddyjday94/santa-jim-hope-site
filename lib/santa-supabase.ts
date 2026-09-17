@@ -24,6 +24,21 @@ export async function supabaseRpc(name: string, body: unknown, accessToken?: str
   }, accessToken);
 }
 
+export async function invokeSupabaseFunction(name: string, body: unknown, accessToken?: string) {
+  const headers = new Headers({
+    apikey: SANTA_SUPABASE_PUBLISHABLE_KEY,
+    "Content-Type": "application/json",
+  });
+  if (accessToken) headers.set("Authorization", `Bearer ${accessToken}`);
+
+  return fetch(`${SANTA_SUPABASE_URL}/functions/v1/${name}`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body),
+    cache: "no-store",
+  });
+}
+
 export function bearerToken(request: Request) {
   const authorization = request.headers.get("Authorization") ?? "";
   return authorization.startsWith("Bearer ") ? authorization.slice(7).trim() : "";

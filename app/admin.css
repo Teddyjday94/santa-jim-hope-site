@@ -109,6 +109,17 @@
 .admin-metrics span { color: var(--cream-200); font-size: .76rem; text-transform: uppercase; letter-spacing: .09em; }
 .admin-metrics strong { font-size: 1.9rem; color: var(--gold-300); }
 
+.admin-calendar-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.admin-calendar-card > div { display: grid; gap: .3rem; }
+.admin-calendar-card h2 { font-size: clamp(1.35rem, 3vw, 2rem); }
+.admin-calendar-card p:not(.eyebrow), .admin-calendar-card small { max-width: 50rem; color: var(--cream-200); line-height: 1.55; }
+.admin-calendar-card .button { flex: 0 0 auto; }
+
 .admin-section {
   padding: clamp(1rem, 2.6vw, 1.5rem);
   border: 1px solid rgba(234, 212, 154, .16);
@@ -223,8 +234,8 @@
 
 @media (max-width: 620px) {
   .santa-admin-page { padding: .8rem; }
-  .admin-topbar, .admin-section__heading, .admin-booking-card__top, .admin-confirmed-row { flex-direction: column; }
-  .admin-topbar .button, .admin-section__heading .button { width: 100%; }
+  .admin-topbar, .admin-section__heading, .admin-booking-card__top, .admin-confirmed-row, .admin-calendar-card { flex-direction: column; align-items: stretch; }
+  .admin-topbar .button, .admin-section__heading .button, .admin-calendar-card .button { width: 100%; }
   .admin-metrics { grid-template-columns: 1fr; }
   .admin-settings-grid, .admin-booking-details, .admin-two-col { grid-template-columns: 1fr; }
   .admin-service-row { grid-template-columns: 1fr 1fr; }

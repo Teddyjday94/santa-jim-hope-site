@@ -1,4 +1,7 @@
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+
 const SANTA_SITE_ID = "a0d14a7f-7e08-4042-a6c9-0f83c03eefb3";
+export {};
 const CALENDAR_SCOPES = [
   "https://www.googleapis.com/auth/calendar.events",
   "https://www.googleapis.com/auth/calendar.freebusy",
@@ -151,8 +154,7 @@ function offsetForDate(date: string, timezone: string) {
   return part.replace("GMT", "");
 }
 
-async function hasGoogleConflict(connection: Connection, booking: Record<string, unknown>) {
-  const timezone = "America/Chicago";
+async function hasGoogleConflict(connection: Connection, booking: Record<string, unknown>, timezone: string) {
   const date = String(booking.local_date);
   const start = String(booking.local_start_time).slice(0, 5);
   const blockedUntil = String(booking.local_blocked_until_time ?? booking.local_end_time).slice(0, 5);
@@ -176,8 +178,27 @@ async function hasGoogleConflict(connection: Connection, booking: Record<string,
   return Array.isArray(first?.busy) && first.busy.length > 0;
 }
 
-async function createEvent(connection: Connection, booking: Record<string, unknown>) {
-  if (await hasGoogleConflict(connection, booking)) {
+function googleEventId(bookingId: string) {
+  return `santa${bookingId.replaceAll("-", "").toLowerCase()}`;
+}
+
+async function existingEvent(connection: Connection, eventId: string) {
+  const response = await fetch(
+    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(connection.calendar_id || "primary")}/events/${eventId}`,
+    { headers: { Authorization: `Bearer ${connection.access_token}` } },
+  );
+  if (response.status === 404 || response.status === 410) return null;
+  const result = await response.json().catch(() => ({})) as { id?: string; htmlLink?: string; error?: { message?: string } };
+  if (!response.ok) throw new Error(result.error?.message || "The Calendar event could not be checked.");
+  return result;
+}
+
+async function createEvent(connection: Connection, booking: Record<string, unknown>, timezone: string) {
+  const eventId = googleEventId(String(booking.id));
+  const existing = await existingEvent(connection, eventId);
+  if (existing?.id) return { conflict: false as const, eventId: existing.id, htmlLink: existing.htmlLink ?? null };
+
+  if (await hasGoogleConflict(connection, booking, timezone)) {
     return { conflict: true as const };
   }
 
@@ -185,14 +206,7 @@ async function createEvent(connection: Connection, booking: Record<string, unkno
   const start = String(booking.local_start_time).slice(0, 5);
   const end = String(booking.local_end_time).slice(0, 5);
   const service = String(booking.service_slug).split("-").map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(" ");
-  const description = [
-    `Customer: ${String(booking.customer_name ?? "")}`,
-    `Email: ${String(booking.customer_email ?? "")}`,
-    booking.customer_phone ? `Phone: ${String(booking.customer_phone)}` : "",
-    booking.guest_count ? `Guests: ${String(booking.guest_count)}` : "",
-    booking.notes ? `Notes: ${String(booking.notes)}` : "",
-    "Created by the Santa Jim website scheduler.",
-  ].filter(Boolean).join("\n");
+  const description = `Santa Jim scheduler booking reference: ${String(booking.id)}`;
 
   const response = await fetch(
     `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(connection.calendar_id || "primary")}/events?sendUpdates=none`,
@@ -203,15 +217,19 @@ async function createEvent(connection: Connection, booking: Record<string, unkno
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        summary: `Santa Jim — ${service} — ${String(booking.customer_name ?? "Booking")}`,
-        location: String(booking.event_location ?? ""),
+        id: eventId,
+        summary: `Santa Jim — ${service}`,
         description,
-        start: { dateTime: `${date}T${start}:00`, timeZone: "America/Chicago" },
-        end: { dateTime: `${date}T${end}:00`, timeZone: "America/Chicago" },
+        start: { dateTime: `${date}T${start}:00`, timeZone: timezone },
+        end: { dateTime: `${date}T${end}:00`, timeZone: timezone },
       }),
     },
   );
   const result = await response.json().catch(() => ({})) as { id?: string; htmlLink?: string; error?: { message?: string } };
+  if (response.status === 409) {
+    const duplicate = await existingEvent(connection, eventId);
+    if (duplicate?.id) return { conflict: false as const, eventId: duplicate.id, htmlLink: duplicate.htmlLink ?? null };
+  }
   if (!response.ok || !result.id) throw new Error(result.error?.message || "The Google Calendar event could not be created.");
   return { conflict: false as const, eventId: result.id, htmlLink: result.htmlLink ?? null };
 }
@@ -353,7 +371,8 @@ Deno.serve(async (req: Request) => {
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
         }).catch(() => undefined);
       }
-      await rest(`santa_google_calendar_connections?site_id=eq.${SANTA_SITE_ID}`, { method: "DELETE" });
+      const deleteResponse = await rest(`santa_google_calendar_connections?site_id=eq.${SANTA_SITE_ID}`, { method: "DELETE" });
+      if (!deleteResponse.ok) return json({ error: "Google access was revoked, but the local Calendar connection could not be removed." }, 502);
       return json({ connected: false });
     }
 
@@ -361,29 +380,43 @@ Deno.serve(async (req: Request) => {
       const bookingId = String(body.bookingId ?? "");
       if (!bookingId) return json({ error: "Booking ID is required." }, 400);
       const bookingResponse = await rest(
-        `santa_booking_requests?id=eq.${encodeURIComponent(bookingId)}&site_id=eq.${SANTA_SITE_ID}&select=id,service_slug,customer_name,customer_email,customer_phone,event_location,guest_count,notes,local_date,local_start_time,local_end_time,local_blocked_until_time,status&limit=1`,
+        `santa_booking_requests?id=eq.${encodeURIComponent(bookingId)}&site_id=eq.${SANTA_SITE_ID}&select=id,service_slug,local_date,local_start_time,local_end_time,local_blocked_until_time,status,calendar_sync_status&limit=1`,
       );
       const bookings = bookingResponse.ok ? await bookingResponse.json() as Array<Record<string, unknown>> : [];
       const booking = bookings[0];
       if (!booking) return json({ error: "Booking request was not found." }, 404);
-      if (String(booking.status) !== "pending") return json({ error: "Only pending requests can be added to Calendar." }, 409);
+      if (String(booking.status) !== "pending" || String(booking.calendar_sync_status) !== "pending") {
+        return json({ error: "Only a claimed pending request can be added to Calendar." }, 409);
+      }
 
       const stored = await loadConnection();
       if (!stored) return json({ connected: false, error: "Google Calendar is not connected." }, 409);
       const connection = await refreshAccessToken(stored);
-      const created = await createEvent(connection, booking);
+      const settingsResponse = await rest(`santa_schedule_settings?site_id=eq.${SANTA_SITE_ID}&select=timezone&limit=1`);
+      const settingsRows = settingsResponse.ok ? await settingsResponse.json() as Array<{ timezone?: string }> : [];
+      const timezone = settingsRows[0]?.timezone || "America/Chicago";
+      const created = await createEvent(connection, booking, timezone);
       if (created.conflict) return json({ connected: true, conflict: true, error: "Google Calendar is busy during that requested time." }, 409);
       return json({ connected: true, eventId: created.eventId, htmlLink: created.htmlLink });
     }
 
-    if (action === "delete-event") {
-      const eventId = String(body.eventId ?? "");
-      if (!eventId) return json({ error: "Event ID is required." }, 400);
+    if (action === "rollback-event") {
+      const bookingId = String(body.bookingId ?? "");
+      if (!bookingId) return json({ error: "Booking ID is required." }, 400);
+      const bookingResponse = await rest(
+        `santa_booking_requests?id=eq.${encodeURIComponent(bookingId)}&site_id=eq.${SANTA_SITE_ID}&select=id,status,calendar_sync_status&limit=1`,
+      );
+      const bookings = bookingResponse.ok ? await bookingResponse.json() as Array<Record<string, unknown>> : [];
+      const booking = bookings[0];
+      if (!booking || String(booking.status) !== "pending" || String(booking.calendar_sync_status) !== "pending") {
+        return json({ error: "Only an unfinished Calendar confirmation can be rolled back." }, 409);
+      }
       const stored = await loadConnection();
-      if (!stored) return json({ connected: false });
+      if (!stored) return json({ connected: false, error: "Google Calendar is not connected." }, 409);
       const connection = await refreshAccessToken(stored);
+      const eventId = googleEventId(bookingId);
       await deleteEvent(connection, eventId);
-      return json({ deleted: true });
+      return json({ deleted: true, eventId });
     }
 
     return json({ error: "Unknown Calendar action." }, 400);

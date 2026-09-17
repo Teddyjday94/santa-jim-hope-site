@@ -18,6 +18,24 @@ test("admin dashboard authenticates and keeps its session in browser session sto
   assert.match(dashboard, /Sign out/i);
 });
 
+test("admin login offers a neutral password recovery request", async () => {
+  const dashboard = await read("components/santa/admin-dashboard.tsx");
+  assert.match(dashboard, /Forgot your password\?/i);
+  assert.match(dashboard, /\/auth\/v1\/recover/);
+  assert.match(dashboard, /redirect_to/);
+  assert.match(dashboard, /If an account exists for that email/i);
+});
+
+test("admin recovery callback requires and confirms a strong new password", async () => {
+  const dashboard = await read("components/santa/admin-dashboard.tsx");
+  assert.match(dashboard, /type.*recovery/);
+  assert.match(dashboard, /\/auth\/v1\/user/);
+  assert.match(dashboard, /New password/i);
+  assert.match(dashboard, /Confirm new password/i);
+  assert.match(dashboard, /minLength=\{12\}/);
+  assert.match(dashboard, /passwords do not match/i);
+});
+
 test("admin dashboard can accept and decline requests", async () => {
   const dashboard = await read("components/santa/admin-dashboard.tsx");
   assert.match(dashboard, /confirmed/);

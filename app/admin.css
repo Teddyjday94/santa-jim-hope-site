@@ -61,6 +61,32 @@
 .admin-rule-form select:focus,
 .admin-settings-grid input:focus,
 .admin-service-row input:focus { outline: 2px solid var(--gold-300); outline-offset: 2px; }
+.admin-login-link {
+  justify-self: center;
+  padding: .2rem;
+  border: 0;
+  color: var(--gold-300);
+  background: transparent;
+  font: inherit;
+  font-size: .84rem;
+  font-weight: 760;
+  text-decoration: underline;
+  text-underline-offset: .2rem;
+  cursor: pointer;
+}
+.admin-login-link:hover, .admin-login-link:focus-visible { color: var(--cream-100); }
+.admin-login-link:focus-visible { outline: 2px solid var(--gold-300); outline-offset: 3px; }
+.admin-login-link:disabled { cursor: wait; opacity: .68; }
+.admin-login-notice {
+  margin: 0;
+  padding: .75rem .85rem;
+  border: 1px solid rgba(234, 212, 154, .2);
+  border-radius: .75rem;
+  color: var(--cream-200);
+  background: rgba(207, 169, 91, .08);
+  font-size: .86rem;
+  line-height: 1.5;
+}
 .admin-error { color: #ffd1d4; font-size: .86rem; }
 
 .admin-dashboard {

@@ -87,7 +87,15 @@ export function AdminDashboard() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState("");
+  const [authNotice, setAuthNotice] = useState("");
   const [signingIn, setSigningIn] = useState(false);
+  const [requestingReset, setRequestingReset] = useState(false);
+  const [resetRequested, setResetRequested] = useState(false);
+  const [recoveryMode, setRecoveryMode] = useState(false);
+  const [recoveryToken, setRecoveryToken] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [updatingPassword, setUpdatingPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [dashboardError, setDashboardError] = useState("");
   const [notice, setNotice] = useState("");
@@ -107,6 +115,30 @@ export function AdminDashboard() {
   const upcomingBookings = useMemo(() => bookings.filter((booking) => booking.status === "confirmed"), [bookings]);
 
   useEffect(() => {
+    const hashParams = new URLSearchParams(window.location.hash.slice(1));
+    const recoveryAccessToken = hashParams.get("access_token");
+    const recoveryError = hashParams.get("error_description");
+    const isRecovery = hashParams.get("type") === "recovery";
+
+    if (isRecovery && recoveryAccessToken) {
+      window.sessionStorage.removeItem(SESSION_KEY);
+      window.history.replaceState({}, "", `${window.location.pathname}${window.location.search}`);
+      const startRecovery = window.setTimeout(() => {
+        setToken("");
+        setRecoveryToken(recoveryAccessToken);
+        setRecoveryMode(true);
+      }, 0);
+      return () => window.clearTimeout(startRecovery);
+    }
+
+    if (recoveryError) {
+      window.history.replaceState({}, "", `${window.location.pathname}${window.location.search}`);
+      const showRecoveryError = window.setTimeout(() => {
+        setAuthError(recoveryError.replaceAll("+", " "));
+      }, 0);
+      return () => window.clearTimeout(showRecoveryError);
+    }
+
     const stored = window.sessionStorage.getItem(SESSION_KEY);
     if (!stored) return;
     const restoreSession = window.setTimeout(() => setToken(stored), 0);
@@ -205,6 +237,7 @@ export function AdminDashboard() {
     event.preventDefault();
     setSigningIn(true);
     setAuthError("");
+    setAuthNotice("");
     try {
       const response = await fetch(`${SANTA_SUPABASE_URL}/auth/v1/token?grant_type=password`, {
         method: "POST",
@@ -267,6 +300,75 @@ export function AdminDashboard() {
     } catch (error) {
       setDashboardError(error instanceof Error ? error.message : "Google Calendar connection could not be started.");
       setCalendarWorking(false);
+    }
+  }
+
+  async function requestPasswordReset() {
+    const normalizedEmail = email.trim();
+    setAuthError("");
+    setAuthNotice("");
+    setResetRequested(false);
+    if (!normalizedEmail) {
+      setAuthError("Enter your email address first, then select Forgot your password?");
+      return;
+    }
+
+    setRequestingReset(true);
+    try {
+      const redirectTo = `${window.location.origin}${window.location.pathname}`;
+      const response = await fetch(`${SANTA_SUPABASE_URL}/auth/v1/recover?redirect_to=${encodeURIComponent(redirectTo)}`, {
+        method: "POST",
+        headers: {
+          apikey: SANTA_SUPABASE_PUBLISHABLE_KEY,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: normalizedEmail }),
+      });
+      if (!response.ok) throw new Error("Password recovery is temporarily unavailable. Please try again.");
+      setResetRequested(true);
+    } catch (error) {
+      setAuthError(error instanceof Error ? error.message : "Password recovery is temporarily unavailable. Please try again.");
+    } finally {
+      setRequestingReset(false);
+    }
+  }
+
+  async function updatePassword(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setAuthError("");
+    if (newPassword.length < 12) {
+      setAuthError("Your new password must be at least 12 characters.");
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      setAuthError("The passwords do not match.");
+      return;
+    }
+
+    setUpdatingPassword(true);
+    try {
+      const response = await fetch(`${SANTA_SUPABASE_URL}/auth/v1/user`, {
+        method: "PUT",
+        headers: {
+          apikey: SANTA_SUPABASE_PUBLISHABLE_KEY,
+          Authorization: `Bearer ${recoveryToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ password: newPassword }),
+      });
+      const result = await response.json().catch(() => ({})) as { message?: string; msg?: string };
+      if (!response.ok) throw new Error(result.message || result.msg || "Your password could not be updated. Request a new recovery email and try again.");
+
+      setRecoveryMode(false);
+      setRecoveryToken("");
+      setNewPassword("");
+      setConfirmNewPassword("");
+      setPassword("");
+      setAuthNotice("Password updated. You can now sign in with your new password.");
+    } catch (error) {
+      setAuthError(error instanceof Error ? error.message : "Your password could not be updated. Request a new recovery email and try again.");
+    } finally {
+      setUpdatingPassword(false);
     }
   }
 
@@ -363,6 +465,29 @@ export function AdminDashboard() {
     await loadDashboard();
   }
 
+  if (recoveryMode) {
+    return (
+      <section className="admin-login-card" aria-labelledby="admin-reset-title">
+        <span className="admin-mark" aria-hidden="true"><ShieldCheck size={24} /></span>
+        <p className="eyebrow">Secure account recovery</p>
+        <h1 id="admin-reset-title">Choose a new password</h1>
+        <p>Use at least 12 characters. After saving it, return here to sign in.</p>
+        <form className="admin-login-form" onSubmit={updatePassword}>
+          <label>
+            <span>New password</span>
+            <input type="password" autoComplete="new-password" minLength={12} value={newPassword} onChange={(event) => setNewPassword(event.target.value)} required />
+          </label>
+          <label>
+            <span>Confirm new password</span>
+            <input type="password" autoComplete="new-password" minLength={12} value={confirmNewPassword} onChange={(event) => setConfirmNewPassword(event.target.value)} required />
+          </label>
+          <button className="button button--gold" type="submit" disabled={updatingPassword}>{updatingPassword ? "Updating password…" : "Update password"}</button>
+          {authError ? <p className="admin-error" role="alert">{authError}</p> : null}
+        </form>
+      </section>
+    );
+  }
+
   if (!token) {
     return (
       <section className="admin-login-card" aria-labelledby="admin-login-title">
@@ -380,6 +505,11 @@ export function AdminDashboard() {
             <input type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} required />
           </label>
           <button className="button button--gold" type="submit" disabled={signingIn}>{signingIn ? "Signing in…" : "Sign in"}</button>
+          <button className="admin-login-link" type="button" disabled={requestingReset} onClick={() => void requestPasswordReset()}>
+            {requestingReset ? "Sending recovery email…" : "Forgot your password?"}
+          </button>
+          {resetRequested ? <p className="admin-login-notice" role="status">If an account exists for that email, a password recovery link has been sent.</p> : null}
+          {authNotice ? <p className="admin-login-notice" role="status">{authNotice}</p> : null}
           {authError ? <p className="admin-error" role="alert">{authError}</p> : null}
         </form>
       </section>

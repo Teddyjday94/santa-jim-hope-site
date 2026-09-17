@@ -71,8 +71,10 @@ test("Calendar migrations reproduce booking sync fields and storage hardening", 
 
 test("CI type-checks both Supabase Calendar functions with Deno", async () => {
   const workflow = await read(".github/workflows/verify.yml");
+  const denoConfig = JSON.parse(await read("supabase/functions/deno.json"));
   assert.match(workflow, /setup-deno/);
   assert.match(workflow, /deno check[\s\S]*santa-calendar-admin[\s\S]*santa-calendar-public/);
+  assert.equal(denoConfig.nodeModulesDir, "auto");
 });
 
 test("Google Calendar busy periods join scheduler conflicts without trusting malformed times", () => {

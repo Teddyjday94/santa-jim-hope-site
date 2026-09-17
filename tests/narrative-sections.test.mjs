@@ -19,11 +19,12 @@ test("the page exposes every narrative destination", async () => {
   }
 });
 
-test("the page is transparent about details that are still to come", async () => {
+test("the booking section presents the active Santa request path", async () => {
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
 
-  assert.match(page, /service area, and booking details are coming soon/i);
-  assert.match(page, /will be added once those details are confirmed/i);
+  assert.match(page, /Holiday inquiries are open/i);
+  assert.match(page, /<InquiryForm \/>/);
+  assert.match(page, /Dates and timing are confirmed directly after your inquiry is reviewed/i);
 });
 
 test("every experience and route stop uses unique web-optimized keepsake artwork", async () => {

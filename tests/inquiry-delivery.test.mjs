@@ -11,28 +11,26 @@ const inquiry = {
   name: "Test Parent",
   email: "test@example.com",
   phone: "555-0100",
-  eventType: "Home visit",
+  eventType: "home-visit",
   preferredDate: "2026-12-12",
   startTime: "18:30",
-  endTime: "20:00",
+  endTime: "19:30",
   location: "Baton Rouge, LA",
   guestCount: "12",
   notes: "Automated test request",
   _honey: "",
 };
 
-test("buildInquiryPayload maps every booking detail and delivery metadata", () => {
+test("buildInquiryPayload maps the selected service and booking details", () => {
   assert.deepEqual(buildInquiryPayload(inquiry), {
-    _subject: "New Santa Jim booking inquiry",
-    _template: "table",
-    _replyto: "test@example.com",
     name: "Test Parent",
     email: "test@example.com",
     phone: "555-0100",
-    eventType: "Home visit",
+    eventType: "home-visit",
+    serviceSlug: "home-visit",
     preferredDate: "2026-12-12",
     startTime: "18:30",
-    endTime: "20:00",
+    endTime: "19:30",
     location: "Baton Rouge, LA",
     guestCount: "12",
     notes: "Automated test request",
@@ -40,15 +38,16 @@ test("buildInquiryPayload maps every booking detail and delivery metadata", () =
   });
 });
 
-test("submitInquiry posts JSON to the configured FormSubmit inbox", async () => {
+test("submitInquiry posts JSON to the scheduler booking API", async () => {
   let request;
   const fetchImpl = async (url, options) => {
     request = { url, options };
-    return { ok: true, json: async () => ({ success: true }) };
+    return { ok: true, json: async () => ({ success: true, status: "pending" }) };
   };
 
   await submitInquiry(inquiry, fetchImpl);
 
+  assert.equal(FORM_ENDPOINT, "/api/santa/bookings");
   assert.equal(request.url, FORM_ENDPOINT);
   assert.equal(request.options.method, "POST");
   assert.equal(request.options.headers.Accept, "application/json");
@@ -56,10 +55,21 @@ test("submitInquiry posts JSON to the configured FormSubmit inbox", async () => 
   assert.deepEqual(JSON.parse(request.options.body), buildInquiryPayload(inquiry));
 });
 
-test("submitInquiry reports delivery failures", async () => {
+test("submitInquiry forwards scheduler conflict messages", async () => {
   await assert.rejects(
-    submitInquiry(inquiry, async () => ({ ok: false, json: async () => ({ success: false }) })),
-    /could not send/i,
+    submitInquiry(inquiry, async () => ({
+      ok: false,
+      status: 409,
+      json: async () => ({ error: "That time is no longer available. Please choose another." }),
+    })),
+    /no longer available/i,
+  );
+});
+
+test("submitInquiry reports generic delivery failures when the server gives no message", async () => {
+  await assert.rejects(
+    submitInquiry(inquiry, async () => ({ ok: false, json: async () => ({}) })),
+    /could not send your request/i,
   );
 });
 

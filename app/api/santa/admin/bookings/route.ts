@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { SANTA_SITE_ID } from "@/lib/santa-config";
 import { assertSantaAdmin, bearerToken, supabaseRest } from "@/lib/santa-supabase";
 
+type BookingRecord = Record<string, unknown>;
+
 async function authorize(request: NextRequest) {
   const token = bearerToken(request);
   const { authorized, user } = await assertSantaAdmin(token);
@@ -18,7 +20,8 @@ export async function GET(request: NextRequest) {
     token,
   );
   if (!response.ok) return NextResponse.json({ error: "Could not load booking requests." }, { status: 502 });
-  return NextResponse.json({ bookings: await response.json() });
+  const bookings = await response.json() as BookingRecord[];
+  return NextResponse.json({ bookings });
 }
 
 export async function PATCH(request: NextRequest) {
@@ -44,5 +47,6 @@ export async function PATCH(request: NextRequest) {
     const conflict = detail.includes("23P01") || detail.toLowerCase().includes("overlap");
     return NextResponse.json({ error: conflict ? "That booking conflicts with another active request." : "Could not update the request." }, { status: conflict ? 409 : 502 });
   }
-  return NextResponse.json({ booking: (await response.json())[0] ?? null });
+  const updated = await response.json() as BookingRecord[];
+  return NextResponse.json({ booking: updated[0] ?? null });
 }

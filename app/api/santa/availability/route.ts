@@ -1,10 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
-import { buildAvailableSlots } from "@/lib/santa-scheduler.mjs";
+import { buildAvailableSlots, type SantaBookingInterval, type SantaDayRule } from "@/lib/santa-scheduler.mjs";
 import { SANTA_SITE_ID } from "@/lib/santa-config";
 import { supabaseRest } from "@/lib/santa-supabase";
 
+type StoredDayRule = NonNullable<SantaDayRule> & { date: string };
+
 function trimTime(value: string | null | undefined) {
   return value ? value.slice(0, 5) : "";
+}
+
+function dayMode(value: unknown): StoredDayRule["mode"] {
+  return value === "normal" || value === "photos_only" || value === "blocked" || value === "custom"
+    ? value
+    : "blocked";
+}
+
+function bookingStatus(value: unknown): SantaBookingInterval["status"] {
+  return value === "pending" || value === "confirmed" || value === "declined" || value === "cancelled" || value === "expired"
+    ? value
+    : "expired";
+}
+
+function windows(value: unknown): Array<{ start: string; end: string }> {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item) => {
+    if (!item || typeof item !== "object") return [];
+    const record = item as Record<string, unknown>;
+    if (typeof record.start !== "string" || typeof record.end !== "string") return [];
+    return [{ start: record.start, end: record.end }];
+  });
 }
 
 export async function GET(request: NextRequest) {
@@ -44,11 +68,11 @@ export async function GET(request: NextRequest) {
     bufferMinutes: Number(row.buffer_minutes),
     active: Boolean(row.active),
   }));
-  const dayRules = ruleRows.map((row) => ({
+  const dayRules: StoredDayRule[] = ruleRows.map((row) => ({
     date: String(row.date),
-    mode: String(row.mode),
+    mode: dayMode(row.mode),
     allowedServiceSlugs: Array.isArray(row.allowed_service_slugs) ? row.allowed_service_slugs.map(String) : [],
-    windows: Array.isArray(row.windows) ? row.windows : [],
+    windows: windows(row.windows),
   }));
 
   if (!date || !serviceSlug) {
@@ -63,11 +87,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Availability is temporarily unavailable." }, { status: 503 });
   }
   const busyRows = await busyResponse.json() as Array<Record<string, unknown>>;
-  const bookings = busyRows.map((row) => ({
+  const bookings: SantaBookingInterval[] = busyRows.map((row) => ({
     date: String(row.local_date),
     startTime: trimTime(String(row.local_start_time)),
     endTime: trimTime(String(row.local_blocked_until_time ?? row.local_end_time)),
-    status: String(row.status),
+    status: bookingStatus(row.status),
   }));
   const slots = buildAvailableSlots({ date, serviceSlug, services, settings, rule, bookings });
 

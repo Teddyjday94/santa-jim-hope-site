@@ -44,6 +44,18 @@ test("admin dashboard can accept and decline requests", async () => {
   assert.match(dashboard, /Decline/);
 });
 
+test("admin dashboard shows confirmed request details and can cancel a booking", async () => {
+  const dashboard = await read("components/santa/admin-dashboard.tsx");
+  assert.match(dashboard, /Confirmed booking details/i);
+  assert.match(dashboard, /Cancel booking/i);
+  assert.match(dashboard, /window\.confirm/);
+  assert.match(dashboard, /customer_email/);
+  assert.match(dashboard, /customer_phone/);
+  assert.match(dashboard, /event_location/);
+  assert.match(dashboard, /guest_count/);
+  assert.match(dashboard, /calendar_sync_status/);
+});
+
 test("admin dashboard supports all day modes and editable season settings", async () => {
   const dashboard = await read("components/santa/admin-dashboard.tsx");
   for (const mode of ["normal", "photos_only", "blocked", "custom"]) {

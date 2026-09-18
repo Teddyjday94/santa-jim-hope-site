@@ -36,6 +36,13 @@ test("confirming a booking attempts Google Calendar event creation and records s
   assert.match(route, /Calendar service could not be reached/);
 });
 
+test("cancelling a confirmed booking removes its Google Calendar event before releasing the time", async () => {
+  const route = await read("app/api/santa/admin/bookings/route.ts");
+  assert.match(route, /cancel-event/);
+  assert.match(route, /status=eq\.confirmed/);
+  assert.match(route, /status:\s*"cancelled"/);
+});
+
 test("Calendar Edge Functions keep OAuth secrets and tokens server-side", async () => {
   const adminFunction = await read("supabase/functions/santa-calendar-admin/index.ts");
   const publicFunction = await read("supabase/functions/santa-calendar-public/index.ts");
@@ -49,7 +56,7 @@ test("Calendar Edge Functions keep OAuth secrets and tokens server-side", async 
   assert.doesNotMatch(adminFunction, /booking\.customer_email|booking\.customer_phone|booking\.event_location|booking\.guest_count|booking\.notes/);
   assert.match(adminFunction, /function googleEventId/);
   assert.match(adminFunction, /action === "rollback-event"/);
-  assert.doesNotMatch(adminFunction, /action === "delete-event"/);
+  assert.match(adminFunction, /action === "cancel-event"/);
 });
 
 test("Calendar migrations reproduce booking sync fields and storage hardening", async () => {

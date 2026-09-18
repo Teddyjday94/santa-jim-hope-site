@@ -236,19 +236,26 @@
 .admin-service-row > div { display: grid; gap: .25rem; }
 .admin-service-row > div > strong { font-size: .87rem; }
 
-.admin-confirmed-list { display: grid; gap: .5rem; }
-.admin-confirmed-row {
-  display: flex;
+.admin-confirmed-list { display: grid; gap: .7rem; }
+.admin-confirmed-card { border: 1px solid rgba(255, 248, 232, .11); border-radius: .85rem; background: rgba(255, 255, 255, .025); }
+.admin-confirmed-card summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
-  justify-content: space-between;
   gap: 1rem;
-  padding: .7rem 0;
-  border-bottom: 1px solid rgba(255, 248, 232, .08);
+  padding: .85rem;
   font-size: .82rem;
+  cursor: pointer;
+  list-style: none;
 }
-.admin-confirmed-row:last-child { border-bottom: 0; }
-.admin-confirmed-row > span:first-child { display: grid; gap: .1rem; }
-.admin-confirmed-row small, .admin-confirmed-row > span:last-child { color: var(--cream-200); }
+.admin-confirmed-card summary::-webkit-details-marker { display: none; }
+.admin-confirmed-card summary > span:first-child { display: grid; gap: .1rem; }
+.admin-confirmed-card summary small, .admin-confirmed-card summary > span:nth-child(2) { color: var(--cream-200); }
+.admin-confirmed-card__prompt { color: var(--gold-300); font-size: .72rem; font-weight: 760; text-transform: uppercase; letter-spacing: .06em; }
+.admin-confirmed-card__body { display: grid; gap: .85rem; padding: .9rem; border-top: 1px solid rgba(255, 248, 232, .09); }
+.admin-calendar-warning { margin: 0; color: var(--gold-300); font-size: .8rem; }
+.button--danger { border-color: rgba(229, 94, 94, .45); color: #ffd9d9; background: rgba(141, 35, 35, .22); }
+.button--danger:hover, .button--danger:focus-visible { border-color: rgba(255, 138, 138, .72); background: rgba(168, 43, 43, .32); }
 .admin-empty { margin: 0; color: var(--cream-200); font-size: .86rem; }
 
 @media (max-width: 860px) {
@@ -260,7 +267,8 @@
 
 @media (max-width: 620px) {
   .santa-admin-page { padding: .8rem; }
-  .admin-topbar, .admin-section__heading, .admin-booking-card__top, .admin-confirmed-row, .admin-calendar-card { flex-direction: column; align-items: stretch; }
+  .admin-topbar, .admin-section__heading, .admin-booking-card__top, .admin-calendar-card { flex-direction: column; align-items: stretch; }
+  .admin-confirmed-card summary { grid-template-columns: 1fr; gap: .35rem; }
   .admin-topbar .button, .admin-section__heading .button, .admin-calendar-card .button { width: 100%; }
   .admin-metrics { grid-template-columns: 1fr; }
   .admin-settings-grid, .admin-booking-details, .admin-two-col { grid-template-columns: 1fr; }

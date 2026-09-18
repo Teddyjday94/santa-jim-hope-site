@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { CalendarDays, Check, Clock, LogOut, Save, ShieldCheck, UserRoundCheck, X } from "lucide-react";
+import { CalendarDays, Check, Clock, LogOut, Save, ShieldCheck, Trash2, UserRoundCheck, X } from "lucide-react";
 import { SANTA_SUPABASE_PUBLISHABLE_KEY, SANTA_SUPABASE_URL } from "@/lib/santa-config";
 
 type BookingStatus = "pending" | "confirmed" | "declined" | "cancelled" | "expired";
@@ -22,6 +22,8 @@ type Booking = {
   status: BookingStatus;
   hold_expires_at: string | null;
   calendar_sync_status: string;
+  calendar_sync_error: string | null;
+  google_event_id: string | null;
   created_at: string;
 };
 
@@ -110,6 +112,7 @@ export function AdminDashboard() {
   const [ruleEnd, setRuleEnd] = useState("18:00");
   const [calendar, setCalendar] = useState<CalendarConnection | null>(null);
   const [calendarWorking, setCalendarWorking] = useState(false);
+  const [updatingBookingId, setUpdatingBookingId] = useState("");
 
   const pendingBookings = useMemo(() => bookings.filter((booking) => booking.status === "pending"), [bookings]);
   const upcomingBookings = useMemo(() => bookings.filter((booking) => booking.status === "confirmed"), [bookings]);
@@ -269,20 +272,31 @@ export function AdminDashboard() {
     setCalendar(null);
   }
 
-  async function updateBooking(id: string, status: "confirmed" | "declined") {
+  async function updateBooking(id: string, status: "confirmed" | "declined" | "cancelled") {
+    if (status === "cancelled" && !window.confirm("Cancel this confirmed booking and remove its Google Calendar event? The time will become available again.")) return;
+    setUpdatingBookingId(id);
     setNotice("");
     setDashboardError("");
-    const response = await authedFetch("/api/santa/admin/bookings", token, {
-      method: "PATCH",
-      body: JSON.stringify({ id, status }),
-    });
-    const result = await response.json().catch(() => ({})) as { error?: string; warning?: string };
-    if (!response.ok) {
-      setDashboardError(result.error || "The booking request could not be updated.");
-      return;
+    try {
+      const response = await authedFetch("/api/santa/admin/bookings", token, {
+        method: "PATCH",
+        body: JSON.stringify({ id, status }),
+      });
+      const result = await response.json().catch(() => ({})) as { error?: string; warning?: string };
+      if (!response.ok) {
+        setDashboardError(result.error || "The booking request could not be updated.");
+        return;
+      }
+      const successMessage = status === "confirmed"
+        ? "Request accepted. A test acceptance message was sent to the business inbox."
+        : status === "declined"
+          ? "Request declined, the time was released, and a test decline message was sent to the business inbox."
+          : "Booking cancelled and the time was released.";
+      setNotice(result.warning || successMessage);
+      await loadDashboard();
+    } finally {
+      setUpdatingBookingId("");
     }
-    setNotice(result.warning || (status === "confirmed" ? "Request accepted." : "Request declined and the time was released."));
-    await loadDashboard();
   }
 
   async function connectGoogleCalendar() {
@@ -584,8 +598,8 @@ export function AdminDashboard() {
               </dl>
               {booking.notes ? <p className="admin-booking-notes">{booking.notes}</p> : null}
               <div className="admin-booking-actions">
-                <button className="button button--gold" type="button" onClick={() => void updateBooking(booking.id, "confirmed")}><UserRoundCheck size={17} /> Accept</button>
-                <button className="button button--quiet" type="button" onClick={() => void updateBooking(booking.id, "declined")}><X size={17} /> Decline</button>
+                <button className="button button--gold" type="button" disabled={updatingBookingId === booking.id} onClick={() => void updateBooking(booking.id, "confirmed")}><UserRoundCheck size={17} /> Accept</button>
+                <button className="button button--quiet" type="button" disabled={updatingBookingId === booking.id} onClick={() => void updateBooking(booking.id, "declined")}><X size={17} /> Decline</button>
               </div>
             </article>
           ))}
@@ -636,7 +650,32 @@ export function AdminDashboard() {
       <section className="admin-section">
         <div className="admin-section__heading"><div><p className="eyebrow">Approved schedule</p><h2>Confirmed bookings</h2></div></div>
         <div className="admin-confirmed-list">
-          {upcomingBookings.length === 0 ? <p className="admin-empty">No confirmed bookings yet.</p> : upcomingBookings.map((booking) => <div className="admin-confirmed-row" key={booking.id}><span><strong>{booking.customer_name}</strong><small>{titleFromSlug(booking.service_slug)} · {booking.event_location}</small></span><span>{dateLabel(booking.local_date)} · {timeLabel(booking.local_start_time)}</span></div>)}
+          {upcomingBookings.length === 0 ? <p className="admin-empty">No confirmed bookings yet.</p> : upcomingBookings.map((booking) => (
+            <details className="admin-confirmed-card" key={booking.id}>
+              <summary>
+                <span><strong>{booking.customer_name}</strong><small>{titleFromSlug(booking.service_slug)} · {booking.event_location}</small></span>
+                <span>{dateLabel(booking.local_date)} · {timeLabel(booking.local_start_time)}</span>
+                <span className="admin-confirmed-card__prompt">Confirmed booking details</span>
+              </summary>
+              <div className="admin-confirmed-card__body">
+                <dl className="admin-booking-details">
+                  <div><dt>Email</dt><dd>{booking.customer_email}</dd></div>
+                  <div><dt>Phone</dt><dd>{booking.customer_phone || "Not provided"}</dd></div>
+                  <div><dt>Location</dt><dd>{booking.event_location}</dd></div>
+                  <div><dt>Guests</dt><dd>{booking.guest_count ?? "Not provided"}</dd></div>
+                  <div><dt>Date</dt><dd>{dateLabel(booking.local_date)}</dd></div>
+                  <div><dt>Time</dt><dd>{timeLabel(booking.local_start_time)}–{timeLabel(booking.local_end_time)}</dd></div>
+                  <div><dt>Experience</dt><dd>{titleFromSlug(booking.service_slug)}</dd></div>
+                  <div><dt>Calendar</dt><dd>{booking.calendar_sync_status === "synced" ? "Added to Google Calendar" : booking.calendar_sync_status.replaceAll("_", " ")}</dd></div>
+                </dl>
+                {booking.notes ? <p className="admin-booking-notes"><strong>Notes:</strong> {booking.notes}</p> : null}
+                {booking.calendar_sync_error ? <p className="admin-calendar-warning">Calendar note: {booking.calendar_sync_error}</p> : null}
+                <div className="admin-booking-actions">
+                  <button className="button button--danger" type="button" disabled={updatingBookingId === booking.id} onClick={() => void updateBooking(booking.id, "cancelled")}><Trash2 size={17} /> Cancel booking</button>
+                </div>
+              </div>
+            </details>
+          ))}
         </div>
       </section>
     </div>

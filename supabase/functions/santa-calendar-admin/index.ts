@@ -240,7 +240,7 @@ async function deleteEvent(connection: Connection, eventId: string) {
     { method: "DELETE", headers: { Authorization: `Bearer ${connection.access_token}` } },
   );
   if (!response.ok && response.status !== 404 && response.status !== 410) {
-    throw new Error("The Calendar event could not be rolled back.");
+    throw new Error("The Calendar event could not be removed.");
   }
 }
 
@@ -415,6 +415,30 @@ Deno.serve(async (req: Request) => {
       if (!stored) return json({ connected: false, error: "Google Calendar is not connected." }, 409);
       const connection = await refreshAccessToken(stored);
       const eventId = googleEventId(bookingId);
+      await deleteEvent(connection, eventId);
+      return json({ deleted: true, eventId });
+    }
+
+    if (action === "cancel-event") {
+      const bookingId = String(body.bookingId ?? "");
+      if (!bookingId) return json({ error: "Booking ID is required." }, 400);
+      const bookingResponse = await rest(
+        `santa_booking_requests?id=eq.${encodeURIComponent(bookingId)}&site_id=eq.${SANTA_SITE_ID}&select=id,status,google_event_id&limit=1`,
+      );
+      const bookings = bookingResponse.ok ? await bookingResponse.json() as Array<Record<string, unknown>> : [];
+      const booking = bookings[0];
+      if (!booking) return json({ error: "Booking was not found." }, 404);
+      if (String(booking.status) === "cancelled") {
+        return json({ deleted: false, eventId: null, alreadyCancelled: true });
+      }
+      if (String(booking.status) !== "confirmed") {
+        return json({ error: "Only a confirmed booking can be removed from Calendar." }, 409);
+      }
+      const eventId = String(booking.google_event_id ?? "");
+      if (!eventId) return json({ deleted: false, eventId: null });
+      const stored = await loadConnection();
+      if (!stored) return json({ connected: false, error: "Google Calendar is not connected." }, 409);
+      const connection = await refreshAccessToken(stored);
       await deleteEvent(connection, eventId);
       return json({ deleted: true, eventId });
     }

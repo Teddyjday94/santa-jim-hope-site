@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { SANTA_SITE_ID } from "@/lib/santa-config";
+import { bookingTransitionPlan } from "@/lib/santa-booking-actions.mjs";
+import { sendBookingDecisionNotification } from "@/lib/santa-booking-notifications.mjs";
+import { SANTA_SITE_ID, SANTA_TEST_NOTIFICATION_EMAIL } from "@/lib/santa-config";
 import { assertSantaAdmin, bearerToken, invokeSupabaseFunction, supabaseRest } from "@/lib/santa-supabase";
 
 type BookingRecord = Record<string, unknown>;
@@ -29,11 +31,84 @@ export async function PATCH(request: NextRequest) {
   if (!authorized) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await request.json().catch(() => null) as { id?: string; status?: string } | null;
-  if (!body?.id || !["confirmed", "declined"].includes(body.status ?? "")) {
+  if (!body?.id || !["confirmed", "declined", "cancelled"].includes(body.status ?? "")) {
     return NextResponse.json({ error: "Invalid booking update." }, { status: 400 });
   }
 
   const bookingPath = `santa_booking_requests?id=eq.${encodeURIComponent(body.id)}&site_id=eq.${SANTA_SITE_ID}`;
+
+  if (body.status === "cancelled") {
+    const currentResponse = await supabaseRest(
+      `${bookingPath}&select=id,status,google_event_id,customer_name,customer_email,service_slug,local_date,local_start_time&limit=1`,
+      {},
+      token,
+    );
+    if (!currentResponse.ok) return NextResponse.json({ error: "Could not load the confirmed booking." }, { status: 502 });
+    const currentRows = await currentResponse.json() as BookingRecord[];
+    const current = currentRows[0];
+    if (!current) return NextResponse.json({ error: "Booking not found." }, { status: 404 });
+
+    const transition = bookingTransitionPlan({
+      currentStatus: String(current.status),
+      requestedStatus: "cancelled",
+      googleEventId: typeof current.google_event_id === "string" ? current.google_event_id : null,
+    });
+    if (!transition.allowed) {
+      return NextResponse.json({ error: "Only a confirmed booking can be cancelled." }, { status: 409 });
+    }
+    if (transition.expectedStatus === "cancelled") {
+      return NextResponse.json({ booking: current, warning: null, alreadyCancelled: true });
+    }
+
+    if (transition.calendarAction === "cancel-event") {
+      const calendarResponse = await invokeSupabaseFunction("santa-calendar-admin", {
+        action: "cancel-event",
+        bookingId: body.id,
+      }, token).catch(() => null);
+      const calendarResult = calendarResponse
+        ? await calendarResponse.json().catch(() => ({})) as { error?: string }
+        : { error: "Calendar service could not be reached." };
+      if (!calendarResponse?.ok) {
+        return NextResponse.json({
+          error: calendarResult.error || "The Google Calendar event could not be removed, so the booking was not cancelled.",
+        }, { status: 502 });
+      }
+    }
+
+    const response = await supabaseRest(`${bookingPath}&status=eq.confirmed`, {
+      method: "PATCH",
+      headers: { Prefer: "return=representation" },
+      body: JSON.stringify({
+        status: "cancelled",
+        google_event_id: null,
+        calendar_sync_status: "not_connected",
+        calendar_sync_error: null,
+      }),
+    }, token);
+    const updated = response.ok ? await response.json() as BookingRecord[] : [];
+    if (!response.ok || !updated[0]) {
+      const latestResponse = await supabaseRest(`${bookingPath}&select=id,status&limit=1`, {}, token).catch(() => null);
+      const latestRows = latestResponse?.ok ? await latestResponse.json() as BookingRecord[] : [];
+      if (latestRows[0]?.status === "cancelled") {
+        return NextResponse.json({ booking: latestRows[0], warning: null, alreadyCancelled: true });
+      }
+
+      const message = transition.calendarAction === "cancel-event"
+        ? "The Calendar event was removed, but the booking could not be marked cancelled. Refresh before trying again."
+        : "The booking could not be marked cancelled. Refresh before trying again.";
+      await supabaseRest(`${bookingPath}&status=eq.confirmed`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          calendar_sync_status: transition.calendarAction === "cancel-event" ? "error" : "not_connected",
+          calendar_sync_error: message,
+          google_event_id: transition.calendarAction === "cancel-event" ? null : current.google_event_id,
+        }),
+      }, token).catch(() => undefined);
+      return NextResponse.json({ error: message }, { status: 502 });
+    }
+
+    return NextResponse.json({ booking: updated[0], warning: null });
+  }
 
   if (body.status === "declined") {
     const response = await supabaseRest(`${bookingPath}&status=eq.pending`, {
@@ -43,7 +118,18 @@ export async function PATCH(request: NextRequest) {
     }, token);
     if (!response.ok) return NextResponse.json({ error: "Could not decline the request." }, { status: 502 });
     const updated = await response.json() as BookingRecord[];
-    if (updated[0]) return NextResponse.json({ booking: updated[0], warning: null });
+    if (updated[0]) {
+      const notificationSent = await sendBookingDecisionNotification({
+        decision: "declined",
+        booking: updated[0],
+        testRecipient: SANTA_TEST_NOTIFICATION_EMAIL,
+      });
+      return NextResponse.json({
+        booking: updated[0],
+        warning: notificationSent ? null : "The request was declined, but the test notification could not be sent.",
+        notificationSent,
+      });
+    }
     return NextResponse.json({ error: "This request is no longer pending." }, { status: 409 });
   }
 
@@ -141,5 +227,15 @@ export async function PATCH(request: NextRequest) {
     }, { status: 502 });
   }
 
-  return NextResponse.json({ booking: updated[0], warning: calendarWarning });
+  const notificationSent = await sendBookingDecisionNotification({
+    decision: "confirmed",
+    booking: updated[0],
+    testRecipient: SANTA_TEST_NOTIFICATION_EMAIL,
+  });
+  const notificationWarning = notificationSent ? null : "The request was accepted, but the test notification could not be sent.";
+  return NextResponse.json({
+    booking: updated[0],
+    warning: [calendarWarning, notificationWarning].filter(Boolean).join(" ") || null,
+    notificationSent,
+  });
 }

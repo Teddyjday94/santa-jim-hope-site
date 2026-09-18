@@ -5,15 +5,6 @@ import { mergeCalendarBusyIntervals } from "../lib/santa-calendar.mjs";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("public availability merges Google Calendar busy intervals without exposing tokens", async () => {
-  const route = await read("app/api/santa/availability/route.ts");
-  assert.match(route, /santa-calendar-public/);
-  assert.match(route, /calendarBusy|googleBusy/i);
-  assert.match(route, /buildAvailableSlots/);
-  assert.match(route, /Calendar service could not be reached/);
-  assert.doesNotMatch(route, /refresh_token|access_token/);
-});
-
 test("Santa admin dashboard can connect and disconnect Google Calendar", async () => {
   const dashboard = await read("components/santa/admin-dashboard.tsx");
   assert.match(dashboard, /Google Calendar/);

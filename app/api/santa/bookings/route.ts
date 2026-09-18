@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { loadSantaAvailability, validateBookingAvailability } from "@/lib/santa-availability-service.mjs";
 import { SANTA_SITE_ID, SANTA_TEST_NOTIFICATION_EMAIL } from "@/lib/santa-config";
-import { supabaseRpc } from "@/lib/santa-supabase";
+import { invokeSupabaseFunction, supabaseRest, supabaseRpc } from "@/lib/santa-supabase";
 
 const FORM_ENDPOINT = `https://formsubmit.co/ajax/${SANTA_TEST_NOTIFICATION_EMAIL}`;
 
@@ -30,12 +31,25 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Complete the required booking fields." }, { status: 400 });
   }
 
-  const availabilityUrl = new URL("/api/santa/availability", request.url);
-  availabilityUrl.searchParams.set("date", payload.p_local_date);
-  availabilityUrl.searchParams.set("service", payload.p_service_slug);
-  const availabilityResponse = await fetch(availabilityUrl, { cache: "no-store" });
-  const availability = await availabilityResponse.json().catch(() => ({})) as { slots?: Array<{ startTime: string; endTime: string }> };
-  if (!availabilityResponse.ok || !availability.slots?.some((slot) => slot.startTime === payload.p_local_start_time)) {
+  const availability = await validateBookingAvailability({
+    date: payload.p_local_date,
+    serviceSlug: payload.p_service_slug,
+    startTime: payload.p_local_start_time,
+    loadAvailability: ({ date, serviceSlug }) => loadSantaAvailability({
+      date,
+      serviceSlug,
+      siteId: SANTA_SITE_ID,
+      supabaseRest,
+      invokeSupabaseFunction,
+    }),
+  });
+  if (!availability.available && availability.reason === "availability_error") {
+    return NextResponse.json(
+      { error: availability.error || "Availability is temporarily unavailable. Please try again." },
+      { status: 503 },
+    );
+  }
+  if (!availability.available) {
     return NextResponse.json({ error: "That time is no longer available. Please choose another." }, { status: 409 });
   }
 

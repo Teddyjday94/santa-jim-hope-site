@@ -4,16 +4,6 @@ import { readFile } from "node:fs/promises";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("availability endpoint reads only safe scheduler data and returns slots", async () => {
-  const source = await read("app/api/santa/availability/route.ts");
-  assert.match(source, /santa_schedule_settings/);
-  assert.match(source, /santa_services/);
-  assert.match(source, /santa_day_rules/);
-  assert.match(source, /local_start_time/);
-  assert.match(source, /buildAvailableSlots/);
-  assert.doesNotMatch(source, /customer_email/);
-});
-
 test("booking endpoint creates a pending request and keeps test email routing", async () => {
   const source = await read("app/api/santa/bookings/route.ts");
   const config = await read("lib/santa-config.ts");

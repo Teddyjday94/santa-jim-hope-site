@@ -14,6 +14,7 @@ export function SiteHeader() {
       </a>
       <nav aria-label="Primary navigation">
         {links.map(([label, href]) => <a key={href} href={href}>{label}</a>)}
+        <a className="site-header__portal" href="/santa-admin">Santa Portal</a>
       </nav>
       <a className="button button--small" href="#booking">Invite Santa Jim</a>
     </header>

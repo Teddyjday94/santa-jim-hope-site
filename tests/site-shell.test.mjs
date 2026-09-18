@@ -20,3 +20,11 @@ test("the root metadata describes the Santa service", async () => {
   assert.match(layout, /Santa Jim Hope \| Holiday Visits & Event Appearances/);
   assert.match(layout, /family celebrations, birthdays, schools, businesses, community events/);
 });
+
+test("the public header separates customer booking from the private Santa portal", async () => {
+  const header = await readFile(new URL("../components/santa/site-header.tsx", import.meta.url), "utf8");
+
+  assert.match(header, /href="\/santa-admin"[^>]*>Santa Portal</);
+  assert.match(header, /href="#booking"[^>]*>Invite Santa Jim</);
+  assert.match(header, /<nav[\s\S]*href="\/santa-admin"[\s\S]*<\/nav>/);
+});

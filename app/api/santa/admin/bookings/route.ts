@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { sendAcceptanceEmail } from "@/lib/santa-acceptance-email.mjs";
 import { bookingTransitionPlan } from "@/lib/santa-booking-actions.mjs";
 import { sendBookingDecisionNotification } from "@/lib/santa-booking-notifications.mjs";
 import { SANTA_SITE_ID, SANTA_TEST_NOTIFICATION_EMAIL } from "@/lib/santa-config";
@@ -227,15 +228,19 @@ export async function PATCH(request: NextRequest) {
     }, { status: 502 });
   }
 
-  const notificationSent = await sendBookingDecisionNotification({
-    decision: "confirmed",
+  const notification = await sendAcceptanceEmail({
     booking: updated[0],
+    apiKey: process.env.RESEND_API_KEY,
+    deliveryMode: process.env.SANTA_EMAIL_DELIVERY_MODE,
     testRecipient: SANTA_TEST_NOTIFICATION_EMAIL,
+    from: process.env.SANTA_EMAIL_FROM,
   });
-  const notificationWarning = notificationSent ? null : "The request was accepted, but the test notification could not be sent.";
+  const notificationWarning = notification.sent ? null : "The request was accepted, but the acceptance email could not be sent.";
   return NextResponse.json({
     booking: updated[0],
     warning: [calendarWarning, notificationWarning].filter(Boolean).join(" ") || null,
-    notificationSent,
+    notificationSent: notification.sent,
+    notificationMode: notification.mode,
+    notificationRecipient: notification.recipient,
   });
 }

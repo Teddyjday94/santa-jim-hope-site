@@ -282,13 +282,19 @@ export function AdminDashboard() {
         method: "PATCH",
         body: JSON.stringify({ id, status }),
       });
-      const result = await response.json().catch(() => ({})) as { error?: string; warning?: string };
+      const result = await response.json().catch(() => ({})) as {
+        error?: string;
+        warning?: string;
+        notificationMode?: "test" | "live";
+      };
       if (!response.ok) {
         setDashboardError(result.error || "The booking request could not be updated.");
         return;
       }
       const successMessage = status === "confirmed"
-        ? "Request accepted. A test acceptance message was sent to the business inbox."
+        ? result.notificationMode === "live"
+          ? "Request accepted. The acceptance email was sent to the customer."
+          : "Request accepted. A test acceptance email was sent to the business inbox."
         : status === "declined"
           ? "Request declined, the time was released, and a test decline message was sent to the business inbox."
           : "Booking cancelled and the time was released.";

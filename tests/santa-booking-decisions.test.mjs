@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { buildBookingDecisionNotification } from "../lib/santa-booking-notifications.mjs";
 import { bookingTransitionPlan } from "../lib/santa-booking-actions.mjs";
+import { buildAcceptanceEmail, sendAcceptanceEmail } from "../lib/santa-acceptance-email.mjs";
 
 const booking = {
   id: "booking-123",
@@ -26,6 +27,78 @@ test("accepted-booking test notification names the intended customer and explain
   assert.match(notification.fields.message, /contact you for more details/i);
   assert.match(notification.fields.message, /\$50 deposit/i);
   assert.match(notification.fields.message, /secure (?:the|your) (?:approved )?booking/i);
+});
+
+test("acceptance email test mode goes only to the business inbox and names the intended customer", () => {
+  const email = buildAcceptanceEmail({
+    booking,
+    deliveryMode: "test",
+    testRecipient: "thomasdbiz26@gmail.com",
+    from: "Santa Jim <bookings@example.com>",
+  });
+
+  assert.deepEqual(email.to, ["thomasdbiz26@gmail.com"]);
+  assert.match(email.subject, /^TEST .*accepted/i);
+  assert.match(email.text, /Intended customer: jamie@example\.com/i);
+  assert.match(email.text, /Santa Jim has accepted your booking request/i);
+  assert.match(email.text, /contact you with further booking details/i);
+  assert.match(email.text, /\$50 deposit/i);
+  assert.match(email.text, /payment information/i);
+});
+
+test("acceptance email live mode goes to the customer without a test subject", () => {
+  const email = buildAcceptanceEmail({
+    booking,
+    deliveryMode: "live",
+    testRecipient: "thomasdbiz26@gmail.com",
+    from: "Santa Jim <bookings@example.com>",
+  });
+
+  assert.deepEqual(email.to, ["jamie@example.com"]);
+  assert.doesNotMatch(email.subject, /^TEST/i);
+  assert.doesNotMatch(email.text, /Intended customer:/i);
+});
+
+test("acceptance email send uses Resend and a stable booking idempotency key", async () => {
+  let request;
+  const result = await sendAcceptanceEmail({
+    booking,
+    apiKey: "re_test_secret",
+    deliveryMode: "test",
+    testRecipient: "thomasdbiz26@gmail.com",
+    from: "Santa Jim <bookings@example.com>",
+    fetchImpl: async (url, options) => {
+      request = { url, options };
+      return { ok: true, json: async () => ({ id: "email-123" }) };
+    },
+  });
+
+  assert.equal(result.sent, true);
+  assert.equal(result.mode, "test");
+  assert.equal(result.recipient, "thomasdbiz26@gmail.com");
+  assert.equal(request.url, "https://api.resend.com/emails");
+  assert.equal(request.options.headers.Authorization, "Bearer re_test_secret");
+  assert.equal(request.options.headers["Idempotency-Key"], "santa-booking-accepted/booking-123");
+  assert.deepEqual(JSON.parse(request.options.body).to, ["thomasdbiz26@gmail.com"]);
+});
+
+test("acceptance email fails safely without server credentials", async () => {
+  let calls = 0;
+  const result = await sendAcceptanceEmail({
+    booking,
+    apiKey: "",
+    deliveryMode: "test",
+    testRecipient: "thomasdbiz26@gmail.com",
+    from: "",
+    fetchImpl: async () => {
+      calls += 1;
+      return { ok: true };
+    },
+  });
+
+  assert.equal(result.sent, false);
+  assert.equal(result.mode, "test");
+  assert.equal(calls, 0);
 });
 
 test("declined-booking test notification asks the customer to choose another date", () => {

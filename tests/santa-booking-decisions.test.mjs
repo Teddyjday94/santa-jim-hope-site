@@ -82,12 +82,33 @@ test("acceptance email send uses Resend and a stable booking idempotency key", a
   assert.deepEqual(JSON.parse(request.options.body).to, ["thomasdbiz26@gmail.com"]);
 });
 
-test("acceptance email fails safely without server credentials", async () => {
-  let calls = 0;
+test("acceptance email test mode falls back to the existing business inbox channel", async () => {
+  let request;
   const result = await sendAcceptanceEmail({
     booking,
     apiKey: "",
     deliveryMode: "test",
+    testRecipient: "thomasdbiz26@gmail.com",
+    from: "",
+    fetchImpl: async (url, options) => {
+      request = { url, options };
+      return { ok: true, json: async () => ({}) };
+    },
+  });
+
+  assert.equal(result.sent, true);
+  assert.equal(result.mode, "test");
+  assert.equal(result.provider, "formsubmit");
+  assert.equal(request.url, "https://formsubmit.co/ajax/thomasdbiz26%40gmail.com");
+  assert.match(JSON.parse(request.options.body).message, /\$50 deposit/i);
+});
+
+test("acceptance email live mode fails safely without Resend credentials", async () => {
+  let calls = 0;
+  const result = await sendAcceptanceEmail({
+    booking,
+    apiKey: "",
+    deliveryMode: "live",
     testRecipient: "thomasdbiz26@gmail.com",
     from: "",
     fetchImpl: async () => {
@@ -97,7 +118,7 @@ test("acceptance email fails safely without server credentials", async () => {
   });
 
   assert.equal(result.sent, false);
-  assert.equal(result.mode, "test");
+  assert.equal(result.mode, "live");
   assert.equal(calls, 0);
 });
 

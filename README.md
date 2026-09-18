@@ -66,7 +66,7 @@ Accepted booking emails are sent server-side through Resend. Configure these ser
 - `SANTA_EMAIL_FROM` — sender on a verified domain, such as `Santa Jim <bookings@example.com>`
 - `SANTA_EMAIL_DELIVERY_MODE` — use `test` in previews and `live` only when customer delivery is approved
 
-In test mode, email is routed to the business test inbox and clearly identifies the intended customer. Never expose the API key through a `NEXT_PUBLIC_` variable.
+In test mode, email is routed to the business test inbox and clearly identifies the intended customer. Until Resend is configured, previews use the site's existing FormSubmit test channel; live customer delivery never falls back and remains disabled without Resend. Never expose the API key through a `NEXT_PUBLIC_` variable.
 
 ## Repository cleanup note
 

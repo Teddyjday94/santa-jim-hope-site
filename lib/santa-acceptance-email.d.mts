@@ -10,6 +10,7 @@ export type AcceptanceEmailResult = {
   sent: boolean;
   mode: AcceptanceDeliveryMode;
   recipient: string;
+  provider?: "resend" | "formsubmit";
   id?: string | null;
   error: string | null;
 };

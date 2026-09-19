@@ -25,7 +25,7 @@ export default function ExperiencesPage() {
           const photo = experiencePhotos[experience.title];
           return (
             <article className={index % 2 ? "experience-story experience-story--reverse" : "experience-story"} key={experience.title}>
-              <div className="experience-story__photo">
+              <div className={photo?.fit === "contain" ? "experience-story__photo experience-story__photo--contain" : "experience-story__photo"}>
                 {photo ? (
                   <Image
                     src={photo.src}

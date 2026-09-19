@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -25,17 +26,22 @@ export default function ExperiencesPage() {
           const photo = experiencePhotos[experience.title];
           return (
             <article className={index % 2 ? "experience-story experience-story--reverse" : "experience-story"} key={experience.title}>
-              <div className={photo?.fit === "contain" ? "experience-story__photo experience-story__photo--contain" : "experience-story__photo"}>
+              <div
+                className={photo?.fit === "contain" ? "experience-story__photo experience-story__photo--contain" : "experience-story__photo"}
+                style={photo ? {
+                  "--photo-fit": photo.fit ?? "cover",
+                  "--photo-mobile-fit": photo.mobileFit ?? photo.fit ?? "cover",
+                  "--photo-position": photo.position ?? "center center",
+                  "--photo-mobile-position": photo.mobilePosition ?? photo.position ?? "center center",
+                } as CSSProperties : undefined}
+              >
                 {photo ? (
                   <Image
                     src={photo.src}
                     alt={photo.alt}
                     fill
                     sizes="(max-width: 820px) 92vw, 48vw"
-                    style={{
-                      objectFit: photo.fit ?? "cover",
-                      objectPosition: photo.position ?? "center center",
-                    }}
+                    className="experience-story__image"
                   />
                 ) : null}
               </div>

@@ -26,7 +26,18 @@ export default function ExperiencesPage() {
           return (
             <article className={index % 2 ? "experience-story experience-story--reverse" : "experience-story"} key={experience.title}>
               <div className="experience-story__photo">
-                {photo ? <Image src={photo.src} alt={photo.alt} fill sizes="(max-width: 820px) 92vw, 48vw" /> : null}
+                {photo ? (
+                  <Image
+                    src={photo.src}
+                    alt={photo.alt}
+                    fill
+                    sizes="(max-width: 820px) 92vw, 48vw"
+                    style={{
+                      objectFit: photo.fit ?? "cover",
+                      objectPosition: photo.position ?? "center center",
+                    }}
+                  />
+                ) : null}
               </div>
               <div className="experience-story__copy">
                 <span>{experience.kicker}</span>

@@ -2,16 +2,17 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
-test("the page presents the working Santa brand and primary booking path", async () => {
+test("the homepage presents the Santa brand and routes customers to booking", async () => {
   const [page, header] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../components/santa/site-header.tsx", import.meta.url), "utf8"),
   ]);
 
-  assert.match(page, /santaProfile\.displayName/);
-  assert.match(page, /Christmas feels closer when Santa walks in\./);
-  assert.match(page, /href="#booking"/);
-  assert.match(header, /\["Experiences", "#experiences"\]/);
+  assert.match(page, /Christmas feels closer when/);
+  assert.match(page, /Santa walks in/);
+  assert.match(page, /href="\/invite"/);
+  assert.match(header, /\["Experiences", "\/experiences"\]/);
+  assert.match(header, /href="\/invite"[^>]*>Invite Santa Jim/);
 });
 
 test("the root metadata describes the Santa service", async () => {
@@ -19,12 +20,15 @@ test("the root metadata describes the Santa service", async () => {
 
   assert.match(layout, /Santa Jim Hope \| Holiday Visits & Event Appearances/);
   assert.match(layout, /family celebrations, birthdays, schools, businesses, community events/);
+  assert.match(layout, /multipage\.css/);
+  assert.match(layout, /scheduler\.css/);
+  assert.match(layout, /admin\.css/);
 });
 
 test("the public header separates customer booking from the private Santa portal", async () => {
   const header = await readFile(new URL("../components/santa/site-header.tsx", import.meta.url), "utf8");
 
-  assert.match(header, /href="\/santa-admin"[^>]*>Santa Portal</);
-  assert.match(header, /href="#booking"[^>]*>Invite Santa Jim</);
+  assert.match(header, /href="\/santa-admin"[^>]*>Santa Portal/);
+  assert.match(header, /href="\/invite"[^>]*>Invite Santa Jim/);
   assert.match(header, /<nav[\s\S]*href="\/santa-admin"[\s\S]*<\/nav>/);
 });

@@ -11,6 +11,7 @@ export const experiencePhotos: Record<string, ExperiencePhoto> = {
   "Home visits": {
     src: "/images/santa-jim-hope-throne-family.jpg",
     alt: "Santa Jim Hope sharing a Christmas moment with a family",
+    fit: "contain",
     position: "center center",
     mobileFit: "contain",
     mobilePosition: "center center",

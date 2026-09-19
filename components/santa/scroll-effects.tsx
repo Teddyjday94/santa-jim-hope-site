@@ -89,8 +89,8 @@ export function ScrollEffects() {
       if (!finePointer) return;
       const x = event.clientX / window.innerWidth - 0.5;
       const y = event.clientY / window.innerHeight - 0.5;
-      root.style.setProperty("--pointer-x", x.toFixed(3));
-      root.style.setProperty("--pointer-y", y.toFixed(3));
+      root.style.setProperty("--pointer-x", `${(x * 12).toFixed(2)}px`);
+      root.style.setProperty("--pointer-y", `${(y * 9).toFixed(2)}px`);
     };
 
     updateScroll();

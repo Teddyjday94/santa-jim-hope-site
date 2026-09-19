@@ -29,13 +29,13 @@ export default function InvitePage() {
       <section className="invite-form-section dark-section">
         <aside className="booking-intro">
           <p className="eyebrow">Plan the visit</p>
-          <h2>Holiday inquiries are open.</h2>
-          <p>Send your preferred date and location to check availability.</p>
+          <h2>Pick an experience, date, and available time.</h2>
+          <p>The scheduler shows Santa Jim&apos;s current availability. Your requested time is held pending review after you submit.</p>
           <div className="booking-availability">
             <span className="booking-availability__pulse" aria-hidden="true" />
             <div>
-              <strong>Booking inquiries are open</strong>
-              <span>Dates and timing are confirmed directly after your inquiry is reviewed.</span>
+              <strong>Holiday request calendar is open</strong>
+              <span>Available times reflect Santa Jim&apos;s current schedule and special event-day rules.</span>
             </div>
           </div>
           <div className="booking-note">

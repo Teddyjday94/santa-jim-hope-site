@@ -43,7 +43,11 @@ export default function InvitePage() {
             <span>Choose an available time, then share the people and celebration details Santa Jim should know.</span>
           </div>
         </aside>
-        <InquiryForm />
+        <div className="north-pole-letter">
+          <span className="north-pole-letter__postmark" aria-hidden="true">North Pole · Priority</span>
+          <span className="north-pole-letter__seal" aria-hidden="true">SJH</span>
+          <InquiryForm />
+        </div>
       </section>
     </SiteShell>
   );

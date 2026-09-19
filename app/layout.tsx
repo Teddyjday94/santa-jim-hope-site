@@ -5,7 +5,8 @@ import "./experience-media.css";
 import "./wreath-frames.css";
 import "./reel-showcase.css";
 import "./scheduler.css";
-import "./admin.css";\n
+import "./admin.css";
+
 const siteTitle = "Santa Jim Hope | Holiday Visits & Event Appearances";
 const siteDescription = "Invite Santa Jim Hope to family celebrations, birthdays, schools, businesses, community events, and holiday photo sessions.";
 
@@ -40,9 +41,6 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <head>
-        <link rel="stylesheet" href="/multipage.css" />
-      </head>
       <body>{children}</body>
     </html>
   );

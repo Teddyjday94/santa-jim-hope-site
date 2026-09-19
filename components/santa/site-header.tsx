@@ -11,7 +11,7 @@ export function SiteHeader() {
   return (
     <header className="site-header">
       <Link className="wordmark" href="/" aria-label="Santa Jim Hope home">
-        <span className="wordmark__mark" aria-hidden="true">SJH</span>
+        <img className="wordmark__logo" src="/images/santa-jim-hope-logo.webp" alt="" aria-hidden="true" />
         <span className="wordmark__copy">
           <strong>Santa Jim Hope</strong>
           <small>Real people. Brighter holidays.</small>

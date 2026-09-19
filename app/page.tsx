@@ -105,7 +105,16 @@ export default function Home() {
               <article className="home-experience-card" key={experience.title}>
                 {photo ? (
                   <div className="home-experience-card__image">
-                    <Image src={photo.src} alt={photo.alt} fill sizes="(max-width: 720px) 92vw, 30vw" />
+                    <Image
+                      src={photo.src}
+                      alt={photo.alt}
+                      fill
+                      sizes="(max-width: 720px) 92vw, 30vw"
+                      style={{
+                        objectFit: photo.fit ?? "cover",
+                        objectPosition: photo.position ?? "center center",
+                      }}
+                    />
                   </div>
                 ) : null}
                 <span>{experience.kicker}</span>

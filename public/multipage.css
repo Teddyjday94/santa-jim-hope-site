@@ -2611,3 +2611,25 @@
     display: none;
   }
 }
+
+
+/* Final hero photo treatment: static, no breathing/hover jitter */
+.home-hero__portrait img {
+  animation: none !important;
+  transition: none !important;
+  transform: none !important;
+  object-position: center 22%;
+}
+
+.home-hero:hover .home-hero__portrait img {
+  transform: none !important;
+}
+
+@media (max-width: 620px) {
+  .home-hero__portrait img {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    object-position: center center !important;
+  }
+}

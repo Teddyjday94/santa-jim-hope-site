@@ -23,6 +23,15 @@ export function SiteShell({
         <span className="ambient-evergreen" />
       </div>
 
+      <div className="seasonal-trim seasonal-trim--left" aria-hidden="true">
+        <span className="seasonal-ornament seasonal-ornament--one" />
+        <span className="seasonal-ornament seasonal-ornament--two" />
+      </div>
+      <div className="seasonal-trim seasonal-trim--right" aria-hidden="true">
+        <span className="seasonal-ornament seasonal-ornament--one" />
+        <span className="seasonal-ornament seasonal-ornament--two" />
+      </div>
+
       <div className="snowfield" aria-hidden="true">
         {snowflakes.map((flake) => (
           <span

@@ -1,239 +1,140 @@
+import type { Metadata } from "next";
 import Image from "next/image";
-import type { CSSProperties } from "react";
-import {
-  ArrowUpRight,
-  BellRing,
-  BookOpen,
-  CalendarDays,
-  Gift,
-  HeartHandshake,
-  Sparkles,
-  Star,
-} from "lucide-react";
-import { SiteHeader } from "@/components/santa/site-header";
-import { InquiryForm } from "@/components/santa/inquiry-form";
+import Link from "next/link";
+import { ArrowRight, ArrowUpRight, BookOpen, Camera, HeartHandshake, Sparkles } from "lucide-react";
 import { FaqList } from "@/components/santa/faq-list";
-import { GalleryLightbox } from "@/components/santa/gallery-lightbox";
+import { SiteShell } from "@/components/santa/site-shell";
 import { experiencePhotos } from "@/components/santa/experience-photos";
-import {
-  ambientOrbs,
-  experiences,
-  faqs,
-  galleryItems,
-  heroMedia,
-  santaProfile,
-  snowflakes,
-  socialReels,
-  visitSteps,
-} from "@/components/santa/site-content";
+import { experiences, faqs, galleryItems, santaProfile, visitSteps } from "@/components/santa/site-content";
+
+export const metadata: Metadata = {
+  title: "Santa Jim Hope | Holiday Visits & Event Appearances",
+  description: "Invite Santa Jim Hope to family celebrations, schools, businesses, community events, and holiday photo sessions.",
+};
+
+const featuredExperiences = experiences.filter((item) =>
+  ["Home visits", "Community celebrations", "Photo sessions"].includes(item.title),
+);
 
 export default function Home() {
   return (
-    <main id="top">
-      <div className="ambient-backdrop" aria-hidden="true">
-        {ambientOrbs.map((orb) => (
-          <span className={`ambient-orb ambient-orb--${orb}`} key={orb} />
-        ))}
-        <span className="ambient-evergreen" />
-      </div>
-
-      <div className="snowfield" aria-hidden="true">
-        {snowflakes.map((flake) => (
-          <span
-            className="snowflake"
-            key={flake.id}
-            style={{
-              "--flake-left": `${flake.left}%`,
-              "--flake-size": `${flake.size}rem`,
-              "--flake-duration": `${flake.duration}s`,
-              "--flake-delay": `-${flake.delay}s`,
-              "--flake-drift": `${flake.drift}vw`,
-            } as CSSProperties}
-          >
-            {flake.symbol}
-          </span>
-        ))}
-      </div>
-
-      <div className="journey-thread" aria-hidden="true">
-        <span className="journey-thread__line" />
-        <span className="journey-thread__star journey-thread__star--one" />
-        <span className="journey-thread__star journey-thread__star--two" />
-        <span className="journey-thread__star journey-thread__star--three" />
-      </div>
-
-      <SiteHeader />
-
-      <section className="hero" aria-labelledby="hero-title">
-        <div className="hero__copy">
-          <p className="eyebrow">{santaProfile.displayName} · Holiday appearances</p>
-          <h1 id="hero-title">Christmas feels closer when Santa walks in.</h1>
-          <p className="hero__lead">
-            Invite Santa Jim to home celebrations, birthdays, community gatherings,
-            school events, photo sessions, and more.
+    <SiteShell className="home-page">
+      <section className="home-hero">
+        <div className="home-hero__copy">
+          <p className="eyebrow">Holiday appearances · 2026</p>
+          <h1>Christmas feels closer when <em>Santa walks in.</em></h1>
+          <p className="home-hero__lead">
+            Invite Santa Jim Hope to home celebrations, birthdays, schools,
+            community gatherings, corporate events, photo sessions, and more.
           </p>
-          <div className="hero__actions">
-            <a className="button button--gold" href="#booking">
-              Invite Santa Jim <ArrowUpRight size={17} />
-            </a>
-            <a className="button button--quiet" href="#meet-jim">Meet Jim</a>
+          <div className="hero-actions">
+            <Link className="button button--red" href="/invite">
+              Invite Santa Jim <ArrowUpRight size={17} aria-hidden="true" />
+            </Link>
+            <Link className="button button--paper" href="/meet">
+              Meet Jim <ArrowRight size={16} aria-hidden="true" />
+            </Link>
           </div>
-          <p className="hero__aside">
-            <Sparkles size={16} aria-hidden="true" />
-            Booking inquiries are open for holiday visits and events.
+          <p className="home-hero__status">
+            <Sparkles size={15} aria-hidden="true" />
+            Booking inquiries are open for the holiday season.
           </p>
         </div>
 
-        <div className="hero__media">
+        <div className="home-hero__portrait">
           <Image
-            className="hero__poster"
-            src={heroMedia.posterSrc}
-            alt={heroMedia.alt}
+            src="/images/jim-hope-throne.webp"
+            alt="Santa Jim Hope seated on an ornate holiday throne"
             fill
             priority
-            sizes="(max-width: 760px) 100vw, 42vw"
+            sizes="(max-width: 820px) 100vw, 52vw"
           />
-          <video
-            className="hero__film"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            poster={heroMedia.posterSrc}
-            aria-hidden="true"
-          >
-            <source src={heroMedia.videoSrc} type="video/mp4" />
-          </video>
-          <span className="hero__bokeh hero__bokeh--one" aria-hidden="true" />
-          <span className="hero__bokeh hero__bokeh--two" aria-hidden="true" />
-          <span className="hero__bokeh hero__bokeh--three" aria-hidden="true" />
-          <div className="hero__shade" aria-hidden="true" />
-          <div className="hero__note">
-            <Star size={16} aria-hidden="true" />
-            <span>Real moments with Santa Jim Hope</span>
+          <div className="home-hero__portrait-note">
+            <strong>{santaProfile.displayName}</strong>
+            <span>Spreading joy, one visit at a time.</span>
           </div>
         </div>
       </section>
 
-      <section className="trust-strip" aria-label="Visit qualities">
-        <span><Sparkles size={18} aria-hidden="true" /> Personal celebrations</span>
-        <span><Gift size={18} aria-hidden="true" /> Events large and small</span>
-        <span><BellRing size={18} aria-hidden="true" /> Photo-ready holiday moments</span>
-      </section>
-
-      <section id="meet-jim" className="section section--cream meet-jim">
-        <div className="meet-jim__photos" aria-label="Santa Jim at past holiday visits">
-          <figure className="meet-photo meet-photo--story">
-            <Image
-              src="/images/jim-hope-storytime.webp"
-              alt="Santa Jim Hope reading a Christmas story with a baby"
-              fill
-              sizes="(max-width: 760px) 72vw, 28vw"
-            />
-          </figure>
-          <figure className="meet-photo meet-photo--dog">
-            <Image
-              src="/images/jim-hope-dog.webp"
-              alt="Santa Jim Hope smiling while holding a small dog"
-              fill
-              sizes="(max-width: 760px) 58vw, 22vw"
-            />
-          </figure>
+      <section className="home-story paper-section">
+        <div className="home-story__photo">
+          <Image
+            src="/images/jim-hope-storytime.webp"
+            alt="Santa Jim Hope reading a Christmas story with a baby"
+            fill
+            sizes="(max-width: 760px) 92vw, 38vw"
+          />
         </div>
-        <div className="meet-jim__copy">
+        <div className="home-story__copy">
           <p className="eyebrow eyebrow--dark">Meet Santa Jim</p>
-          <h2>A warm face in the middle of the magic.</h2>
+          <h2>More than a costume. A calling.</h2>
           <p>
             Jim Hope brings a calm, welcoming Santa presence to the moments that
             families and communities look forward to all season.
           </p>
-          <p>
-            From Christmas stories and first holiday photos to pets, group celebrations,
-            and quiet one-on-one moments, each visit starts with the people in the room.
-          </p>
-          <div className="meet-jim__signals">
+          <div className="home-story__signals">
             <span><BookOpen size={18} aria-hidden="true" /> Storytime moments</span>
             <span><HeartHandshake size={18} aria-hidden="true" /> Welcoming visits</span>
           </div>
+          <Link className="text-link" href="/meet">
+            Meet Santa Jim <ArrowRight size={16} aria-hidden="true" />
+          </Link>
         </div>
+        <blockquote className="home-story__quote">
+          “The magic is real when people feel seen, heard, and welcomed.”
+          <span>— Santa Jim Hope</span>
+        </blockquote>
       </section>
 
-      <section id="experiences" className="section section--cream experiences-section">
-        <div className="section-heading">
+      <section className="home-experiences dark-section">
+        <div className="section-title-row">
           <div>
-            <p className="eyebrow eyebrow--dark">Ways to celebrate</p>
-            <h2>Choose the kind of Christmas moment you want to create.</h2>
+            <p className="eyebrow">Ways to celebrate</p>
+            <h2>Joy for every occasion.</h2>
           </div>
           <p>
-            Every gathering has a different rhythm. Start with the occasion, then
-            shape the visit around the people and traditions that make it yours.
+            Start with the kind of gathering you are planning, then shape the visit
+            around the people and traditions that make it yours.
           </p>
         </div>
-        <div className="experience-grid experience-grid--keepsakes">
-          {experiences.map((experience) => {
-            const photo = experiencePhotos[experience.title];
 
+        <div className="home-experience-grid">
+          {featuredExperiences.map((experience) => {
+            const photo = experiencePhotos[experience.title];
             return (
-              <article className="experience-card experience-card--keepsake" key={experience.title}>
-                <span className="experience-card__hanger" aria-hidden="true" />
-                <span className="experience-card__keepsake" aria-hidden="true">
-                  <Image
-                    src={experience.iconSrc}
-                    alt=""
-                    width={112}
-                    height={112}
-                    sizes="(max-width: 620px) 76px, 112px"
-                  />
-                </span>
-                <div className="experience-card__copy">
-                  <span className="experience-card__kicker">{experience.kicker}</span>
-                  <h3>{experience.title}</h3>
-                  <p>{experience.description}</p>
-                </div>
+              <article className="home-experience-card" key={experience.title}>
                 {photo ? (
-                  <div className="experience-card__photo">
-                    <Image
-                      src={photo.src}
-                      alt={photo.alt}
-                      fill
-                      sizes="(max-width: 620px) 92vw, (max-width: 1100px) 16vw, 10vw"
-                    />
+                  <div className="home-experience-card__image">
+                    <Image src={photo.src} alt={photo.alt} fill sizes="(max-width: 720px) 92vw, 30vw" />
                   </div>
                 ) : null}
+                <span>{experience.kicker}</span>
+                <h3>{experience.title}</h3>
+                <p>{experience.description}</p>
               </article>
             );
           })}
         </div>
+
+        <Link className="button button--outline-light" href="/experiences">
+          Explore every experience <ArrowRight size={16} aria-hidden="true" />
+        </Link>
       </section>
 
-      <section id="visit" className="section visit-section">
-        <div className="section-heading section-heading--light">
+      <section className="visit-path paper-section">
+        <div className="section-title-row section-title-row--dark">
           <div>
-            <p className="eyebrow">A simple path to Christmas magic</p>
-            <h2>Thoughtful from the first hello.</h2>
+            <p className="eyebrow eyebrow--dark">Thoughtful from the first hello</p>
+            <h2>A simple path to Christmas magic.</h2>
           </div>
-          <p>
-            Your event details shape the visit, so the final experience can feel
-            personal rather than rehearsed.
-          </p>
+          <p>Easy, personal, and designed to make the day feel special.</p>
         </div>
-        <div className="visit-steps">
-          {visitSteps.map((step) => (
-            <article className="visit-step" key={step.label}>
-              <div className="visit-step__marker">
-                <span className="visit-step__keepsake" aria-hidden="true">
-                  <Image
-                    src={step.iconSrc}
-                    alt=""
-                    width={120}
-                    height={120}
-                    sizes="(max-width: 620px) 72px, 120px"
-                  />
-                </span>
-                <span className="visit-step__number">{step.label}</span>
-              </div>
-              <div className="visit-step__copy">
+        <div className="visit-path__steps">
+          {visitSteps.map((step, index) => (
+            <article key={step.label}>
+              <span className="visit-path__number">{index + 1}</span>
+              <div>
+                <span>{step.label}</span>
                 <h3>{step.title}</h3>
                 <p>{step.description}</p>
               </div>
@@ -242,90 +143,54 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="gallery" className="section gallery-preview">
-        <div className="gallery-preview__copy">
-          <p className="eyebrow">Santa Jim in the moment</p>
-          <h2>Real visits. Real smiles. A little Christmas wonder.</h2>
-          <p>
-            Explore moments from family visits, community celebrations, portraits,
-            pets, and time with Santa and Mrs. Claus. Select any photo to see it larger.
-          </p>
+      <section className="home-gallery dark-section">
+        <div className="section-title-row">
+          <div>
+            <p className="eyebrow">Moments that matter</p>
+            <h2>Real smiles. Lasting memories.</h2>
+          </div>
+          <Link className="text-link text-link--light" href="/gallery">
+            View full gallery <ArrowRight size={16} aria-hidden="true" />
+          </Link>
         </div>
-
-        <GalleryLightbox items={galleryItems} />
-
-        <div className="social-reels">
-          <div className="social-reels__heading">
-            <p className="eyebrow">See Santa Jim in action</p>
-            <h3>Christmas moments, caught in motion.</h3>
-            <p>Watch a recent highlight from one of Santa Jim&apos;s community appearances.</p>
-          </div>
-          <div className="social-reels__grid">
-            {socialReels.map((reel) => {
-              const reelUrl = `https://www.facebook.com/reel/${reel.reelId}/`;
-              const embedUrl = `https://www.facebook.com/plugins/video.php?height=476&href=${encodeURIComponent(reelUrl)}&show_text=false&width=267&t=0`;
-
-              return (
-                <figure className="social-reel" key={reel.reelId}>
-                  <div className="social-reel__frame">
-                    <iframe
-                      src={embedUrl}
-                      title={reel.title}
-                      loading="lazy"
-                      scrolling="no"
-                      allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-                      allowFullScreen
-                    />
-                  </div>
-                  <figcaption>{reel.caption}</figcaption>
-                </figure>
-              );
-            })}
-          </div>
+        <div className="home-gallery__grid">
+          {galleryItems.slice(0, 6).map((item, index) => (
+            <figure className={index === 0 ? "home-gallery__item home-gallery__item--wide" : "home-gallery__item"} key={item.src}>
+              <Image src={item.src} alt={item.alt} fill sizes="(max-width: 720px) 92vw, 25vw" />
+              <figcaption>{item.caption}</figcaption>
+            </figure>
+          ))}
         </div>
       </section>
 
-      <section id="faq" className="section faq-preview">
+      <section className="home-faq paper-section">
         <div>
-          <p className="eyebrow">Good to know</p>
-          <h2>Questions before the sleigh is packed.</h2>
-        </div>
-        <FaqList items={faqs} />
-      </section>
-
-      <section id="booking" className="section booking-section">
-        <div className="booking-intro">
-          <p className="eyebrow">Plan the visit</p>
-          <h2>Begin with the details that matter.</h2>
+          <p className="eyebrow eyebrow--dark">Frequently asked</p>
+          <h2>Quick answers for a smoother season.</h2>
           <p>
-            Tell Santa Jim about the celebration you are planning. He will follow up
-            directly to confirm availability and the next steps for your visit.
+            From timing to personalization, here are a few things families and event
+            planners usually want to know first.
           </p>
-          <div className="booking-availability">
-            <span className="booking-availability__pulse" aria-hidden="true" />
-            <div>
-              <strong>Holiday inquiries are open</strong>
-              <span>Send your preferred date and location to check availability.</span>
-            </div>
-          </div>
-          <div className="booking-note">
-            <CalendarDays size={20} aria-hidden="true" />
-            <span>
-              Dates and timing are confirmed directly after your inquiry is reviewed.
-            </span>
-          </div>
+          <Link className="text-link" href="/faq">
+            See every question <ArrowRight size={16} aria-hidden="true" />
+          </Link>
         </div>
-        <InquiryForm />
+        <FaqList items={faqs.slice(0, 3)} />
       </section>
 
-      <footer className="footer-preview">
-        <span className="wordmark">{santaProfile.displayName}</span>
-        <span>Booking inquiries are open for holiday visits and events.</span>
-      </footer>
-
-      <a className="mobile-booking-cta" href="#booking">
-        Check Santa&apos;s availability <ArrowUpRight size={17} aria-hidden="true" />
-      </a>
-    </main>
+      <section className="home-invite">
+        <div>
+          <p className="eyebrow">Invite Santa Jim</p>
+          <h2>Make this season one to remember.</h2>
+          <p>Share the details of your celebration and Santa Jim will follow up about availability.</p>
+        </div>
+        <div className="home-invite__actions">
+          <Link className="button button--red" href="/invite">
+            Start an inquiry <ArrowUpRight size={17} aria-hidden="true" />
+          </Link>
+          <span><Camera size={16} aria-hidden="true" /> Home visits · events · photos</span>
+        </div>
+      </section>
+    </SiteShell>
   );
 }

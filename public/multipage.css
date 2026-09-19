@@ -2193,7 +2193,7 @@
   }
 
   .site-page .ambient-backdrop {
-    transform: translate3d(0, calc(var(--parallax-slow) * .55), 0);
+    transform: translate3d(0, var(--parallax-slow), 0);
   }
 
   .site-page.is-scrolled .site-header {
@@ -2213,7 +2213,7 @@
   }
 
   .site-page .snowfield {
-    transform: translate3d(0, calc(var(--parallax-fast) * .45), 0);
+    transform: translate3d(0, var(--parallax-fast), 0);
   }
 
   .motion-ready .home-hero__portrait > img {
@@ -2222,7 +2222,10 @@
 }
 
 /* Respect users who prefer less motion */
-.motion-reduced .eyebrow::before,
+.motion-reduced .eyebrow::before {
+  animation: none !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .site-page *,
   .site-page *::before,

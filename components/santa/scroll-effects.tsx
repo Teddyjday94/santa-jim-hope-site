@@ -2,6 +2,26 @@
 
 import { useEffect } from "react";
 
+const sectionSelectors = [
+  ".home-story",
+  ".home-experiences",
+  ".visit-path",
+  ".home-gallery",
+  ".home-faq",
+  ".home-invite",
+  ".editorial-story",
+  ".meet-collage",
+  ".values-section",
+  ".experience-stories",
+  ".visit-path--dark",
+  ".gallery-page__content",
+  ".reel-page",
+  ".faq-page__body",
+  ".page-cta",
+  ".invite-intro",
+  ".invite-form-section",
+];
+
 const revealSelectors = [
   ".home-story > *",
   ".section-title-row > *",
@@ -68,6 +88,29 @@ export function ScrollEffects() {
 
     items.forEach((item) => observer.observe(item));
 
+    const sections = Array.from(
+      document.querySelectorAll<HTMLElement>(sectionSelectors.join(",")),
+    );
+
+    sections.forEach((section) => section.classList.add("motion-section"));
+
+    const sectionObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          const target = entry.target as HTMLElement;
+          target.classList.add("is-section-visible");
+          sectionObserver.unobserve(target);
+        });
+      },
+      {
+        threshold: 0.08,
+        rootMargin: "0px 0px -12% 0px",
+      },
+    );
+
+    sections.forEach((section) => sectionObserver.observe(section));
+
     let frame = 0;
     const updateScroll = () => {
       frame = 0;
@@ -97,6 +140,7 @@ export function ScrollEffects() {
 
     return () => {
       observer.disconnect();
+      sectionObserver.disconnect();
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("pointermove", onPointerMove);
       if (frame) window.cancelAnimationFrame(frame);

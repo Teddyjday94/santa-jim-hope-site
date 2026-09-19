@@ -43,8 +43,8 @@ export default function Home() {
 
         <div className="home-hero__portrait">
           <Image
-            src="/images/jim-hope-throne.webp"
-            alt="Santa Jim Hope seated on an ornate holiday throne"
+            src="/images/santa-jim-hope-red-suit-portrait.jpg"
+            alt="Portrait of Santa Jim Hope in his classic red holiday suit"
             fill
             priority
             sizes="(max-width: 820px) 100vw, 52vw"

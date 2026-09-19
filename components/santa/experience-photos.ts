@@ -9,9 +9,9 @@ export type ExperiencePhoto = {
 
 export const experiencePhotos: Record<string, ExperiencePhoto> = {
   "Home visits": {
-    src: "/images/jim-hope-storytime.webp",
-    alt: "Santa Jim Hope sharing a quiet Christmas storytime moment during a family visit",
-    position: "center 38%",
+    src: "/images/santa-jim-hope-throne-family.jpg",
+    alt: "Santa Jim Hope sharing a Christmas moment with a family",
+    position: "center center",
     mobileFit: "contain",
     mobilePosition: "center center",
   },

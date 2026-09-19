@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 190" role="img" aria-labelledby="title desc">
+  <title id="title">Santa Jim Hope holiday crest</title>
+  <desc id="desc">A red and gold Christmas crest with evergreen, holly, lanterns, bow and bells.</desc>
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff1b5"/>
+      <stop offset=".28" stop-color="#d9aa4c"/>
+      <stop offset=".62" stop-color="#8e5f1f"/>
+      <stop offset="1" stop-color="#f1cf75"/>
+    </linearGradient>
+    <linearGradient id="red" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a8272b"/>
+      <stop offset=".55" stop-color="#741418"/>
+      <stop offset="1" stop-color="#4f0d10"/>
+    </linearGradient>
+    <linearGradient id="green" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#194c38"/>
+      <stop offset="1" stop-color="#082d21"/>
+    </linearGradient>
+    <radialGradient id="lamp" cx=".5" cy=".45" r=".65">
+      <stop offset="0" stop-color="#fff6c7"/>
+      <stop offset=".42" stop-color="#ffc85e"/>
+      <stop offset="1" stop-color="#b86d1f"/>
+    </radialGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000" flood-opacity=".45"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#shadow)">
+    <!-- evergreen silhouette -->
+    <g fill="none" stroke="#1d6a47" stroke-linecap="round">
+      <path d="M28 86 C58 55 82 38 111 31" stroke-width="8"/>
+      <path d="M272 86 C242 55 218 38 189 31" stroke-width="8"/>
+      <path d="M35 75 19 53M48 65 36 42M61 57 51 33M76 48 69 25M91 41 88 21M265 75 281 53M252 65 264 42M239 57 249 33M224 48 231 25M209 41 212 21" stroke-width="5"/>
+      <path d="M27 87 9 79M39 74 16 65M53 63 29 51M68 53 44 39M84 44 61 30M273 87 291 79M261 74 284 65M247 63 271 51M232 53 256 39M216 44 239 30" stroke-width="4"/>
+    </g>
+
+    <!-- lanterns -->
+    <g stroke="url(#gold)" stroke-width="4" fill="#1a1711">
+      <path d="M35 40h26l6 9v44H29V49z"/>
+      <path d="M239 40h26l6 9v44h-38V49z"/>
+      <path d="M42 31h12l4 9H38zM246 31h12l4 9H242z"/>
+    </g>
+    <rect x="36" y="50" width="24" height="34" rx="2" fill="url(#lamp)"/>
+    <rect x="240" y="50" width="24" height="34" rx="2" fill="url(#lamp)"/>
+
+    <!-- holly -->
+    <g fill="#0e5a38" stroke="#d4a44c" stroke-width="1.5">
+      <path d="M96 39c11-18 26-18 31 0-9-4-15-1-18 7-4-7-8-9-13-7z"/>
+      <path d="M204 39c-11-18-26-18-31 0 9-4 15-1 18 7 4-7 8-9 13-7z"/>
+    </g>
+    <g fill="#c2262d" stroke="#671015" stroke-width="1.5">
+      <circle cx="104" cy="42" r="5"/><circle cx="116" cy="38" r="5"/><circle cx="196" cy="42" r="5"/><circle cx="184" cy="38" r="5"/>
+    </g>
+
+    <!-- bow -->
+    <g fill="url(#red)" stroke="url(#gold)" stroke-width="3">
+      <path d="M150 25c-16-13-32-11-39 3 9 14 24 18 39 8z"/>
+      <path d="M150 25c16-13 32-11 39 3-9 14-24 18-39 8z"/>
+      <rect x="143" y="21" width="14" height="15" rx="3"/>
+      <path d="M145 35 126 60l21-8 7 15 6-32z"/>
+      <path d="M155 35 174 60l-21-8-7 15-6-32z"/>
+    </g>
+
+    <!-- bells -->
+    <g fill="url(#gold)" stroke="#6f4615" stroke-width="2">
+      <path d="M139 43c-8 6-11 14-9 22l18 3c4-8 3-16-3-24z"/>
+      <path d="M161 43c8 6 11 14 9 22l-18 3c-4-8-3-16 3-24z"/>
+      <circle cx="142" cy="69" r="4"/><circle cx="158" cy="69" r="4"/>
+    </g>
+
+    <!-- main plaque -->
+    <path d="M47 82 Q150 62 253 82 L244 139 Q150 157 56 139z" fill="url(#red)" stroke="url(#gold)" stroke-width="7"/>
+    <path d="M58 89 Q150 72 242 89" fill="none" stroke="#f6dfa0" stroke-width="1.4" opacity=".7"/>
+
+    <text x="150" y="111" text-anchor="middle" fill="#fff1c0" font-family="Georgia,serif" font-size="26" font-weight="700" letter-spacing="1.2">SANTA JIM HOPE</text>
+    <text x="150" y="130" text-anchor="middle" fill="#e3c372" font-family="Georgia,serif" font-size="8.5" font-weight="700" letter-spacing="2.2">REAL PEOPLE · BRIGHTER HOLIDAYS</text>
+
+    <!-- lower ribbon -->
+    <path d="M77 140 Q150 158 223 140l-9 24q-64 15-128 0z" fill="#efe2bd" stroke="url(#gold)" stroke-width="3"/>
+    <circle cx="150" cy="155" r="6" fill="url(#gold)"/>
+    <path d="M146 151h8M150 147v16M146 159l8-8M154 159l-8-8" stroke="#694716" stroke-width="1.4"/>
+
+    <!-- bottom greenery -->
+    <g fill="none" stroke="#1d6a47" stroke-linecap="round">
+      <path d="M82 164c18-4 34-2 50 9M218 164c-18-4-34-2-50 9" stroke-width="6"/>
+      <path d="M89 160 77 151M100 162 91 150M111 166 105 153M211 160 223 151M200 162 209 150M189 166 195 153" stroke-width="3"/>
+    </g>
+  </g>
+</svg>

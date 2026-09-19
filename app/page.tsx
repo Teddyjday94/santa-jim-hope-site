@@ -156,7 +156,21 @@ export default function Home() {
         <div className="home-gallery__grid">
           {galleryItems.slice(0, 6).map((item, index) => (
             <figure className={index === 0 ? "home-gallery__item home-gallery__item--wide" : "home-gallery__item"} key={item.src}>
-              <Image src={item.src} alt={item.alt} fill sizes="(max-width: 720px) 92vw, 25vw" />
+              <Image
+                className="home-gallery__backdrop"
+                src={item.src}
+                alt=""
+                aria-hidden="true"
+                fill
+                sizes="(max-width: 720px) 92vw, 25vw"
+              />
+              <Image
+                className="home-gallery__photo"
+                src={item.src}
+                alt={item.alt}
+                fill
+                sizes="(max-width: 720px) 92vw, 25vw"
+              />
               <figcaption>{item.caption}</figcaption>
             </figure>
           ))}

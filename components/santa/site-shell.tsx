@@ -13,6 +13,7 @@ export function SiteShell({
 }) {
   return (
     <main id="top" className={`site-page ${className}`.trim()}>
+      <link rel="stylesheet" href="/multipage.css" />
       <div className="ambient-backdrop" aria-hidden="true">
         {ambientOrbs.map((orb) => (
           <span className={`ambient-orb ambient-orb--${orb}`} key={orb} />

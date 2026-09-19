@@ -81,8 +81,8 @@ export default function Home() {
           </Link>
         </div>
         <blockquote className="home-story__quote">
-          “The magic is real when people feel seen, heard, and welcomed.”
-          <span>— Santa Jim Hope</span>
+          The best Christmas moments feel warm, personal, and wonderfully real.
+          <span>Real people. Brighter holidays.</span>
         </blockquote>
       </section>
 

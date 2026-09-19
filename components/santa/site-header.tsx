@@ -1,22 +1,29 @@
+import Link from "next/link";
+
 const links = [
-  ["Meet Jim", "#meet-jim"],
-  ["Experiences", "#experiences"],
-  ["Gallery", "#gallery"],
-  ["FAQ", "#faq"],
+  ["Meet Jim", "/meet"],
+  ["Experiences", "/experiences"],
+  ["Gallery", "/gallery"],
+  ["FAQ", "/faq"],
 ] as const;
 
 export function SiteHeader() {
   return (
     <header className="site-header">
-      <a className="wordmark" href="#top" aria-label="Santa Jim Hope home">
-        <span className="wordmark__mark" aria-hidden="true">JH</span>
-        <span>Santa Jim Hope</span>
-      </a>
+      <Link className="wordmark" href="/" aria-label="Santa Jim Hope home">
+        <span className="wordmark__mark" aria-hidden="true">SJH</span>
+        <span className="wordmark__copy">
+          <strong>Santa Jim Hope</strong>
+          <small>Real people. Brighter holidays.</small>
+        </span>
+      </Link>
       <nav aria-label="Primary navigation">
-        {links.map(([label, href]) => <a key={href} href={href}>{label}</a>)}
-        <a className="site-header__portal" href="/santa-admin">Santa Portal</a>
+        {links.map(([label, href]) => (
+          <Link key={href} href={href}>{label}</Link>
+        ))}
+        <Link className="site-header__portal" href="/santa-admin">Santa Portal</Link>
       </nav>
-      <a className="button button--small" href="#booking">Invite Santa Jim</a>
+      <Link className="button button--small header-cta" href="/invite">Invite Santa Jim</Link>
     </header>
   );
 }

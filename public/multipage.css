@@ -831,6 +831,16 @@
   transition: transform 800ms cubic-bezier(.2,.7,.2,1);
 }
 
+.experience-story__photo--contain {
+  background:
+    radial-gradient(circle at 50% 35%, rgba(223,197,139,.15), transparent 46%),
+    #0b2a20;
+}
+
+.experience-story__photo--contain img {
+  padding: clamp(.45rem, 1vw, .85rem);
+}
+
 .experience-story:hover .experience-story__photo img {
   transform: scale(1.025);
 }

@@ -7,24 +7,27 @@ test("the editable content module includes six event experiences", async () => {
   const content = await readFile(new URL("../components/santa/site-content.ts", import.meta.url), "utf8");
 
   for (const title of ["Home visits", "Birthday surprises", "Corporate events", "Schools & groups", "Community celebrations", "Photo sessions"]) {
-    assert.match(content, new RegExp(title.replace("&", "&")));
+    assert.match(content, new RegExp(title));
   }
 });
 
-test("the page exposes every narrative destination", async () => {
-  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
-
-  for (const id of ["meet-jim", "experiences", "visit", "gallery", "faq", "booking"]) {
-    assert.match(page, new RegExp(`id=["']${id}["']`));
+test("the public site exposes each narrative destination as its own route", async () => {
+  for (const path of ["meet", "experiences", "gallery", "faq", "invite"]) {
+    const page = await readFile(new URL(`../app/${path}/page.tsx`, import.meta.url), "utf8");
+    assert.ok(page.length > 100, `${path} should contain a real page`);
   }
 });
 
-test("the booking section presents the active Santa request path", async () => {
-  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+test("the dedicated invite route preserves the active scheduler request path", async () => {
+  const [invite, form] = await Promise.all([
+    readFile(new URL("../app/invite/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../components/santa/inquiry-form.tsx", import.meta.url), "utf8"),
+  ]);
 
-  assert.match(page, /Holiday inquiries are open/i);
-  assert.match(page, /<InquiryForm \/>/);
-  assert.match(page, /Dates and timing are confirmed directly after your inquiry is reviewed/i);
+  assert.match(invite, /<InquiryForm \/>/);
+  assert.match(invite, /available time/i);
+  assert.match(form, /\/api\/santa\/availability/);
+  assert.match(form, /pending Santa Jim/);
 });
 
 test("every experience and route stop uses unique web-optimized keepsake artwork", async () => {

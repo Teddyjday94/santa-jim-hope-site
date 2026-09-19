@@ -11,9 +11,12 @@ test("the FAQ uses native accessible disclosure controls", async () => {
   assert.match(faq, /item\.answer/);
 });
 
-test("the page passes the gallery records into the interactive lightbox", async () => {
-  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+test("dedicated gallery and FAQ routes use the interactive content components", async () => {
+  const [galleryPage, faqPage] = await Promise.all([
+    readFile(new URL("../app/gallery/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/faq/page.tsx", import.meta.url), "utf8"),
+  ]);
 
-  assert.match(page, /<GalleryLightbox items=\{galleryItems\}/);
-  assert.match(page, /<FaqList items=\{faqs\}/);
+  assert.match(galleryPage, /<GalleryLightbox items=\{galleryItems\}/);
+  assert.match(faqPage, /<FaqList items=\{faqs\}/);
 });

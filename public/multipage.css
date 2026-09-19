@@ -30,19 +30,16 @@
 }
 
 .site-page .wordmark {
-  gap: .8rem;
+  gap: .7rem;
   min-width: 12rem;
 }
 
-.site-page .wordmark__mark {
-  width: auto;
+.site-page .wordmark__logo {
+  display: block;
+  width: clamp(4.75rem, 6vw, 5.8rem);
   height: auto;
-  border: 0;
-  border-radius: 0;
-  color: var(--gold-soft);
-  font-family: var(--font-display);
-  font-size: 1.15rem;
-  letter-spacing: .02em;
+  flex: 0 0 auto;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, .22));
 }
 
 .wordmark__copy {
@@ -1277,6 +1274,10 @@
 
   .wordmark__copy small {
     display: none;
+  }
+
+  .site-page .wordmark__logo {
+    width: 4.2rem;
   }
 
   .site-page h1 {

@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
 import { ArrowUpRight } from "lucide-react";
 import { SiteHeader } from "@/components/santa/site-header";
+import { ScrollEffects } from "@/components/santa/scroll-effects";
 import { ambientOrbs, santaProfile, snowflakes } from "@/components/santa/site-content";
 
 export function SiteShell({
@@ -14,6 +15,7 @@ export function SiteShell({
   return (
     <main id="top" className={`site-page ${className}`.trim()}>
       <link rel="stylesheet" href="/multipage.css" />
+      <ScrollEffects />
       <div className="ambient-backdrop" aria-hidden="true">
         {ambientOrbs.map((orb) => (
           <span className={`ambient-orb ambient-orb--${orb}`} key={orb} />

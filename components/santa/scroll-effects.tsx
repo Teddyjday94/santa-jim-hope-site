@@ -118,6 +118,8 @@ export function ScrollEffects() {
       root.classList.toggle("is-scrolled", y > 24);
       root.style.setProperty("--parallax-slow", `${Math.min(y * 0.035, 42)}px`);
       root.style.setProperty("--parallax-fast", `${Math.min(y * 0.065, 78)}px`);
+      root.style.setProperty("--trim-left", `${Math.min(y * 0.022, 30)}px`);
+      root.style.setProperty("--trim-right", `${Math.max(y * -0.018, -26)}px`);
     };
 
     const onScroll = () => {

@@ -824,7 +824,8 @@
 }
 
 .experience-story__photo img {
-  object-fit: cover;
+  object-fit: var(--photo-fit, cover);
+  object-position: var(--photo-position, center center);
   transition: transform 800ms cubic-bezier(.2,.7,.2,1);
 }
 
@@ -1702,5 +1703,114 @@
 
   .site-page .site-header nav a {
     font-size: .74rem;
+  }
+}
+
+
+/* Mobile photo safety: preserve the full Santa/group image instead of cropping */
+@media (max-width: 620px) {
+  .experience-story__photo {
+    min-height: 0;
+    aspect-ratio: 4 / 3;
+    display: grid;
+    place-items: center;
+    background:
+      radial-gradient(circle at 50% 35%, rgba(223,197,139,.12), transparent 52%),
+      #0b2a20;
+  }
+
+  .experience-story__photo img {
+    object-fit: var(--photo-mobile-fit, contain) !important;
+    object-position: var(--photo-mobile-position, center center) !important;
+    padding: .45rem;
+    transform: none !important;
+  }
+
+  .home-hero__portrait,
+  .home-story__photo,
+  .page-hero__image,
+  .invite-intro__photo,
+  .home-experience-card__image,
+  .meet-collage figure {
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 50% 32%, rgba(223,197,139,.12), transparent 52%),
+      #0b2a20;
+  }
+
+  .home-hero__portrait img,
+  .home-story__photo img,
+  .page-hero__image img,
+  .invite-intro__photo img,
+  .home-experience-card__image img,
+  .meet-collage figure img {
+    object-fit: contain !important;
+    object-position: center center !important;
+    transform: none !important;
+  }
+
+  .home-hero__portrait {
+    min-height: 0;
+    aspect-ratio: 4 / 5;
+  }
+
+  .home-story__photo,
+  .page-hero__image,
+  .invite-intro__photo {
+    min-height: 0;
+    aspect-ratio: 4 / 5;
+  }
+
+  .home-experience-card__image {
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 4 / 3;
+  }
+
+  .meet-collage figure,
+  .meet-collage__large {
+    min-height: 0 !important;
+  }
+
+  .meet-collage {
+    grid-template-rows: auto;
+  }
+
+  .meet-collage figure {
+    aspect-ratio: 4 / 3;
+  }
+
+  .meet-collage__large {
+    aspect-ratio: 4 / 5;
+  }
+
+  .gallery-page .gallery-card {
+    min-height: 0 !important;
+    aspect-ratio: 4 / 3;
+    background: #0b2a20;
+  }
+
+  .gallery-page .gallery-card img {
+    object-fit: contain !important;
+    object-position: center center !important;
+    transform: none !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .experience-story__photo,
+  .home-experience-card__image,
+  .gallery-page .gallery-card {
+    aspect-ratio: 1 / 1;
+  }
+
+  .home-hero__portrait,
+  .home-story__photo,
+  .page-hero__image,
+  .invite-intro__photo,
+  .meet-collage__large {
+    aspect-ratio: 4 / 5;
   }
 }

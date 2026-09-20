@@ -17,6 +17,9 @@ export function SiteHeader() {
           <small>Real people. Brighter holidays.</small>
         </span>
       </Link>
+      <Link className="site-header__portal-mobile" href="/santa-admin">
+        Santa Portal
+      </Link>
       <nav aria-label="Primary navigation">
         {links.map(([label, href]) => (
           <Link key={href} href={href}>{label}</Link>

@@ -2635,3 +2635,23 @@
 }
 
 /* redeploy-trigger-2026-09-19 */
+
+
+/* Santa-and-dog homepage hero: full photo, completely static */
+.home-hero__portrait {
+  background:
+    radial-gradient(circle at 50% 32%, rgba(223,197,139,.14), transparent 52%),
+    #0b2a20;
+}
+
+.home-hero__portrait img {
+  object-fit: contain !important;
+  object-position: center center !important;
+  animation: none !important;
+  transition: none !important;
+  transform: none !important;
+}
+
+.home-hero:hover .home-hero__portrait img {
+  transform: none !important;
+}

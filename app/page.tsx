@@ -43,8 +43,8 @@ export default function Home() {
 
         <div className="home-hero__portrait">
           <Image
-            src="/images/santa-portrait.webp"
-            alt="Santa Jim Hope in a classic Christmas portrait"
+            src="/images/jim-hope-dog.webp"
+            alt="Santa Jim Hope smiling with a festive dog"
             fill
             priority
             sizes="(max-width: 820px) 100vw, 52vw"

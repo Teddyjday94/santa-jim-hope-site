@@ -2862,3 +2862,71 @@
     transform: scaleX(-1) !important;
   }
 }
+
+
+/* Mobile Santa Portal: keep admin access visible without horizontal scrolling */
+.site-header__portal-mobile {
+  display: none;
+}
+
+@media (max-width: 620px) {
+  .site-page .site-header {
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    column-gap: .65rem;
+    row-gap: .28rem;
+  }
+
+  .site-page .wordmark {
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+  }
+
+  .site-header__portal-mobile {
+    display: inline-flex;
+    grid-column: 2;
+    grid-row: 1;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    min-height: 40px;
+    padding: .42rem .72rem;
+    border: 1px solid rgba(223,197,139,.5);
+    border-radius: 999px;
+    color: var(--gold-soft);
+    background: rgba(223,197,139,.07);
+    font-family: var(--font-body);
+    font-size: .62rem;
+    font-weight: 900;
+    letter-spacing: .08em;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .site-page .site-header nav {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .site-page .site-header nav .site-header__portal {
+    display: none !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .site-header__portal-mobile {
+    min-height: 38px;
+    padding-inline: .58rem;
+    font-size: .57rem;
+    letter-spacing: .06em;
+  }
+}
+
+@media (max-width: 340px) {
+  .site-header__portal-mobile {
+    min-height: 36px;
+    padding-inline: .5rem;
+    font-size: .54rem;
+  }
+}

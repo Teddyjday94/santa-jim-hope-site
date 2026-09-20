@@ -7,7 +7,7 @@ export function SeasonalEvergreenTrim({ side }: SeasonalEvergreenTrimProps) {
     <div className={`seasonal-trim seasonal-trim--${side}`} aria-hidden="true">
       <img
         className="seasonal-trim__image"
-        src="/images/christmas-side-garland.webp"
+        src="/images/christmas-garland-side.webp"
         alt=""
       />
     </div>

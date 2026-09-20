@@ -3,7 +3,6 @@ import type { CSSProperties, ReactNode } from "react";
 import { ArrowUpRight } from "lucide-react";
 import { SiteHeader } from "@/components/santa/site-header";
 import { ScrollEffects } from "@/components/santa/scroll-effects";
-import { SeasonalEvergreenTrim } from "@/components/santa/seasonal-evergreen-trim";
 import { ambientOrbs, santaProfile, snowflakes } from "@/components/santa/site-content";
 
 export function SiteShell({
@@ -16,7 +15,6 @@ export function SiteShell({
   return (
     <main id="top" className={`site-page ${className}`.trim()}>
       <link rel="stylesheet" href="/multipage.css" />
-      <link rel="stylesheet" href="/garland-fix.css" />
       <ScrollEffects />
       <div className="ambient-backdrop" aria-hidden="true">
         {ambientOrbs.map((orb) => (
@@ -24,9 +22,6 @@ export function SiteShell({
         ))}
         <span className="ambient-evergreen" />
       </div>
-
-      <SeasonalEvergreenTrim side="left" />
-      <SeasonalEvergreenTrim side="right" />
 
       <div className="snowfield" aria-hidden="true">
         {snowflakes.map((flake) => (

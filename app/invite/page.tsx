@@ -5,8 +5,8 @@ import { InquiryForm } from "@/components/santa/inquiry-form";
 import { SiteShell } from "@/components/santa/site-shell";
 
 export const metadata: Metadata = {
-  title: "Invite Santa Jim | Santa Jim Hope",
-  description: "Send Santa Jim Hope the details of your holiday celebration, preferred date, location, and event type.",
+  title: "Invite Santa Jim | Santa Jim of Baton Rouge",
+  description: "Send Santa Jim of Baton Rouge the details of your holiday celebration, preferred date, location, and event type.",
 };
 
 export default function InvitePage() {
@@ -22,7 +22,7 @@ export default function InvitePage() {
           </p>
         </div>
         <div className="invite-intro__photo">
-          <Image src="/images/jim-hope-community.webp" alt="Santa Jim Hope at a holiday event" fill priority sizes="(max-width: 820px) 92vw, 38vw" />
+          <Image src="/images/jim-hope-community.webp" alt="Santa Jim of Baton Rouge at a holiday event" fill priority sizes="(max-width: 820px) 92vw, 38vw" />
         </div>
       </section>
 

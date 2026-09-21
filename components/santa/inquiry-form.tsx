@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
-import { ArrowRight, CalendarDays, Check, Clock, MapPin, Sparkles } from "lucide-react";
+import { ArrowRight, Building2, CalendarDays, Camera, Check, ChevronRight, Clock, Gift, House, MapPin, Sparkles, Star, UsersRound } from "lucide-react";
 import { validateInquiry } from "@/lib/booking-validation.mjs";
 import { submitInquiry, type InquiryValues } from "@/lib/inquiry-delivery.mjs";
 
@@ -65,6 +65,26 @@ function serviceDurationLabel(service: SchedulerService) {
   if (service.durationMinutes === 60) return "1 hour";
   if (service.durationMinutes % 60 === 0) return `${service.durationMinutes / 60} hours`;
   return `${Math.floor(service.durationMinutes / 60)} hr ${service.durationMinutes % 60} min`;
+}
+
+function serviceIcon(slug: string) {
+  const props = { size: 20, strokeWidth: 1.8, "aria-hidden": true as const };
+  switch (slug) {
+    case "home-visit":
+      return <House {...props} />;
+    case "birthday-surprise":
+      return <Gift {...props} />;
+    case "corporate-event":
+      return <Building2 {...props} />;
+    case "school-or-group":
+      return <UsersRound {...props} />;
+    case "community-celebration":
+      return <Star {...props} />;
+    case "photo-session":
+      return <Camera {...props} />;
+    default:
+      return <Sparkles {...props} />;
+  }
 }
 
 export function InquiryForm() {
@@ -307,8 +327,12 @@ export function InquiryForm() {
                   onClick={() => chooseService(service.slug)}
                   aria-pressed={active}
                 >
-                  <span>{service.name}</span>
-                  <small>{serviceDurationLabel(service)}</small>
+                  <span className="scheduler-service__icon">{serviceIcon(service.slug)}</span>
+                  <span className="scheduler-service__copy">
+                    <span>{service.name}</span>
+                    <small>{serviceDurationLabel(service)}</small>
+                  </span>
+                  <ChevronRight className="scheduler-service__chevron" size={18} aria-hidden="true" />
                 </button>
               );
             })}

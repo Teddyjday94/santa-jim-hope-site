@@ -8,8 +8,8 @@ import { experiencePhotos } from "@/components/santa/experience-photos";
 import { experiences, faqs, galleryItems, santaProfile, visitSteps } from "@/components/santa/site-content";
 
 export const metadata: Metadata = {
-  title: "Santa Jim Hope | Holiday Visits & Event Appearances",
-  description: "Invite Santa Jim Hope to family celebrations, schools, businesses, community events, and holiday photo sessions.",
+  title: "Santa Jim of Baton Rouge | Holiday Visits & Event Appearances",
+  description: "Invite Santa Jim of Baton Rouge to family celebrations, schools, businesses, community events, and holiday photo sessions.",
 };
 
 const featuredExperiences = experiences.filter((item) =>
@@ -24,7 +24,7 @@ export default function Home() {
           <p className="eyebrow">Holiday appearances · 2026</p>
           <h1>Christmas feels closer when <em>Santa walks in.</em></h1>
           <p className="home-hero__lead">
-            Invite Santa Jim Hope to home celebrations, birthdays, schools,
+            Invite Santa Jim of Baton Rouge to home celebrations, birthdays, schools,
             community gatherings, corporate events, photo sessions, and more.
           </p>
           <div className="hero-actions">
@@ -44,7 +44,7 @@ export default function Home() {
         <div className="home-hero__portrait">
           <Image
             src="/images/jim-hope-dog.webp"
-            alt="Santa Jim Hope smiling with a festive dog"
+            alt="Santa Jim of Baton Rouge smiling with a festive dog"
             fill
             priority
             sizes="(max-width: 820px) 100vw, 52vw"
@@ -60,7 +60,7 @@ export default function Home() {
         <div className="home-story__photo">
           <Image
             src="/images/jim-hope-storytime.webp"
-            alt="Santa Jim Hope reading a Christmas story with a baby"
+            alt="Santa Jim of Baton Rouge reading a Christmas story with a baby"
             fill
             sizes="(max-width: 760px) 92vw, 38vw"
           />
@@ -69,7 +69,7 @@ export default function Home() {
           <p className="eyebrow eyebrow--dark">Meet Santa Jim</p>
           <h2>More than a costume. A calling.</h2>
           <p>
-            Jim Hope brings a calm, welcoming Santa presence to the moments that
+            Santa Jim of Baton Rouge brings a calm, welcoming Santa presence to the moments that
             families and communities look forward to all season.
           </p>
           <div className="home-story__signals">

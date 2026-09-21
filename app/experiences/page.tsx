@@ -8,8 +8,8 @@ import { SiteShell } from "@/components/santa/site-shell";
 import { experiences, visitSteps } from "@/components/santa/site-content";
 
 export const metadata: Metadata = {
-  title: "Experiences | Santa Jim Hope",
-  description: "Explore Santa Jim Hope home visits, birthdays, business events, schools, community celebrations, and photo sessions.",
+  title: "Experiences | Santa Jim of Baton Rouge",
+  description: "Explore Santa Jim of Baton Rouge home visits, birthdays, business events, schools, community celebrations, and photo sessions.",
 };
 
 export default function ExperiencesPage() {

@@ -14,7 +14,6 @@ const sectionSelectors = [
   ".values-section",
   ".experience-stories",
   ".visit-path--dark",
-  ".gallery-page__content",
   ".reel-page",
   ".faq-page__body",
   ".page-cta",

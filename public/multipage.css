@@ -3361,3 +3361,38 @@
     justify-content: center;
   }
 }
+
+
+/* Gallery reliability: never let reveal effects hide the photo grid */
+.gallery-page .gallery-page__content,
+.gallery-page .gallery-grid,
+.gallery-page .gallery-card,
+.gallery-page .gallery-card > img {
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+}
+
+.gallery-page .gallery-page__content {
+  transform: none !important;
+}
+
+.gallery-page .gallery-card {
+  display: block !important;
+}
+
+.gallery-page .gallery-card > img {
+  position: absolute !important;
+  z-index: 1 !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  object-fit: cover !important;
+}
+
+@media (max-width: 620px) {
+  .gallery-page .gallery-card > img {
+    object-fit: contain !important;
+  }
+}

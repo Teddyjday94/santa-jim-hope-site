@@ -53,15 +53,15 @@ export const snowflakes: Snowflake[] = [
 ];
 
 export const santaProfile = {
-  name: "Jim Hope",
-  displayName: "Santa Jim Hope",
+  name: "Santa Jim of Baton Rouge",
+  displayName: "Santa Jim of Baton Rouge",
   shortName: "Santa Jim",
 } as const;
 
 export const heroMedia = {
   posterSrc: "/images/jim-hope-throne.webp",
   videoSrc: "/videos/jim-hope-christmas-loop.mp4",
-  alt: "Santa Jim Hope seated on an ornate holiday throne",
+  alt: "Santa Jim of Baton Rouge seated on an ornate holiday throne",
 } as const;
 
 export const experiences: Experience[] = [
@@ -125,27 +125,27 @@ export const visitSteps: VisitStep[] = [
 ];
 
 export const galleryItems: GalleryItem[] = [
-  { src: "/images/jim-hope-throne.webp", alt: "Santa Jim Hope seated on an ornate holiday throne", caption: "Santa Jim · 2025", category: "Portraits" },
-  { src: "/images/jim-hope-storytime.webp", alt: "Santa Jim Hope reading a Christmas story with a baby", caption: "Storytime visits", category: "Families" },
-  { src: "/images/jim-hope-dog.webp", alt: "Santa Jim Hope smiling while holding a small dog", caption: "Pet-friendly moments", category: "Pets" },
-  { src: "/images/jim-hope-group-2024.webp", alt: "Santa Jim Hope posing with a large group at a 2024 holiday gathering", caption: "Community celebrations", category: "Community" },
-  { src: "/images/jim-hope-baby.webp", alt: "Santa Jim Hope holding a baby during a Christmas visit", caption: "Little first Christmases", category: "Families" },
-  { src: "/images/jim-hope-inclusive-visit.webp", alt: "Santa Jim Hope visiting with a child using a wheelchair", caption: "Welcoming visits", category: "Families" },
-  { src: "/images/jim-hope-community.webp", alt: "Santa Jim Hope posing with two guests at a holiday event", caption: "Festive gatherings", category: "Community" },
-  { src: "/images/jim-hope-hug.webp", alt: "A guest giving Santa Jim Hope a joyful hug", caption: "Joyful moments", category: "Families" },
-  { src: "/images/jim-hope-guest.webp", alt: "Santa Jim Hope seated beside a guest for a holiday portrait", caption: "Portrait moments", category: "Portraits" },
-  { src: "/images/jim-hope-elf.webp", alt: "Santa Jim Hope seated with a young visitor dressed as an elf", caption: "Christmas wonder", category: "Families" },
-  { src: "/images/santa-jim-hope-holiday-swing.jpg", alt: "Santa Jim Hope seated with a guest on a decorated holiday swing", caption: "Christmas connections", category: "Portraits" },
-  { src: "/images/santa-jim-hope-community-tree.jpg", alt: "Santa Jim Hope seated beneath a glowing wreath at a community holiday display", caption: "Ready to welcome guests", category: "Community" },
-  { src: "/images/santa-jim-hope-red-suit-portrait.jpg", alt: "Santa Jim Hope standing in his red holiday suit", caption: "Santa Jim · 2025", category: "Portraits" },
-  { src: "/images/santa-jim-hope-group-celebration.jpg", alt: "Santa Jim Hope with a large group gathered beside a community Christmas tree", caption: "Holiday celebrations together", category: "Community" },
-  { src: "/images/santa-jim-hope-mrs-claus-2025.jpg", alt: "Santa Jim Hope and Mrs. Claus posing by a decorated Christmas throne", caption: "Santa and Mrs. Claus · 2025", category: "Santa & Mrs. Claus" },
-  { src: "/images/santa-jim-hope-community-selfie.jpg", alt: "Santa Jim Hope smiling for a selfie at a community Christmas gathering", caption: "A joyful day in the community", category: "Community" },
-  { src: "/images/santa-jim-hope-throne-family.jpg", alt: "Santa Jim Hope sharing a warm holiday moment with two young guests", caption: "Christmas wonder up close", category: "Families" },
+  { src: "/images/jim-hope-throne.webp", alt: "Santa Jim of Baton Rouge seated on an ornate holiday throne", caption: "Santa Jim · 2025", category: "Portraits" },
+  { src: "/images/jim-hope-storytime.webp", alt: "Santa Jim of Baton Rouge reading a Christmas story with a baby", caption: "Storytime visits", category: "Families" },
+  { src: "/images/jim-hope-dog.webp", alt: "Santa Jim of Baton Rouge smiling while holding a small dog", caption: "Pet-friendly moments", category: "Pets" },
+  { src: "/images/jim-hope-group-2024.webp", alt: "Santa Jim of Baton Rouge posing with a large group at a 2024 holiday gathering", caption: "Community celebrations", category: "Community" },
+  { src: "/images/jim-hope-baby.webp", alt: "Santa Jim of Baton Rouge holding a baby during a Christmas visit", caption: "Little first Christmases", category: "Families" },
+  { src: "/images/jim-hope-inclusive-visit.webp", alt: "Santa Jim of Baton Rouge visiting with a child using a wheelchair", caption: "Welcoming visits", category: "Families" },
+  { src: "/images/jim-hope-community.webp", alt: "Santa Jim of Baton Rouge posing with two guests at a holiday event", caption: "Festive gatherings", category: "Community" },
+  { src: "/images/jim-hope-hug.webp", alt: "A guest giving Santa Jim of Baton Rouge a joyful hug", caption: "Joyful moments", category: "Families" },
+  { src: "/images/jim-hope-guest.webp", alt: "Santa Jim of Baton Rouge seated beside a guest for a holiday portrait", caption: "Portrait moments", category: "Portraits" },
+  { src: "/images/jim-hope-elf.webp", alt: "Santa Jim of Baton Rouge seated with a young visitor dressed as an elf", caption: "Christmas wonder", category: "Families" },
+  { src: "/images/santa-jim-hope-holiday-swing.jpg", alt: "Santa Jim of Baton Rouge seated with a guest on a decorated holiday swing", caption: "Christmas connections", category: "Portraits" },
+  { src: "/images/santa-jim-hope-community-tree.jpg", alt: "Santa Jim of Baton Rouge seated beneath a glowing wreath at a community holiday display", caption: "Ready to welcome guests", category: "Community" },
+  { src: "/images/santa-jim-hope-red-suit-portrait.jpg", alt: "Santa Jim of Baton Rouge standing in his red holiday suit", caption: "Santa Jim · 2025", category: "Portraits" },
+  { src: "/images/santa-jim-hope-group-celebration.jpg", alt: "Santa Jim of Baton Rouge with a large group gathered beside a community Christmas tree", caption: "Holiday celebrations together", category: "Community" },
+  { src: "/images/santa-jim-hope-mrs-claus-2025.jpg", alt: "Santa Jim of Baton Rouge and Mrs. Claus posing by a decorated Christmas throne", caption: "Santa and Mrs. Claus · 2025", category: "Santa & Mrs. Claus" },
+  { src: "/images/santa-jim-hope-community-selfie.jpg", alt: "Santa Jim of Baton Rouge smiling for a selfie at a community Christmas gathering", caption: "A joyful day in the community", category: "Community" },
+  { src: "/images/santa-jim-hope-throne-family.jpg", alt: "Santa Jim of Baton Rouge sharing a warm holiday moment with two young guests", caption: "Christmas wonder up close", category: "Families" },
 ];
 
 export const socialReels: SocialReel[] = [
-  { reelId: "4142406926072498", title: "Santa Jim Hope community reel", caption: "Santa Jim in the community" },
+  { reelId: "4142406926072498", title: "Santa Jim of Baton Rouge community reel", caption: "Santa Jim in the community" },
 ];
 
 export const faqs: FaqItem[] = [

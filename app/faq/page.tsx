@@ -6,8 +6,8 @@ import { SiteShell } from "@/components/santa/site-shell";
 import { faqs } from "@/components/santa/site-content";
 
 export const metadata: Metadata = {
-  title: "FAQ | Santa Jim Hope",
-  description: "Answers about booking timing, personalization, event types, travel, and planning a Santa Jim Hope holiday appearance.",
+  title: "FAQ | Santa Jim of Baton Rouge",
+  description: "Answers about booking timing, personalization, event types, travel, and planning a Santa Jim of Baton Rouge holiday appearance.",
 };
 
 export default function FaqPage() {

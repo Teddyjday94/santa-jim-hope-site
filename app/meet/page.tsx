@@ -5,8 +5,8 @@ import { ArrowRight, BookOpen, HeartHandshake, Sparkles, Users } from "lucide-re
 import { SiteShell } from "@/components/santa/site-shell";
 
 export const metadata: Metadata = {
-  title: "Meet Santa Jim | Santa Jim Hope",
-  description: "Meet Jim Hope and learn about the warm, personal approach behind his Santa visits and holiday appearances.",
+  title: "Meet Santa Jim | Santa Jim of Baton Rouge",
+  description: "Meet Santa Jim of Baton Rouge and learn about the warm, personal approach behind his Santa visits and holiday appearances.",
 };
 
 export default function MeetPage() {
@@ -17,7 +17,7 @@ export default function MeetPage() {
           <p className="eyebrow eyebrow--dark">Meet Santa Jim</p>
           <h1>A warm face in the middle of the magic.</h1>
           <p>
-            Jim Hope brings a calm, welcoming presence to Christmas moments of every
+            Santa Jim of Baton Rouge brings a calm, welcoming presence to Christmas moments of every
             size — from a quiet story at home to a room full of families.
           </p>
           <Link className="button button--red" href="/invite">
@@ -25,7 +25,7 @@ export default function MeetPage() {
           </Link>
         </div>
         <div className="page-hero__image">
-          <Image src="/images/santa-jim-hope-red-suit-portrait.jpg" alt="Santa Jim Hope in his red holiday suit" fill priority sizes="(max-width: 820px) 92vw, 46vw" />
+          <Image src="/images/santa-jim-hope-red-suit-portrait.jpg" alt="Santa Jim of Baton Rouge in his red holiday suit" fill priority sizes="(max-width: 820px) 92vw, 46vw" />
         </div>
       </section>
 
@@ -50,13 +50,13 @@ export default function MeetPage() {
 
       <section className="meet-collage paper-section">
         <figure className="meet-collage__large">
-          <Image src="/images/jim-hope-storytime.webp" alt="Santa Jim Hope sharing a Christmas story" fill sizes="(max-width: 760px) 92vw, 52vw" />
+          <Image src="/images/jim-hope-storytime.webp" alt="Santa Jim of Baton Rouge sharing a Christmas story" fill sizes="(max-width: 760px) 92vw, 52vw" />
         </figure>
         <figure>
-          <Image src="/images/jim-hope-dog.webp" alt="Santa Jim Hope smiling with a small dog" fill sizes="(max-width: 760px) 44vw, 22vw" />
+          <Image src="/images/jim-hope-dog.webp" alt="Santa Jim of Baton Rouge smiling with a small dog" fill sizes="(max-width: 760px) 44vw, 22vw" />
         </figure>
         <figure>
-          <Image src="/images/jim-hope-inclusive-visit.webp" alt="Santa Jim Hope during a welcoming holiday visit" fill sizes="(max-width: 760px) 44vw, 22vw" />
+          <Image src="/images/jim-hope-inclusive-visit.webp" alt="Santa Jim of Baton Rouge during a welcoming holiday visit" fill sizes="(max-width: 760px) 44vw, 22vw" />
         </figure>
       </section>
 

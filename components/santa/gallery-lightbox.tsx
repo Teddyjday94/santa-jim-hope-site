@@ -8,6 +8,13 @@ type GalleryLightboxProps = {
   items: GalleryItem[];
 };
 
+const hostedGalleryPrefix = "https://d2ol7oe51mr4n9.cloudfront.net/";
+
+function galleryImageSrc(src: string) {
+  if (!src.startsWith(hostedGalleryPrefix)) return src;
+  return `/api/santa/gallery-media?src=${encodeURIComponent(src)}`;
+}
+
 export function GalleryLightbox({ items }: GalleryLightboxProps) {
   const categories = useMemo(
     () => ["All moments", ...Array.from(new Set(items.map((item) => item.category)))],
@@ -92,11 +99,11 @@ export function GalleryLightbox({ items }: GalleryLightboxProps) {
             onClick={() => setSelectedSrc(item.src)}
             aria-label={`Open ${item.caption} photo`}
           >
-            <Image
-              src={item.src}
+            <img
+              src={galleryImageSrc(item.src)}
               alt={item.alt}
-              fill
-              sizes="(max-width: 620px) 88vw, (max-width: 980px) 45vw, 30vw"
+              loading={index < 6 ? "eager" : "lazy"}
+              decoding="async"
             />
             <span className="gallery-card__caption">
               <span>{item.caption}</span>
@@ -140,12 +147,10 @@ export function GalleryLightbox({ items }: GalleryLightboxProps) {
 
           <figure className="gallery-lightbox__figure">
             <div className="gallery-lightbox__image">
-              <Image
-                src={selectedItem.src}
+              <img
+                src={galleryImageSrc(selectedItem.src)}
                 alt={selectedItem.alt}
-                fill
-                priority
-                sizes="96vw"
+                decoding="async"
               />
             </div>
             <figcaption>

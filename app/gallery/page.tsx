@@ -4,8 +4,8 @@ import { GalleryLightbox } from "@/components/santa/gallery-lightbox";
 import { galleryItems, socialReels } from "@/components/santa/site-content";
 
 export const metadata: Metadata = {
-  title: "Gallery | Santa Jim Hope",
-  description: "See real moments from Santa Jim Hope family visits, portraits, pets, community celebrations, and appearances with Mrs. Claus.",
+  title: "Gallery | Santa Jim of Baton Rouge",
+  description: "See real moments from Santa Jim of Baton Rouge family visits, portraits, pets, community celebrations, and appearances with Mrs. Claus.",
 };
 
 export default function GalleryPage() {

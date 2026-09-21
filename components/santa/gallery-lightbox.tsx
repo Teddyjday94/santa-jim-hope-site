@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { ChevronLeft, ChevronRight, Maximize2, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { GalleryItem } from "@/components/santa/site-content";

@@ -14,7 +14,7 @@ export function SiteShell({
 }) {
   return (
     <main id="top" className={`site-page ${className}`.trim()}>
-      <link rel="stylesheet" href="/multipage.css" />
+      <link rel="stylesheet" href="/multipage.css?v=gallery-fix-20260921-3" />
       <ScrollEffects />
       <div className="ambient-backdrop" aria-hidden="true">
         {ambientOrbs.map((orb) => (

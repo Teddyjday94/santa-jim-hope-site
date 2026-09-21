@@ -33,7 +33,6 @@ const revealSelectors = [
   ".meet-collage figure",
   ".values-grid article",
   ".experience-story",
-  ".gallery-page__content",
   ".reel-page > *",
   ".faq-page__body > *",
   ".page-cta > *",

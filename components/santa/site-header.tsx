@@ -11,7 +11,7 @@ export function SiteHeader() {
   return (
     <header className="site-header">
       <Link className="wordmark" href="/" aria-label="Santa Jim of Baton Rouge home">
-        <img className="wordmark__logo" src="/images/santa-jim-hope-logo-uploaded.webp" alt="" aria-hidden="true" />
+        <img className="wordmark__logo" src="/images/santa-jim-baton-rouge-logo.webp" alt="" aria-hidden="true" />
         <span className="wordmark__copy">
           <strong>Santa Jim of Baton Rouge</strong>
           <small>Real people. Brighter holidays.</small>

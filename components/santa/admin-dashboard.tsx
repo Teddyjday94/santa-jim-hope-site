@@ -118,6 +118,44 @@ export function AdminDashboard() {
   const upcomingBookings = useMemo(() => bookings.filter((booking) => booking.status === "confirmed"), [bookings]);
 
   useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const directSetupToken = searchParams.get("setup_token");
+    const directSetupType = searchParams.get("setup_type") || "invite";
+
+    if (directSetupToken) {
+      window.sessionStorage.removeItem(SESSION_KEY);
+      void fetch(`${SANTA_SUPABASE_URL}/auth/v1/verify`, {
+        method: "POST",
+        headers: {
+          apikey: SANTA_SUPABASE_PUBLISHABLE_KEY,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token_hash: directSetupToken, type: directSetupType }),
+      })
+        .then(async (response) => {
+          const result = await response.json().catch(() => ({})) as {
+            access_token?: string;
+            session?: { access_token?: string };
+            error_description?: string;
+            message?: string;
+            msg?: string;
+          };
+          const accessToken = result.access_token || result.session?.access_token;
+          if (!response.ok || !accessToken) {
+            throw new Error(result.error_description || result.message || result.msg || "This setup link is invalid or has expired.");
+          }
+          window.history.replaceState({}, "", window.location.pathname);
+          setToken("");
+          setRecoveryToken(accessToken);
+          setRecoveryMode(true);
+        })
+        .catch((error) => {
+          window.history.replaceState({}, "", window.location.pathname);
+          setAuthError(error instanceof Error ? error.message : "This setup link is invalid or has expired.");
+        });
+      return;
+    }
+
     const hashParams = new URLSearchParams(window.location.hash.slice(1));
     const recoveryAccessToken = hashParams.get("access_token");
     const recoveryError = hashParams.get("error_description");

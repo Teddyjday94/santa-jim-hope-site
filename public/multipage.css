@@ -2930,3 +2930,23 @@
     font-size: .54rem;
   }
 }
+
+
+/* Longer Baton Rouge brand name: keep it readable beside the mobile Portal button */
+@media (max-width: 620px) {
+  .site-page .wordmark__copy strong {
+    max-width: 10.5rem;
+    overflow: visible;
+    font-size: clamp(.72rem, 3.2vw, .88rem);
+    line-height: 1.05;
+    text-overflow: clip;
+    white-space: normal;
+  }
+}
+
+@media (max-width: 390px) {
+  .site-page .wordmark__copy strong {
+    max-width: 8.5rem;
+    font-size: .7rem;
+  }
+}

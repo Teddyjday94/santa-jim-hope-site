@@ -121,9 +121,10 @@ export function AdminDashboard() {
     const hashParams = new URLSearchParams(window.location.hash.slice(1));
     const recoveryAccessToken = hashParams.get("access_token");
     const recoveryError = hashParams.get("error_description");
-    const isRecovery = hashParams.get("type") === "recovery";
+    const authFlowType = hashParams.get("type");
+    const isPasswordSetup = authFlowType === "recovery" || authFlowType === "invite";
 
-    if (isRecovery && recoveryAccessToken) {
+    if (isPasswordSetup && recoveryAccessToken) {
       window.sessionStorage.removeItem(SESSION_KEY);
       window.history.replaceState({}, "", `${window.location.pathname}${window.location.search}`);
       const startRecovery = window.setTimeout(() => {
@@ -489,7 +490,7 @@ export function AdminDashboard() {
     return (
       <section className="admin-login-card" aria-labelledby="admin-reset-title">
         <span className="admin-mark" aria-hidden="true"><ShieldCheck size={24} /></span>
-        <p className="eyebrow">Secure account recovery</p>
+        <p className="eyebrow">Secure account setup</p>
         <h1 id="admin-reset-title">Choose a new password</h1>
         <p>Use at least 12 characters. After saving it, return here to sign in.</p>
         <form className="admin-login-form" onSubmit={updatePassword}>
@@ -514,7 +515,7 @@ export function AdminDashboard() {
         <span className="admin-mark" aria-hidden="true"><ShieldCheck size={24} /></span>
         <p className="eyebrow">Private owner access</p>
         <h1 id="admin-login-title">Santa Jim Scheduler</h1>
-        <p>Sign in with an authorized Side Quest account to review requests and control Santa Jim&apos;s availability.</p>
+        <p>Sign in with your authorized Santa Portal account to review requests and control Santa Jim&apos;s availability.</p>
         <form className="admin-login-form" onSubmit={signIn}>
           <label>
             <span>Email</span>

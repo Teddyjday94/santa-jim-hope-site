@@ -1,16 +1,25 @@
 import type { Metadata } from "next";
-import { SiteShell } from "@/components/santa/site-shell";
 import { GalleryLightbox } from "@/components/santa/gallery-lightbox";
+import { SiteShell } from "@/components/santa/site-shell";
+import { StructuredData } from "@/components/santa/structured-data";
 import { galleryItems, socialReels } from "@/components/santa/site-content";
+import { buildPublicMetadata, getSeoConfig } from "@/lib/seo";
+import { buildWebPageSchema } from "@/lib/seo-schema";
 
-export const metadata: Metadata = {
-  title: "Gallery | Santa Jim of Baton Rouge",
-  description: "See real moments from Santa Jim of Baton Rouge family visits, portraits, pets, community celebrations, and appearances with Mrs. Claus.",
-};
+const config = getSeoConfig();
+const title = "Santa Jim Photo Gallery | Baton Rouge Holiday Appearances";
+const description = "See real Santa Jim of Baton Rouge moments from family visits, holiday portraits, pets, photo sessions, community celebrations, and appearances with Mrs. Claus.";
+
+export const metadata: Metadata = buildPublicMetadata({
+  title,
+  description,
+  path: "/gallery",
+}, config);
 
 export default function GalleryPage() {
   return (
     <SiteShell className="gallery-page">
+      <StructuredData data={buildWebPageSchema({ path: "/gallery", name: title, description }, config)} />
       <section className="page-banner dark-section">
         <p className="eyebrow">Real visits. Real smiles.</p>
         <h1>A little Christmas wonder, caught in the moment.</h1>

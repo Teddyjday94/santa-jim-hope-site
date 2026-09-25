@@ -4,17 +4,27 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { experiencePhotos } from "@/components/santa/experience-photos";
+import { experienceDetails } from "@/components/santa/experience-seo";
 import { SiteShell } from "@/components/santa/site-shell";
+import { StructuredData } from "@/components/santa/structured-data";
 import { experiences, visitSteps } from "@/components/santa/site-content";
+import { buildPublicMetadata, getSeoConfig } from "@/lib/seo";
+import { buildWebPageSchema } from "@/lib/seo-schema";
 
-export const metadata: Metadata = {
-  title: "Experiences | Santa Jim of Baton Rouge",
-  description: "Explore Santa Jim of Baton Rouge home visits, birthdays, business events, schools, community celebrations, and photo sessions.",
-};
+const config = getSeoConfig();
+const title = "Santa Experiences in Baton Rouge, LA | Santa Jim";
+const description = "Explore Santa Jim of Baton Rouge home visits, birthday surprises, corporate events, schools and groups, community celebrations, and holiday photo sessions.";
+
+export const metadata: Metadata = buildPublicMetadata({
+  title,
+  description,
+  path: "/experiences",
+}, config);
 
 export default function ExperiencesPage() {
   return (
     <SiteShell className="experiences-page">
+      <StructuredData data={buildWebPageSchema({ path: "/experiences", name: title, description }, config)} />
       <section className="page-banner dark-section">
         <p className="eyebrow">Ways to celebrate</p>
         <h1>Every gathering deserves its own kind of Christmas magic.</h1>
@@ -24,6 +34,7 @@ export default function ExperiencesPage() {
       <section className="experience-stories paper-section">
         {experiences.map((experience, index) => {
           const photo = experiencePhotos[experience.title];
+          const detail = experienceDetails.find((item) => item.title === experience.title);
           return (
             <article className={index % 2 ? "experience-story experience-story--reverse" : "experience-story"} key={experience.title}>
               <div
@@ -52,6 +63,11 @@ export default function ExperiencesPage() {
                 <p className="experience-story__note">
                   Share your preferred date, timing, location, and any details that will help Santa Jim understand the feel of your gathering.
                 </p>
+                {detail ? (
+                  <Link className="text-link" href={`/experiences/${detail.slug}`}>
+                    Explore {experience.title.toLowerCase()} <ArrowRight size={16} aria-hidden="true" />
+                  </Link>
+                ) : null}
                 <Link className="text-link" href="/invite">
                   Ask about this experience <ArrowRight size={16} aria-hidden="true" />
                 </Link>

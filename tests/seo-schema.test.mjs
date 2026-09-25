@@ -13,13 +13,14 @@ import {
 
 const config = getSeoConfig({ SITE_URL: "https://santajim.example", SEO_INDEX: "true" });
 
-test("person schema contains only verified Santa identity and Baton Rouge context", () => {
+test("person schema contains only verified Santa identity properties", () => {
   const schema = buildPersonSchema(config);
   assert.equal(schema["@type"], "Person");
   assert.equal(schema.name, "Santa Jim of Baton Rouge");
   assert.equal(schema.jobTitle, "Professional Santa Claus performer");
   assert.equal(schema.url, "https://santajim.example/meet");
   assert.match(schema.image, /^https:\/\/santajim\.example\//);
+  assert.equal("areaServed" in schema, false);
   assert.equal("address" in schema, false);
   assert.equal("award" in schema, false);
 });

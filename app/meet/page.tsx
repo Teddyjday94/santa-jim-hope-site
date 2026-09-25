@@ -3,22 +3,31 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, BookOpen, HeartHandshake, Sparkles, Users } from "lucide-react";
 import { SiteShell } from "@/components/santa/site-shell";
+import { StructuredData } from "@/components/santa/structured-data";
+import { buildPublicMetadata, getSeoConfig } from "@/lib/seo";
+import { buildWebPageSchema } from "@/lib/seo-schema";
 
-export const metadata: Metadata = {
-  title: "Meet Santa Jim | Santa Jim of Baton Rouge",
-  description: "Meet Santa Jim of Baton Rouge and learn about the warm, personal approach behind his Santa visits and holiday appearances.",
-};
+const config = getSeoConfig();
+const title = "Meet Santa Jim of Baton Rouge | Professional Santa";
+const description = "Meet Santa Jim of Baton Rouge and learn about the warm, personal approach behind his Santa home visits, events, photo sessions, and holiday appearances.";
+
+export const metadata: Metadata = buildPublicMetadata({
+  title,
+  description,
+  path: "/meet",
+}, config);
 
 export default function MeetPage() {
   return (
     <SiteShell className="meet-page">
+      <StructuredData data={buildWebPageSchema({ path: "/meet", name: title, description }, config)} />
       <section className="page-hero page-hero--split paper-section">
         <div className="page-hero__copy">
           <p className="eyebrow eyebrow--dark">Meet Santa Jim</p>
           <h1>A warm face in the middle of the magic.</h1>
           <p>
             Santa Jim of Baton Rouge brings a calm, welcoming presence to Christmas moments of every
-            size — from a quiet story at home to a room full of families.
+            size, from a quiet story at home to a room full of families.
           </p>
           <Link className="button button--red" href="/invite">
             Invite Santa Jim <ArrowRight size={16} aria-hidden="true" />

@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import {
   DEFAULT_SITE_URL,
   PRIVATE_ROUTE_PREFIXES,
@@ -65,4 +66,19 @@ test("sitemap contains public routes and excludes private routes", () => {
   const urls = sitemap.map((entry) => new URL(entry.url).pathname);
   for (const route of PUBLIC_ROUTES) assert.ok(urls.includes(route));
   for (const prefix of PRIVATE_ROUTE_PREFIXES) assert.ok(urls.every((route) => !route.startsWith(prefix)));
+});
+
+const layoutSource = await readFile(new URL("../app/layout.tsx", import.meta.url), "utf8");
+const nextConfigSource = await readFile(new URL("../next.config.ts", import.meta.url), "utf8");
+
+test("root layout derives metadataBase and default robots from SEO config", () => {
+  assert.match(layoutSource, /metadataBase:\s*config\.siteUrl/);
+  assert.match(layoutSource, /buildPublicMetadata/);
+});
+
+test("Next config sends noindex headers on staging and private paths", () => {
+  assert.match(nextConfigSource, /X-Robots-Tag/);
+  assert.match(nextConfigSource, /SEO_INDEX/);
+  assert.match(nextConfigSource, /santa-admin/);
+  assert.match(nextConfigSource, /api/);
 });

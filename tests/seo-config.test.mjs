@@ -43,6 +43,17 @@ test("staging metadata is noindex and canonicalized", () => {
   assert.equal(metadata.robots?.follow, false);
 });
 
+test("production metadata becomes indexable only after explicit opt in", () => {
+  const config = getSeoConfig({ SITE_URL: "https://santajim.example", SEO_INDEX: "true" });
+  const metadata = buildPublicMetadata({
+    title: "Santa for Hire in Baton Rouge, LA | Santa Jim",
+    description: "Professional Santa appearances in Baton Rouge, Louisiana.",
+    path: "/",
+  }, config);
+  assert.equal(metadata.robots?.index, true);
+  assert.equal(metadata.robots?.follow, true);
+});
+
 test("production robots allows public routes while blocking private routes", () => {
   const config = getSeoConfig({ SITE_URL: "https://santajim.example", SEO_INDEX: "true" });
   const robots = buildRobots(config);
@@ -60,16 +71,18 @@ test("staging robots disallows everything and does not advertise a sitemap", () 
   assert.equal("sitemap" in robots, false);
 });
 
-test("sitemap contains public routes and excludes private routes", () => {
+test("sitemap contains every public route, including invite, and excludes private routes", () => {
   const config = getSeoConfig({ SITE_URL: "https://santajim.example", SEO_INDEX: "true" });
   const sitemap = buildSitemap(config);
   const urls = sitemap.map((entry) => new URL(entry.url).pathname);
+  assert.ok(PUBLIC_ROUTES.includes("/invite"));
   for (const route of PUBLIC_ROUTES) assert.ok(urls.includes(route));
   for (const prefix of PRIVATE_ROUTE_PREFIXES) assert.ok(urls.every((route) => !route.startsWith(prefix)));
 });
 
 const layoutSource = await readFile(new URL("../app/layout.tsx", import.meta.url), "utf8");
 const nextConfigSource = await readFile(new URL("../next.config.ts", import.meta.url), "utf8");
+const workflowSource = await readFile(new URL("../.github/workflows/verify.yml", import.meta.url), "utf8");
 
 test("root layout derives metadataBase and default robots from SEO config", () => {
   assert.match(layoutSource, /metadataBase:\s*config\.siteUrl/);
@@ -81,4 +94,10 @@ test("Next config sends noindex headers on staging and private paths", () => {
   assert.match(nextConfigSource, /SEO_INDEX/);
   assert.match(nextConfigSource, /santa-admin/);
   assert.match(nextConfigSource, /api/);
+});
+
+test("verification workflow runs lint in addition to tests and build", () => {
+  assert.match(workflowSource, /- name: Lint\s+run: npm run lint/);
+  assert.match(workflowSource, /run: npm test/);
+  assert.match(workflowSource, /run: npm run build/);
 });

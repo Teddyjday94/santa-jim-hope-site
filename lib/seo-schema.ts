@@ -1,4 +1,4 @@
-import { absoluteUrl, getSeoConfig, type SeoConfig } from "./seo";
+import { absoluteUrl, getSeoConfig, type SeoConfig } from "./seo.ts";
 
 export type SchemaPageInput = {
   path: string;

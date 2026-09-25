@@ -28,7 +28,8 @@ test("admin login offers a neutral password recovery request", async () => {
 
 test("admin recovery callback requires and confirms a strong new password", async () => {
   const dashboard = await read("components/santa/admin-dashboard.tsx");
-  assert.match(dashboard, /type.*recovery/);
+  assert.match(dashboard, /authFlowType === "recovery"/);
+  assert.match(dashboard, /authFlowType === "invite"/);
   assert.match(dashboard, /\/auth\/v1\/user/);
   assert.match(dashboard, /New password/i);
   assert.match(dashboard, /Confirm new password/i);

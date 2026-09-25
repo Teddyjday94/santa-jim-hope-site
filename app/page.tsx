@@ -3,14 +3,23 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, BookOpen, Camera, HeartHandshake, Sparkles } from "lucide-react";
 import { FaqList } from "@/components/santa/faq-list";
-import { SiteShell } from "@/components/santa/site-shell";
 import { experiencePhotos } from "@/components/santa/experience-photos";
+import { experienceDetails } from "@/components/santa/experience-seo";
+import { SiteShell } from "@/components/santa/site-shell";
+import { StructuredData } from "@/components/santa/structured-data";
 import { experiences, faqs, galleryItems, santaProfile, visitSteps } from "@/components/santa/site-content";
+import { buildPublicMetadata, getSeoConfig } from "@/lib/seo";
+import { buildWebPageSchema } from "@/lib/seo-schema";
 
-export const metadata: Metadata = {
-  title: "Santa Jim of Baton Rouge | Holiday Visits & Event Appearances",
-  description: "Invite Santa Jim of Baton Rouge to family celebrations, schools, businesses, community events, and holiday photo sessions.",
-};
+const config = getSeoConfig();
+const title = "Santa for Hire in Baton Rouge, LA | Santa Jim";
+const description = "Invite Santa Jim of Baton Rouge for home visits, photo sessions, schools, businesses, community celebrations, and holiday events.";
+
+export const metadata: Metadata = buildPublicMetadata({
+  title,
+  description,
+  path: "/",
+}, config);
 
 const featuredExperiences = experiences.filter((item) =>
   ["Home visits", "Community celebrations", "Photo sessions"].includes(item.title),
@@ -19,13 +28,14 @@ const featuredExperiences = experiences.filter((item) =>
 export default function Home() {
   return (
     <SiteShell className="home-page">
+      <StructuredData data={buildWebPageSchema({ path: "/", name: title, description }, config)} />
       <section className="home-hero">
         <div className="home-hero__copy">
           <p className="eyebrow">Holiday appearances · 2026</p>
           <h1>Christmas feels closer when <em>Santa walks in.</em></h1>
           <p className="home-hero__lead">
-            Invite Santa Jim of Baton Rouge to home celebrations, birthdays, schools,
-            community gatherings, corporate events, photo sessions, and more.
+            Professional Santa appearances in Baton Rouge for home visits, photo sessions,
+            schools, businesses, community celebrations, birthdays, and seasonal events.
           </p>
           <div className="hero-actions">
             <Link className="button button--red" href="/invite">
@@ -101,6 +111,7 @@ export default function Home() {
         <div className="home-experience-grid">
           {featuredExperiences.map((experience) => {
             const photo = experiencePhotos[experience.title];
+            const detail = experienceDetails.find((item) => item.title === experience.title);
             return (
               <article className="home-experience-card" key={experience.title}>
                 {photo ? (
@@ -120,6 +131,11 @@ export default function Home() {
                 <span>{experience.kicker}</span>
                 <h3>{experience.title}</h3>
                 <p>{experience.description}</p>
+                {detail ? (
+                  <Link className="text-link text-link--light" href={`/experiences/${detail.slug}`}>
+                    Explore this experience <ArrowRight size={16} aria-hidden="true" />
+                  </Link>
+                ) : null}
               </article>
             );
           })}

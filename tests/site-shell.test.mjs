@@ -15,11 +15,12 @@ test("the homepage presents the Santa brand and routes customers to booking", as
   assert.match(header, /href="\/invite"[^>]*>Invite Santa Jim/);
 });
 
-test("the root metadata describes the approved Baton Rouge Santa service", async () => {
+test("the root metadata targets the approved Baton Rouge Santa service", async () => {
   const layout = await readFile(new URL("../app/layout.tsx", import.meta.url), "utf8");
 
-  assert.match(layout, /Santa Jim of Baton Rouge/);
-  assert.match(layout, /family celebrations, birthdays, schools, businesses, community events/);
+  assert.match(layout, /Santa for Hire in Baton Rouge, LA/);
+  assert.match(layout, /home visits, photo sessions, schools, businesses, community celebrations/);
+  assert.match(layout, /metadataBase:\s*config\.siteUrl/);
   assert.match(layout, /experience-media\.css/);
   assert.match(layout, /scheduler\.css/);
   assert.match(layout, /admin\.css/);

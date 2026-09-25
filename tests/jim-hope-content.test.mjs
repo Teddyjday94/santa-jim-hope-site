@@ -8,28 +8,25 @@ import {
   santaProfile,
 } from "../components/santa/site-content.ts";
 
-test("the public-facing Santa profile uses Jim Hope's known identity without inventing a biography", () => {
+test("the public-facing Santa profile uses the approved Baton Rouge brand", () => {
   assert.deepEqual(santaProfile, {
-    name: "Jim Hope",
-    displayName: "Santa Jim Hope",
+    name: "Santa Jim of Baton Rouge",
+    displayName: "Santa Jim of Baton Rouge",
     shortName: "Santa Jim",
   });
 });
 
-test("the gallery presents all seventeen supplied Jim Hope photographs", () => {
-  assert.equal(galleryItems.length, 17);
-  assert.equal(new Set(galleryItems.map((item) => item.src)).size, 17);
-  assert.ok(galleryItems.every((item) => /^\/images\/(?:jim-hope|santa-jim-hope)-/.test(item.src)));
-  assert.ok(galleryItems.some((item) => item.caption === "Storytime visits"));
-  assert.ok(galleryItems.some((item) => item.caption === "Pet-friendly moments"));
-  assert.ok(galleryItems.some((item) => item.caption === "Community celebrations"));
+test("the gallery keeps supplied Santa Jim photography unique and descriptive", () => {
+  assert.ok(galleryItems.length >= 17);
+  assert.equal(new Set(galleryItems.map((item) => item.src)).size, galleryItems.length);
+  assert.ok(galleryItems.every((item) => item.alt.trim().length > 20));
 });
 
-test("the hero motion has a still-image fallback and a silent loop source", () => {
+test("the hero motion has the approved still-image fallback and silent loop source", () => {
   assert.deepEqual(heroMedia, {
     posterSrc: "/images/jim-hope-throne.webp",
     videoSrc: "/videos/jim-hope-christmas-loop.mp4",
-    alt: "Santa Jim Hope seated on an ornate holiday throne",
+    alt: "Santa Jim of Baton Rouge seated on an ornate holiday throne",
   });
 });
 

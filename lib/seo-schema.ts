@@ -18,10 +18,6 @@ export function buildPersonSchema(config: SeoConfig = getSeoConfig()) {
     jobTitle: "Professional Santa Claus performer",
     url: absoluteUrl("/meet", config),
     image: absoluteUrl("/images/jim-hope-throne.webp", config),
-    areaServed: {
-      "@type": "City",
-      name: "Baton Rouge, Louisiana",
-    },
   } as const;
 }
 

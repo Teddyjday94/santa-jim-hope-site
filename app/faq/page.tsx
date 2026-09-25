@@ -3,16 +3,26 @@ import Link from "next/link";
 import { ArrowRight, CalendarDays, MapPin, Sparkles } from "lucide-react";
 import { FaqList } from "@/components/santa/faq-list";
 import { SiteShell } from "@/components/santa/site-shell";
+import { StructuredData } from "@/components/santa/structured-data";
 import { faqs } from "@/components/santa/site-content";
+import { buildPublicMetadata, getSeoConfig } from "@/lib/seo";
+import { buildFaqSchema, buildWebPageSchema } from "@/lib/seo-schema";
 
-export const metadata: Metadata = {
-  title: "FAQ | Santa Jim of Baton Rouge",
-  description: "Answers about booking timing, personalization, event types, travel, and planning a Santa Jim of Baton Rouge holiday appearance.",
-};
+const config = getSeoConfig();
+const title = "Santa Booking FAQ in Baton Rouge, LA | Santa Jim";
+const description = "Answers about booking Santa Jim of Baton Rouge for home visits, events, photo sessions, timing, personalization, and travel planning.";
+
+export const metadata: Metadata = buildPublicMetadata({
+  title,
+  description,
+  path: "/faq",
+}, config);
 
 export default function FaqPage() {
   return (
     <SiteShell className="faq-page">
+      <StructuredData data={buildWebPageSchema({ path: "/faq", name: title, description }, config)} />
+      <StructuredData data={buildFaqSchema(faqs, config)} />
       <section className="page-banner paper-section page-banner--paper">
         <p className="eyebrow eyebrow--dark">Good to know</p>
         <h1>Questions before the sleigh is packed.</h1>

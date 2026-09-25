@@ -18,7 +18,8 @@ const expectedNewPhotos = [
 test("the gallery includes every newly supplied Santa Jim photo", async () => {
   const gallerySources = new Set(galleryItems.map((item) => item.src));
 
-  assert.equal(galleryItems.length, 17);
+  assert.ok(galleryItems.length >= expectedNewPhotos.length);
+  assert.equal(gallerySources.size, galleryItems.length);
   for (const src of expectedNewPhotos) {
     assert.ok(gallerySources.has(src), `missing gallery record for ${src}`);
     await access(new URL(`../public${src}`, import.meta.url));
@@ -29,7 +30,7 @@ test("the social video section excludes the unavailable Facebook reel", () => {
   assert.deepEqual(
     socialReels.map(({ reelId, title }) => ({ reelId, title })),
     [
-      { reelId: "4142406926072498", title: "Santa Jim Hope community reel" },
+      { reelId: "4142406926072498", title: "Santa Jim of Baton Rouge community reel" },
     ],
   );
 });

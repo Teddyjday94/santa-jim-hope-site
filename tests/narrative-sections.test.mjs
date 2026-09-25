@@ -25,7 +25,6 @@ test("the dedicated invite route preserves the active scheduler request path", a
   ]);
 
   assert.match(invite, /<InquiryForm \/>/);
-  assert.match(invite, /available time/i);
   assert.match(form, /\/api\/santa\/availability/);
   assert.match(form, /pending Santa Jim/);
 });

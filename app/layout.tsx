@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import { StructuredData } from "@/components/santa/structured-data";
+import { buildPublicMetadata, getSeoConfig } from "@/lib/seo";
+import { buildPersonSchema, buildWebsiteSchema } from "@/lib/seo-schema";
 import "./globals.css";
 import "./journey.css";
 import "./experience-media.css";
@@ -7,32 +10,19 @@ import "./reel-showcase.css";
 import "./scheduler.css";
 import "./admin.css";
 
-const siteTitle = "Santa Jim of Baton Rouge | Holiday Visits & Event Appearances";
-const siteDescription = "Invite Santa Jim of Baton Rouge to family celebrations, birthdays, schools, businesses, community events, and holiday photo sessions.";
+const config = getSeoConfig();
+const rootMetadata = buildPublicMetadata({
+  title: "Santa for Hire in Baton Rouge, LA | Santa Jim",
+  description: "Invite Santa Jim of Baton Rouge for home visits, photo sessions, schools, businesses, community celebrations, and holiday events.",
+  path: "/",
+}, config);
 
 export const metadata: Metadata = {
-  title: siteTitle,
-  description: siteDescription,
+  ...rootMetadata,
+  metadataBase: config.siteUrl,
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",
-  },
-  openGraph: {
-    title: siteTitle,
-    description: siteDescription,
-    type: "website",
-    images: [
-      {
-        url: "/images/jim-hope-throne.webp",
-        alt: "Santa Jim of Baton Rouge seated on an ornate holiday throne",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: siteTitle,
-    description: siteDescription,
-    images: ["/images/jim-hope-throne.webp"],
   },
 };
 
@@ -41,7 +31,11 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <StructuredData data={buildPersonSchema(config)} />
+        <StructuredData data={buildWebsiteSchema(config)} />
+        {children}
+      </body>
     </html>
   );
 }

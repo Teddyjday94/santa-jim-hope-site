@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { StructuredData } from "@/components/santa/structured-data";
 import { buildPublicMetadata, getSeoConfig } from "@/lib/seo";
+import { buildPersonSchema, buildWebsiteSchema } from "@/lib/seo-schema";
 import "./globals.css";
 import "./journey.css";
 import "./experience-media.css";
@@ -29,7 +31,11 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <StructuredData data={buildPersonSchema(config)} />
+        <StructuredData data={buildWebsiteSchema(config)} />
+        {children}
+      </body>
     </html>
   );
 }

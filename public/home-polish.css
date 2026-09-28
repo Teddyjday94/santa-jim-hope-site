@@ -1,0 +1,608 @@
+/* Homepage polish layer — loaded after multipage.css so the existing visual system stays intact. */
+
+.home-page {
+  --home-edge: rgba(189, 148, 80, .22);
+  --home-edge-strong: rgba(223, 197, 139, .42);
+  --home-shadow: 0 28px 70px rgba(5, 24, 18, .18);
+}
+
+.home-page .paper-section,
+.home-page .dark-section {
+  padding-top: clamp(5rem, 9vw, 8.5rem);
+  padding-bottom: clamp(5rem, 9vw, 8.5rem);
+}
+
+.home-page .section-title-row {
+  margin-bottom: clamp(2.6rem, 5vw, 4.4rem);
+}
+
+.home-page .section-title-row h2 {
+  max-width: 11ch;
+}
+
+.home-page .section-title-row > p {
+  max-width: 34rem;
+  line-height: 1.75;
+}
+
+/* Hero: cleaner editorial framing and a more deliberate photo treatment. */
+.home-page .home-hero {
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 22px 70px rgba(5, 24, 18, .12);
+}
+
+.home-page .home-hero__copy {
+  position: relative;
+  isolation: isolate;
+}
+
+.home-page .home-hero__copy::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: clamp(2.5rem, 7vw, 6.5rem);
+  bottom: clamp(2.5rem, 7vw, 6.5rem);
+  left: clamp(1rem, 3vw, 2.5rem);
+  width: 1px;
+  background: linear-gradient(transparent, rgba(139, 101, 42, .34) 18%, rgba(139, 101, 42, .34) 82%, transparent);
+}
+
+.home-page .home-hero__copy h1 {
+  text-wrap: balance;
+}
+
+.home-page .home-hero__lead {
+  max-width: 32rem;
+}
+
+.home-page .home-hero__portrait {
+  isolation: isolate;
+  box-shadow: inset 0 0 0 1px rgba(223, 197, 139, .18);
+}
+
+.home-page .home-hero__portrait::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  inset: clamp(.7rem, 1.7vw, 1.25rem);
+  border: 1px solid rgba(255, 248, 232, .28);
+  pointer-events: none;
+}
+
+.home-page .home-hero__portrait-note {
+  min-width: min(22rem, calc(100% - 2.5rem));
+  padding: 1rem 1.15rem;
+  border: 1px solid rgba(223, 197, 139, .38);
+  background: rgba(7, 34, 26, .72);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, .16);
+  backdrop-filter: blur(12px);
+}
+
+.home-page .hero-actions .button {
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.home-page .hero-actions .button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(72, 18, 19, .14);
+}
+
+/* Story: the three pieces now read as one composed editorial spread. */
+.home-page .home-story {
+  display: block;
+}
+
+.home-story__frame {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(260px, .78fr) minmax(300px, .9fr) minmax(230px, .55fr);
+  align-items: center;
+  gap: clamp(2rem, 5vw, 4.5rem);
+  padding: clamp(1rem, 2vw, 1.75rem) 0;
+}
+
+.home-story__frame::before,
+.home-story__frame::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  left: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(139, 101, 42, .32) 12%, rgba(139, 101, 42, .32) 88%, transparent);
+}
+
+.home-story__frame::before { top: -1.4rem; }
+.home-story__frame::after { bottom: -1.4rem; }
+
+.home-page .home-story__photo {
+  min-height: 470px;
+  border: .75rem solid rgba(255, 255, 255, .72);
+  box-shadow: 0 26px 60px rgba(61, 37, 20, .18);
+  transform: rotate(-.7deg);
+  transition: transform 520ms cubic-bezier(.2,.7,.2,1), box-shadow 520ms ease;
+}
+
+.home-page .home-story__frame:hover .home-story__photo {
+  transform: rotate(-.2deg) translateY(-4px);
+  box-shadow: 0 32px 74px rgba(61, 37, 20, .2);
+}
+
+.home-page .home-story__copy {
+  padding-right: clamp(0rem, 2vw, 1.5rem);
+}
+
+.home-page .home-story__copy > p:not(.eyebrow) {
+  max-width: 35rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, 1.45vw, 1.22rem);
+  line-height: 1.62;
+}
+
+.home-page .home-story__signals {
+  padding-top: 1rem;
+  border-top: 1px solid rgba(139, 101, 42, .18);
+}
+
+.home-page .home-story__quote {
+  position: relative;
+  padding: 2.25rem 0 2.25rem 2.25rem;
+  border-left: 1px solid rgba(139, 101, 42, .38);
+}
+
+.home-page .home-story__quote::before {
+  content: "“";
+  position: absolute;
+  top: -.8rem;
+  left: 1.7rem;
+  color: rgba(139, 101, 42, .2);
+  font-family: Georgia, serif;
+  font-size: 6rem;
+  line-height: 1;
+}
+
+/* Experiences: consistent image crops and a true card body make each option feel intentional. */
+.home-page .home-experience-grid {
+  gap: clamp(.9rem, 2vw, 1.4rem);
+}
+
+.home-page .home-experience-card {
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  flex-direction: column;
+  border-color: rgba(223, 197, 139, .26);
+  background:
+    linear-gradient(180deg, rgba(255, 248, 232, .055), rgba(255, 248, 232, .022)),
+    rgba(5, 24, 18, .18);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, .1);
+  transition: transform 320ms cubic-bezier(.2,.7,.2,1), border-color 320ms ease, box-shadow 320ms ease;
+}
+
+.home-page .home-experience-card::after {
+  content: "";
+  position: absolute;
+  right: 1.3rem;
+  bottom: 1.1rem;
+  left: 1.3rem;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(223, 197, 139, .28), transparent);
+  opacity: 0;
+  transform: scaleX(.6);
+  transform-origin: left;
+  transition: opacity 300ms ease, transform 300ms ease;
+}
+
+.home-page .home-experience-card:hover {
+  border-color: rgba(223, 197, 139, .48);
+  box-shadow: 0 26px 56px rgba(0, 0, 0, .16);
+  transform: translateY(-6px);
+}
+
+.home-page .home-experience-card:hover::after {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.home-page .home-experience-card__image {
+  height: clamp(250px, 23vw, 315px);
+}
+
+.home-page .home-experience-card__image::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  box-shadow: inset 0 -1px 0 rgba(223, 197, 139, .16);
+  pointer-events: none;
+}
+
+.home-experience-card__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 250px;
+  padding: 1.45rem 1.45rem 1.65rem;
+}
+
+.home-page .home-experience-card__body > span {
+  color: var(--gold-soft);
+  font-size: .62rem;
+  font-weight: 850;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.home-page .home-experience-card__body h3 {
+  margin-top: .35rem;
+  font-size: clamp(1.55rem, 2.1vw, 2.15rem);
+}
+
+.home-page .home-experience-card__body p {
+  margin: .8rem 0 1.4rem;
+  color: rgba(243, 231, 202, .74);
+  line-height: 1.65;
+}
+
+.home-page .home-experience-card__body .text-link {
+  margin-top: auto;
+  align-self: flex-start;
+}
+
+/* Booking path: a single continuous route instead of three disconnected columns. */
+.home-page .visit-path__steps::before {
+  display: none;
+}
+
+.visit-path__connector {
+  position: absolute;
+  z-index: 0;
+  top: 1.45rem;
+  right: 8%;
+  left: 8%;
+  height: 1px;
+  overflow: hidden;
+  background: rgba(139, 101, 42, .22);
+}
+
+.visit-path__connector::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(139, 101, 42, .62) 40%, rgba(139, 101, 42, .62) 60%, transparent 100%);
+  transform: translateX(-100%);
+  transition: transform 1.2s cubic-bezier(.2,.7,.2,1) 180ms;
+}
+
+.home-page .visit-path.is-section-visible .visit-path__connector::after {
+  transform: translateX(100%);
+}
+
+.home-page .visit-path__steps article {
+  z-index: 1;
+  align-content: start;
+  padding: 0 clamp(.25rem, 1vw, .8rem);
+}
+
+.home-page .visit-path__number {
+  box-shadow: 0 0 0 7px var(--paper), 0 9px 22px rgba(94, 63, 28, .14);
+  transition: transform 260ms ease, background 260ms ease;
+}
+
+.home-page .visit-path__steps article:hover .visit-path__number {
+  background: #8b652a;
+  transform: translateY(-3px) scale(1.03);
+}
+
+.home-page .visit-path__steps h3 {
+  margin-top: .35rem;
+}
+
+.home-page .visit-path__steps p {
+  max-width: 22rem;
+  line-height: 1.7;
+}
+
+/* Gallery: a magazine-like lead pair, followed by four smaller supporting moments. */
+.home-page .home-gallery__grid {
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-auto-rows: clamp(170px, 15vw, 220px);
+  gap: clamp(.7rem, 1.4vw, 1rem);
+}
+
+.home-page .home-gallery__item {
+  grid-column: span 3;
+  min-height: 0;
+  border-color: rgba(223, 197, 139, .24);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, .12);
+  transition: transform 340ms cubic-bezier(.2,.7,.2,1), border-color 340ms ease, box-shadow 340ms ease;
+}
+
+.home-page .home-gallery__item--wide {
+  grid-column: span 7;
+  grid-row: span 2;
+}
+
+.home-page .home-gallery__item--tall {
+  grid-column: span 5;
+  grid-row: span 2;
+}
+
+.home-page .home-gallery__item:hover {
+  z-index: 2;
+  border-color: rgba(223, 197, 139, .5);
+  box-shadow: 0 24px 54px rgba(0, 0, 0, .18);
+  transform: translateY(-4px);
+}
+
+.home-page .home-gallery__item::after {
+  inset: 45% 0 0;
+  background: linear-gradient(transparent, rgba(5, 23, 18, .86));
+}
+
+.home-page .home-gallery__item figcaption {
+  right: 1.15rem;
+  bottom: 1.05rem;
+  left: 1.15rem;
+  font-size: clamp(.95rem, 1.5vw, 1.18rem);
+}
+
+/* FAQ: treat the answers as a refined paper panel rather than another loose two-column section. */
+.home-faq__intro {
+  align-self: start;
+  padding-top: .4rem;
+}
+
+.home-page .home-faq .faq-list {
+  padding: .3rem clamp(1.25rem, 3vw, 2.4rem);
+  border: 1px solid rgba(24, 51, 40, .14);
+  background: rgba(255, 255, 255, .34);
+  box-shadow: 0 22px 54px rgba(61, 37, 20, .1);
+}
+
+.home-page .home-faq .faq-item:last-child {
+  border-bottom: 0;
+}
+
+.home-page .home-faq .faq-item summary {
+  padding-top: 1.65rem;
+  padding-bottom: 1.65rem;
+}
+
+/* Final CTA: a deliberate closing panel with enough visual weight to finish the page. */
+.home-page .home-invite {
+  display: block;
+  padding-top: clamp(3.5rem, 7vw, 6rem);
+  padding-bottom: clamp(3.5rem, 7vw, 6rem);
+  border-top: 0;
+}
+
+.home-invite__panel {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(2rem, 6vw, 5rem);
+  overflow: hidden;
+  padding: clamp(2.2rem, 5vw, 4.4rem);
+  border: 1px solid rgba(223, 197, 139, .34);
+  background:
+    radial-gradient(circle at 78% 18%, rgba(189, 148, 80, .17), transparent 24rem),
+    linear-gradient(135deg, rgba(255, 248, 232, .055), transparent 48%),
+    rgba(4, 22, 17, .48);
+  box-shadow: 0 26px 70px rgba(0, 0, 0, .16);
+}
+
+.home-invite__panel::before,
+.home-invite__panel::after {
+  content: "";
+  position: absolute;
+  width: 4.5rem;
+  height: 4.5rem;
+  pointer-events: none;
+}
+
+.home-invite__panel::before {
+  top: .7rem;
+  left: .7rem;
+  border-top: 1px solid rgba(223, 197, 139, .34);
+  border-left: 1px solid rgba(223, 197, 139, .34);
+}
+
+.home-invite__panel::after {
+  right: .7rem;
+  bottom: .7rem;
+  border-right: 1px solid rgba(223, 197, 139, .34);
+  border-bottom: 1px solid rgba(223, 197, 139, .34);
+}
+
+.home-page .home-invite__panel h2 {
+  max-width: 12ch;
+}
+
+.home-page .home-invite__panel p:not(.eyebrow) {
+  margin-bottom: 0;
+  line-height: 1.7;
+}
+
+.home-page .home-invite__actions {
+  min-width: 15rem;
+}
+
+/* Existing reveal system, tuned for the new wrappers. */
+.home-page.motion-ready .home-story__frame.scroll-reveal,
+.home-page.motion-ready .home-invite__panel.scroll-reveal {
+  transform: translateY(24px) scale(.992);
+}
+
+.home-page.motion-ready .home-story__frame.scroll-reveal.is-visible,
+.home-page.motion-ready .home-invite__panel.scroll-reveal.is-visible {
+  transform: translateY(0) scale(1);
+}
+
+@media (max-width: 980px) {
+  .home-story__frame {
+    grid-template-columns: minmax(240px, .8fr) 1.2fr;
+  }
+
+  .home-page .home-story__quote {
+    grid-column: 1 / -1;
+    padding: 1.75rem 0 0;
+    border-top: 1px solid rgba(139, 101, 42, .26);
+    border-left: 0;
+  }
+
+  .home-page .home-story__quote::before {
+    top: .5rem;
+    left: 0;
+  }
+
+  .home-invite__panel {
+    grid-template-columns: 1fr;
+  }
+
+  .home-page .home-invite__actions {
+    min-width: 0;
+    justify-items: start;
+  }
+}
+
+@media (max-width: 720px) {
+  .home-page .paper-section,
+  .home-page .dark-section {
+    padding-top: 4.5rem;
+    padding-bottom: 4.5rem;
+  }
+
+  .home-page .home-hero__copy::before {
+    display: none;
+  }
+
+  .home-page .home-hero__portrait-note {
+    right: 1rem;
+    bottom: 1rem;
+    min-width: 0;
+    width: calc(100% - 2rem);
+    justify-items: start;
+    text-align: left;
+  }
+
+  .home-story__frame {
+    grid-template-columns: 1fr;
+    gap: 2.4rem;
+  }
+
+  .home-page .home-story__photo {
+    width: min(100%, 34rem);
+    min-height: clamp(340px, 108vw, 470px);
+    margin-inline: auto;
+  }
+
+  .home-page .home-story__quote {
+    grid-column: auto;
+    padding-top: 2rem;
+    font-size: clamp(1.35rem, 6.6vw, 1.9rem);
+  }
+
+  .home-page .home-experience-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-page .home-experience-card__image {
+    height: clamp(240px, 72vw, 330px);
+  }
+
+  .home-experience-card__body {
+    min-height: 0;
+  }
+
+  .visit-path__connector {
+    top: 1.4rem;
+    bottom: 1.4rem;
+    left: 1.45rem;
+    width: 1px;
+    height: auto;
+    background: rgba(139, 101, 42, .22);
+  }
+
+  .visit-path__connector::after {
+    background: linear-gradient(180deg, transparent, rgba(139, 101, 42, .6), transparent);
+    transform: translateY(-100%);
+  }
+
+  .home-page .visit-path.is-section-visible .visit-path__connector::after {
+    transform: translateY(100%);
+  }
+
+  .home-page .visit-path__steps {
+    gap: 2.25rem;
+  }
+
+  .home-page .visit-path__steps article {
+    padding: 0;
+  }
+
+  .home-page .home-gallery__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: 180px;
+  }
+
+  .home-page .home-gallery__item {
+    grid-column: span 1;
+  }
+
+  .home-page .home-gallery__item--wide {
+    grid-column: 1 / -1;
+    grid-row: span 2;
+  }
+
+  .home-page .home-gallery__item--tall {
+    grid-column: span 1;
+    grid-row: span 2;
+  }
+
+  .home-page .home-faq {
+    grid-template-columns: 1fr;
+    gap: 2.4rem;
+  }
+
+  .home-invite__panel {
+    padding: 2.2rem 1.35rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .home-page .home-gallery__grid {
+    grid-template-columns: 1fr;
+    grid-auto-rows: 230px;
+  }
+
+  .home-page .home-gallery__item,
+  .home-page .home-gallery__item--wide,
+  .home-page .home-gallery__item--tall {
+    grid-column: 1;
+    grid-row: span 1;
+  }
+
+  .home-page .home-gallery__item--wide,
+  .home-page .home-gallery__item--tall {
+    grid-row: span 2;
+  }
+
+  .home-page .home-faq .faq-list {
+    padding-right: 1rem;
+    padding-left: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-page .home-story__photo,
+  .home-page .home-experience-card,
+  .home-page .home-gallery__item,
+  .home-page .hero-actions .button,
+  .home-page .visit-path__number,
+  .visit-path__connector::after {
+    transition: none !important;
+    transform: none !important;
+  }
+}

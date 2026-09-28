@@ -67,33 +67,35 @@ export default function Home() {
       </section>
 
       <section className="home-story paper-section">
-        <div className="home-story__photo">
-          <Image
-            src="/images/jim-hope-storytime.webp"
-            alt="Santa Jim of Baton Rouge reading a Christmas story with a baby"
-            fill
-            sizes="(max-width: 760px) 92vw, 38vw"
-          />
-        </div>
-        <div className="home-story__copy">
-          <p className="eyebrow eyebrow--dark">Meet Santa Jim</p>
-          <h2>More than a costume. A calling.</h2>
-          <p>
-            Santa Jim of Baton Rouge brings a calm, welcoming Santa presence to the moments that
-            families and communities look forward to all season.
-          </p>
-          <div className="home-story__signals">
-            <span><BookOpen size={18} aria-hidden="true" /> Storytime moments</span>
-            <span><HeartHandshake size={18} aria-hidden="true" /> Welcoming visits</span>
+        <div className="home-story__frame">
+          <div className="home-story__photo">
+            <Image
+              src="/images/jim-hope-storytime.webp"
+              alt="Santa Jim of Baton Rouge reading a Christmas story with a baby"
+              fill
+              sizes="(max-width: 760px) 92vw, 38vw"
+            />
           </div>
-          <Link className="text-link" href="/meet">
-            Meet Santa Jim <ArrowRight size={16} aria-hidden="true" />
-          </Link>
+          <div className="home-story__copy">
+            <p className="eyebrow eyebrow--dark">Meet Santa Jim</p>
+            <h2>More than a costume. A calling.</h2>
+            <p>
+              Santa Jim of Baton Rouge brings a calm, welcoming Santa presence to the moments that
+              families and communities look forward to all season.
+            </p>
+            <div className="home-story__signals">
+              <span><BookOpen size={18} aria-hidden="true" /> Storytime moments</span>
+              <span><HeartHandshake size={18} aria-hidden="true" /> Welcoming visits</span>
+            </div>
+            <Link className="text-link" href="/meet">
+              Meet Santa Jim <ArrowRight size={16} aria-hidden="true" />
+            </Link>
+          </div>
+          <blockquote className="home-story__quote">
+            The best Christmas moments feel warm, personal, and wonderfully real.
+            <span>Real people. Brighter holidays.</span>
+          </blockquote>
         </div>
-        <blockquote className="home-story__quote">
-          The best Christmas moments feel warm, personal, and wonderfully real.
-          <span>Real people. Brighter holidays.</span>
-        </blockquote>
       </section>
 
       <section className="home-experiences dark-section">
@@ -128,14 +130,16 @@ export default function Home() {
                     />
                   </div>
                 ) : null}
-                <span>{experience.kicker}</span>
-                <h3>{experience.title}</h3>
-                <p>{experience.description}</p>
-                {detail ? (
-                  <Link className="text-link text-link--light" href={`/experiences/${detail.slug}`}>
-                    Explore this experience <ArrowRight size={16} aria-hidden="true" />
-                  </Link>
-                ) : null}
+                <div className="home-experience-card__body">
+                  <span>{experience.kicker}</span>
+                  <h3>{experience.title}</h3>
+                  <p>{experience.description}</p>
+                  {detail ? (
+                    <Link className="text-link text-link--light" href={`/experiences/${detail.slug}`}>
+                      Explore this experience <ArrowRight size={16} aria-hidden="true" />
+                    </Link>
+                  ) : null}
+                </div>
               </article>
             );
           })}
@@ -155,6 +159,7 @@ export default function Home() {
           <p>Easy, personal, and designed to make the day feel special.</p>
         </div>
         <div className="visit-path__steps">
+          <span className="visit-path__connector" aria-hidden="true" />
           {visitSteps.map((step, index) => (
             <article key={step.label}>
               <span className="visit-path__number">{index + 1}</span>
@@ -180,7 +185,10 @@ export default function Home() {
         </div>
         <div className="home-gallery__grid">
           {galleryItems.slice(0, 6).map((item, index) => (
-            <figure className={index === 0 ? "home-gallery__item home-gallery__item--wide" : "home-gallery__item"} key={item.src}>
+            <figure
+              className={`home-gallery__item${index === 0 ? " home-gallery__item--wide" : ""}${index === 1 ? " home-gallery__item--tall" : ""}`}
+              key={item.src}
+            >
               <Image
                 className="home-gallery__backdrop"
                 src={item.src}
@@ -203,7 +211,7 @@ export default function Home() {
       </section>
 
       <section className="home-faq paper-section">
-        <div>
+        <div className="home-faq__intro">
           <p className="eyebrow eyebrow--dark">Frequently asked</p>
           <h2>Quick answers for a smoother season.</h2>
           <p>
@@ -218,16 +226,18 @@ export default function Home() {
       </section>
 
       <section className="home-invite">
-        <div>
-          <p className="eyebrow">Invite Santa Jim</p>
-          <h2>Make this season one to remember.</h2>
-          <p>Share the details of your celebration and Santa Jim will follow up about availability.</p>
-        </div>
-        <div className="home-invite__actions">
-          <Link className="button button--red" href="/invite">
-            Start an inquiry <ArrowUpRight size={17} aria-hidden="true" />
-          </Link>
-          <span><Camera size={16} aria-hidden="true" /> Home visits · events · photos</span>
+        <div className="home-invite__panel">
+          <div>
+            <p className="eyebrow">Invite Santa Jim</p>
+            <h2>Make this season one to remember.</h2>
+            <p>Share the details of your celebration and Santa Jim will follow up about availability.</p>
+          </div>
+          <div className="home-invite__actions">
+            <Link className="button button--red" href="/invite">
+              Start an inquiry <ArrowUpRight size={17} aria-hidden="true" />
+            </Link>
+            <span><Camera size={16} aria-hidden="true" /> Home visits · events · photos</span>
+          </div>
         </div>
       </section>
     </SiteShell>

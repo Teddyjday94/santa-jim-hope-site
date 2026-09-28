@@ -101,7 +101,7 @@ export default async function ExperienceDetailPage({ params }: ExperiencePagePro
         </div>
       </section>
 
-      <section className="values-section paper-section">
+      <section className="values-section paper-section experience-planning">
         <div className="section-title-row section-title-row--dark">
           <div>
             <p className="eyebrow eyebrow--dark">Helpful planning details</p>
@@ -109,38 +109,68 @@ export default async function ExperienceDetailPage({ params }: ExperiencePagePro
           </div>
           <p>Good details make it easier to confirm the right timing and shape the visit around your event.</p>
         </div>
-        <div className="values-grid">
+        <div className="values-grid planning-grid">
           {detail.planningTips.map((tip, index) => (
-            <article key={tip}>
-              {index === 0 ? <CalendarDays aria-hidden="true" /> : index === 1 ? <Sparkles aria-hidden="true" /> : <MapPin aria-hidden="true" />}
-              <h3>Planning detail {index + 1}</h3>
-              <p>{tip}</p>
+            <article className="planning-card" key={tip.title}>
+              <div className="planning-card__topline">
+                <span className="planning-card__step" aria-hidden="true">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <span className="planning-card__icon" aria-hidden="true">
+                  {index === 0 ? <CalendarDays /> : index === 1 ? <Sparkles /> : <MapPin />}
+                </span>
+              </div>
+              <h3>{tip.title}</h3>
+              <p>{tip.text}</p>
             </article>
           ))}
         </div>
       </section>
 
-      <section className="dark-section">
-        <div className="section-title-row">
+      <section className="dark-section related-experiences">
+        <div className="section-title-row related-experiences__heading">
           <div>
             <p className="eyebrow">Related ways to celebrate</p>
             <h2>More ways Santa Jim can be part of the season.</h2>
           </div>
-          <Link className="text-link text-link--light" href="/experiences">
+          <p>Keep exploring appearances that can fit a different setting, guest list, or kind of Christmas moment.</p>
+        </div>
+        <div className="related-experiences__grid">
+          {related.map((item) => {
+            const relatedPhoto = experiencePhotos[item.title];
+
+            return (
+              <article className="related-experience-card" key={item.slug}>
+                {relatedPhoto ? (
+                  <div className="related-experience-card__media">
+                    <Image
+                      src={relatedPhoto.src}
+                      alt={relatedPhoto.alt}
+                      fill
+                      sizes="(max-width: 720px) 92vw, 44vw"
+                      style={{
+                        objectFit: relatedPhoto.fit ?? "cover",
+                        objectPosition: relatedPhoto.position ?? "center center",
+                      }}
+                    />
+                  </div>
+                ) : null}
+                <div className="related-experience-card__body">
+                  <span>Santa Jim of Baton Rouge</span>
+                  <h3>{item.title}</h3>
+                  <p>{item.seoDescription}</p>
+                  <Link className="text-link text-link--light related-experience-card__link" href={`/experiences/${item.slug}`}>
+                    View this experience <ArrowRight size={16} aria-hidden="true" />
+                  </Link>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+        <div className="related-experiences__footer">
+          <Link className="button button--paper" href="/experiences">
             Explore all experiences <ArrowRight size={16} aria-hidden="true" />
           </Link>
-        </div>
-        <div className="home-experience-grid">
-          {related.map((item) => (
-            <article className="home-experience-card" key={item.slug}>
-              <span>Santa Jim of Baton Rouge</span>
-              <h3>{item.title}</h3>
-              <p>{item.seoDescription}</p>
-              <Link className="text-link text-link--light" href={`/experiences/${item.slug}`}>
-                View this experience <ArrowRight size={16} aria-hidden="true" />
-              </Link>
-            </article>
-          ))}
         </div>
       </section>
 

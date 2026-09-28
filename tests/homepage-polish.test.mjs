@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
 const pageUrl = new URL("../app/page.tsx", import.meta.url);
-const stylesUrl = new URL("../public/multipage.css", import.meta.url);
+const stylesUrl = new URL("../public/home-polish.css", import.meta.url);
 
 test("homepage polish uses deliberate wrappers for editorial composition", async () => {
   const page = await readFile(pageUrl, "utf8");
@@ -20,7 +20,7 @@ test("homepage polish uses deliberate wrappers for editorial composition", async
 });
 
 test("homepage polish styles hierarchy, motion, and mobile behavior intentionally", async () => {
-  const css = await readFile(stylesUrl, "utf8");
+  const css = await readFile(stylesUrl, "utf8").catch(() => "");
 
   for (const selector of [
     ".home-story__frame",

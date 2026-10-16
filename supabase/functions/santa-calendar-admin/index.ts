@@ -178,6 +178,21 @@ async function hasGoogleConflict(connection: Connection, booking: Record<string,
   return Array.isArray(first?.busy) && first.busy.length > 0;
 }
 
+function textField(value: unknown) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function eventTimeLabel(value: string) {
+  const [hourText, minuteText] = value.split(":");
+  const hour = Number(hourText);
+  return `${hour % 12 || 12}:${minuteText} ${hour >= 12 ? "PM" : "AM"}`;
+}
+
+function eventDateLabel(value: string) {
+  return new Intl.DateTimeFormat("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric", timeZone: "UTC" })
+    .format(new Date(`${value}T12:00:00Z`));
+}
+
 function googleEventId(bookingId: string) {
   return `santa${bookingId.replaceAll("-", "").toLowerCase()}`;
 }
@@ -205,8 +220,25 @@ async function createEvent(connection: Connection, booking: Record<string, unkno
   const date = String(booking.local_date);
   const start = String(booking.local_start_time).slice(0, 5);
   const end = String(booking.local_end_time).slice(0, 5);
-  const service = String(booking.service_slug).split("-").map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(" ");
-  const description = `Santa Jim scheduler booking reference: ${String(booking.id)}`;
+  const service = typeof booking.service_name === "string" && booking.service_name
+    ? booking.service_name
+    : String(booking.service_slug).split("-").map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(" ");
+  const customer = textField(booking.customer_name) || "Guest";
+  const location = textField(booking.event_location);
+  // Optional lines are null so they drop out; "" lines are intentional spacing.
+  const description = [
+    `${service} for ${customer}`,
+    `When: ${eventDateLabel(date)}, ${eventTimeLabel(start)} – ${eventTimeLabel(end)}`,
+    location ? `Where: ${location}` : null,
+    "",
+    `Name: ${customer}`,
+    textField(booking.customer_email) ? `Email: ${textField(booking.customer_email)}` : null,
+    textField(booking.customer_phone) ? `Phone: ${textField(booking.customer_phone)}` : null,
+    booking.guest_count ? `Guests: ${String(booking.guest_count)}` : null,
+    textField(booking.notes) ? `\nNotes from the family:\n${textField(booking.notes)}` : null,
+    "",
+    `Booking reference: ${String(booking.id)}`,
+  ].filter((line) => line !== null).join("\n");
 
   const response = await fetch(
     `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(connection.calendar_id || "primary")}/events?sendUpdates=none`,
@@ -218,8 +250,9 @@ async function createEvent(connection: Connection, booking: Record<string, unkno
       },
       body: JSON.stringify({
         id: eventId,
-        summary: `Santa Jim — ${service}`,
+        summary: `${service} – ${customer}`,
         description,
+        ...(location ? { location } : {}),
         start: { dateTime: `${date}T${start}:00`, timeZone: timezone },
         end: { dateTime: `${date}T${end}:00`, timeZone: timezone },
       }),
@@ -381,7 +414,7 @@ Deno.serve(async (req: Request) => {
       const bookingId = String(body.bookingId ?? "");
       if (!bookingId) return json({ error: "Booking ID is required." }, 400);
       const bookingResponse = await rest(
-        `santa_booking_requests?id=eq.${encodeURIComponent(bookingId)}&site_id=eq.${SANTA_SITE_ID}&select=id,service_slug,local_date,local_start_time,local_end_time,local_blocked_until_time,status,calendar_sync_status&limit=1`,
+        `santa_booking_requests?id=eq.${encodeURIComponent(bookingId)}&site_id=eq.${SANTA_SITE_ID}&select=id,service_slug,customer_name,customer_email,customer_phone,event_location,guest_count,notes,local_date,local_start_time,local_end_time,local_blocked_until_time,status,calendar_sync_status&limit=1`,
       );
       const bookings = bookingResponse.ok ? await bookingResponse.json() as Array<Record<string, unknown>> : [];
       const booking = bookings[0];
@@ -389,6 +422,11 @@ Deno.serve(async (req: Request) => {
       if (String(booking.status) !== "pending" || String(booking.calendar_sync_status) !== "pending") {
         return json({ error: "Only a claimed pending request can be added to Calendar." }, 409);
       }
+      const serviceResponse = await rest(
+        `santa_services?site_id=eq.${SANTA_SITE_ID}&slug=eq.${encodeURIComponent(String(booking.service_slug))}&select=name&limit=1`,
+      );
+      const serviceRows = serviceResponse.ok ? await serviceResponse.json() as Array<{ name?: string }> : [];
+      booking.service_name = serviceRows[0]?.name ?? null;
 
       const stored = await loadConnection();
       if (!stored) return json({ connected: false, error: "Google Calendar is not connected." }, 409);

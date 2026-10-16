@@ -53,7 +53,10 @@ test("Calendar Edge Functions keep OAuth secrets and tokens server-side", async 
   assert.match(publicFunction, /calendar\/v3\/freeBusy/);
   assert.match(publicFunction, /busy/);
   assert.doesNotMatch(publicFunction, /refresh_token.*JSON\.stringify|access_token.*JSON\.stringify/);
-  assert.doesNotMatch(adminFunction, /booking\.customer_email|booking\.customer_phone|booking\.event_location|booking\.guest_count|booking\.notes/);
+  // Calendar events carry who, when and where only; contact details and notes stay in the portal.
+  assert.match(adminFunction, /booking\.customer_name/);
+  assert.match(adminFunction, /booking\.event_location/);
+  assert.doesNotMatch(adminFunction, /customer_email|customer_phone|guest_count|booking\.notes/);
   assert.match(adminFunction, /function googleEventId/);
   assert.match(adminFunction, /action === "rollback-event"/);
   assert.match(adminFunction, /action === "cancel-event"/);

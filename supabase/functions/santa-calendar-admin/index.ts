@@ -225,18 +225,13 @@ async function createEvent(connection: Connection, booking: Record<string, unkno
     : String(booking.service_slug).split("-").map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(" ");
   const customer = textField(booking.customer_name) || "Guest";
   const location = textField(booking.event_location);
-  // Optional lines are null so they drop out; "" lines are intentional spacing.
+  // Only who, when and where go to Google; contact details and notes stay in the Santa Portal.
   const description = [
     `${service} for ${customer}`,
     `When: ${eventDateLabel(date)}, ${eventTimeLabel(start)} – ${eventTimeLabel(end)}`,
     location ? `Where: ${location}` : null,
     "",
-    `Name: ${customer}`,
-    textField(booking.customer_email) ? `Email: ${textField(booking.customer_email)}` : null,
-    textField(booking.customer_phone) ? `Phone: ${textField(booking.customer_phone)}` : null,
-    booking.guest_count ? `Guests: ${String(booking.guest_count)}` : null,
-    textField(booking.notes) ? `\nNotes from the family:\n${textField(booking.notes)}` : null,
-    "",
+    "Contact details and notes are in the Santa Portal.",
     `Booking reference: ${String(booking.id)}`,
   ].filter((line) => line !== null).join("\n");
 
@@ -414,7 +409,7 @@ Deno.serve(async (req: Request) => {
       const bookingId = String(body.bookingId ?? "");
       if (!bookingId) return json({ error: "Booking ID is required." }, 400);
       const bookingResponse = await rest(
-        `santa_booking_requests?id=eq.${encodeURIComponent(bookingId)}&site_id=eq.${SANTA_SITE_ID}&select=id,service_slug,customer_name,customer_email,customer_phone,event_location,guest_count,notes,local_date,local_start_time,local_end_time,local_blocked_until_time,status,calendar_sync_status&limit=1`,
+        `santa_booking_requests?id=eq.${encodeURIComponent(bookingId)}&site_id=eq.${SANTA_SITE_ID}&select=id,service_slug,customer_name,event_location,local_date,local_start_time,local_end_time,local_blocked_until_time,status,calendar_sync_status&limit=1`,
       );
       const bookings = bookingResponse.ok ? await bookingResponse.json() as Array<Record<string, unknown>> : [];
       const booking = bookings[0];

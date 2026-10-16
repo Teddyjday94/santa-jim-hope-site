@@ -36,6 +36,9 @@ type SchedulerArgs = {
   rule: SantaDayRule;
 };
 
+export const PHOTO_SERVICE_SLUG: "photo-session";
+export function usesTimeSlots(serviceSlug: string): boolean;
+export function isValidStartTime(value: unknown): boolean;
 export function intervalsOverlap(startA: string, endA: string, startB: string, endB: string): boolean;
 export function getAllowedServicesForDate(args: SchedulerArgs): SantaService[];
 export function buildAvailableSlots(args: SchedulerArgs & {

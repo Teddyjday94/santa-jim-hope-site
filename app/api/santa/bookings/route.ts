@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { loadSantaAvailability, validateBookingAvailability } from "@/lib/santa-availability-service.mjs";
+import { loadSantaAvailability, validateBookingAvailability, validateOpenTimeBooking } from "@/lib/santa-availability-service.mjs";
+import { usesTimeSlots } from "@/lib/santa-scheduler.mjs";
 import { SANTA_SITE_ID, SANTA_TEST_NOTIFICATION_EMAIL } from "@/lib/santa-config";
 import { invokeSupabaseFunction, supabaseRest, supabaseRpc } from "@/lib/santa-supabase";
 
@@ -22,32 +23,48 @@ export async function POST(request: NextRequest) {
     p_customer_name: text(body.name),
     p_customer_email: text(body.email),
     p_customer_phone: text(body.phone),
-    p_event_location: text(body.location),
+    p_event_location: text(body.location) || (text(body.serviceSlug || body.eventType) === "zoom-call" ? "Zoom (online)" : ""),
     p_guest_count: body.guestCount ? Number(body.guestCount) : null,
     p_notes: text(body.notes),
+    p_local_end_time: usesTimeSlots(text(body.serviceSlug || body.eventType)) ? null : text(body.endTime),
   };
 
   if (!payload.p_service_slug || !payload.p_local_date || !payload.p_local_start_time || !payload.p_customer_name || !payload.p_customer_email || !payload.p_event_location) {
     return NextResponse.json({ error: "Complete the required booking fields." }, { status: 400 });
   }
 
-  const availability = await validateBookingAvailability({
-    date: payload.p_local_date,
-    serviceSlug: payload.p_service_slug,
-    startTime: payload.p_local_start_time,
-    loadAvailability: ({ date, serviceSlug }) => loadSantaAvailability({
-      date,
-      serviceSlug,
-      siteId: SANTA_SITE_ID,
-      supabaseRest,
-      invokeSupabaseFunction,
-    }),
+  const loadAvailability = ({ date, serviceSlug }: { date: string; serviceSlug: string }) => loadSantaAvailability({
+    date,
+    serviceSlug,
+    siteId: SANTA_SITE_ID,
+    supabaseRest,
+    invokeSupabaseFunction,
   });
+  const availability = usesTimeSlots(payload.p_service_slug)
+    ? await validateBookingAvailability({
+      date: payload.p_local_date,
+      serviceSlug: payload.p_service_slug,
+      startTime: payload.p_local_start_time,
+      loadAvailability,
+    })
+    : await validateOpenTimeBooking({
+      date: payload.p_local_date,
+      serviceSlug: payload.p_service_slug,
+      startTime: payload.p_local_start_time,
+      endTime: payload.p_local_end_time ?? "",
+      loadSchedule: () => loadAvailability({ date: "", serviceSlug: "" }),
+    });
   if (!availability.available && availability.reason === "availability_error") {
     return NextResponse.json(
       { error: availability.error || "Availability is temporarily unavailable. Please try again." },
       { status: 503 },
     );
+  }
+  if (!availability.available && availability.reason === "invalid_time") {
+    return NextResponse.json({ error: "Enter a start time and an end time that comes after it." }, { status: 400 });
+  }
+  if (!availability.available && availability.reason === "date_unavailable") {
+    return NextResponse.json({ error: "That experience is not available on this date. Please choose another date." }, { status: 409 });
   }
   if (!availability.available) {
     return NextResponse.json({ error: "That time is no longer available. Please choose another." }, { status: 409 });
@@ -58,7 +75,7 @@ export async function POST(request: NextRequest) {
     const detail = await bookingResponse.text();
     const conflict = bookingResponse.status === 409 || detail.includes("23P01") || detail.toLowerCase().includes("overlap");
     return NextResponse.json(
-      { error: conflict ? "That time was just requested by someone else. Please choose another." : "We could not save your request. Please try again." },
+      { error: conflict ? "Santa Jim already has a request during that time. Please choose another time." : "We could not save your request. Please try again." },
       { status: conflict ? 409 : 502 },
     );
   }
@@ -78,6 +95,7 @@ export async function POST(request: NextRequest) {
         service: payload.p_service_slug,
         date: payload.p_local_date,
         startTime: payload.p_local_start_time,
+        endTime: payload.p_local_end_time ?? "",
         location: payload.p_event_location,
         guestCount: payload.p_guest_count ?? "",
         notes: payload.p_notes,

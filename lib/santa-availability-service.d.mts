@@ -28,6 +28,18 @@ export function validateBookingAvailability(args: {
   | { available: false; reason: "availability_error"; error: string }
 >;
 
+export function validateOpenTimeBooking(args: {
+  date: string;
+  serviceSlug: string;
+  startTime: string;
+  endTime: string;
+  loadSchedule: () => Promise<SantaAvailabilityResult>;
+}): Promise<
+  | { available: true }
+  | { available: false; reason: "invalid_time" | "date_unavailable" }
+  | { available: false; reason: "availability_error"; error: string }
+>;
+
 export function loadSantaAvailability(args: {
   date: string;
   serviceSlug: string;

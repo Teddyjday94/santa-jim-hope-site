@@ -3,7 +3,61 @@ import assert from "node:assert/strict";
 
 import * as availabilityService from "../lib/santa-availability-service.mjs";
 
-const { validateBookingAvailability } = availabilityService;
+const { validateBookingAvailability, validateOpenTimeBooking } = availabilityService;
+
+const openSchedule = async () => ({
+  status: 200,
+  body: {
+    settings: { seasonStart: "2026-11-01", seasonEnd: "2026-12-24", defaultStartTime: "08:00", defaultEndTime: "18:00" },
+    services: [
+      { slug: "home-visit", name: "Home visit", durationMinutes: 60, bufferMinutes: 0, active: true },
+      { slug: "photo-session", name: "Photo session", durationMinutes: 10, bufferMinutes: 0, active: true },
+    ],
+    dayRules: [
+      { date: "2026-11-14", mode: "photos_only", allowedServiceSlugs: [], windows: [] },
+      { date: "2026-11-15", mode: "blocked", allowedServiceSlugs: [], windows: [] },
+    ],
+  },
+});
+
+test("open-time experiences accept any start and end time, even outside default hours", async () => {
+  const result = await validateOpenTimeBooking({
+    date: "2026-12-12",
+    serviceSlug: "home-visit",
+    startTime: "19:45",
+    endTime: "22:10",
+    loadSchedule: openSchedule,
+  });
+  assert.deepEqual(result, { available: true });
+});
+
+test("open-time experiences are refused on photo-only and blocked days", async () => {
+  for (const date of ["2026-11-14", "2026-11-15"]) {
+    const result = await validateOpenTimeBooking({ date, serviceSlug: "home-visit", startTime: "18:00", endTime: "19:00", loadSchedule: openSchedule });
+    assert.deepEqual(result, { available: false, reason: "date_unavailable" });
+  }
+});
+
+test("open-time experiences reject malformed or backwards times without loading the schedule", async () => {
+  let loaded = false;
+  const loadSchedule = async () => { loaded = true; return openSchedule(); };
+  for (const [startTime, endTime] of [["7pm", "8pm"], ["18:00", ""], ["18:00", "18:00"], ["18:00", "17:30"]]) {
+    const result = await validateOpenTimeBooking({ date: "2026-12-12", serviceSlug: "home-visit", startTime, endTime, loadSchedule });
+    assert.deepEqual(result, { available: false, reason: "invalid_time" });
+  }
+  assert.equal(loaded, false);
+});
+
+test("open-time validation reports schedule load failures", async () => {
+  const result = await validateOpenTimeBooking({
+    date: "2026-12-12",
+    serviceSlug: "home-visit",
+    startTime: "18:00",
+    endTime: "19:00",
+    loadSchedule: async () => ({ status: 503, body: { error: "Availability is temporarily unavailable." } }),
+  });
+  assert.deepEqual(result, { available: false, reason: "availability_error", error: "Availability is temporarily unavailable." });
+});
 
 test("booking revalidation accepts a slot from the shared server availability loader", async () => {
   let loaderCalls = 0;

@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
-import { ArrowRight, Building2, CalendarDays, Camera, Check, ChevronRight, Clock, Gift, House, MapPin, Sparkles, Star, UsersRound } from "lucide-react";
+import { ArrowRight, Building2, Camera, Check, ChevronLeft, ChevronRight, Clock, Gift, House, MapPin, Sparkles, Star, UsersRound, Video } from "lucide-react";
 import { validateInquiry } from "@/lib/booking-validation.mjs";
 import { submitInquiry, type InquiryValues } from "@/lib/inquiry-delivery.mjs";
+import { PHOTO_SERVICE_SLUG, usesTimeSlots } from "@/lib/santa-scheduler.mjs";
 
 type SchedulerService = {
   slug: string;
@@ -41,6 +42,9 @@ type SchedulerConfig = {
 type SchedulerConfigResponse = Partial<SchedulerConfig> & { error?: string };
 type SchedulerSlotsResponse = { slots?: SchedulerSlot[]; error?: string };
 
+const ZOOM_SERVICE_SLUG = "zoom-call";
+const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
 function timeLabel(value: string) {
   const [hourText, minuteText] = value.split(":");
   const hour = Number(hourText);
@@ -60,11 +64,9 @@ function dateLabel(value: string) {
   }).format(new Date(year, month - 1, day, 12));
 }
 
-function serviceDurationLabel(service: SchedulerService) {
-  if (service.durationMinutes < 60) return `${service.durationMinutes} min`;
-  if (service.durationMinutes === 60) return "1 hour";
-  if (service.durationMinutes % 60 === 0) return `${service.durationMinutes / 60} hours`;
-  return `${Math.floor(service.durationMinutes / 60)} hr ${service.durationMinutes % 60} min`;
+function serviceDetailLabel(service: SchedulerService) {
+  if (!usesTimeSlots(service.slug)) return "You choose the start and end time";
+  return `${service.durationMinutes} minute time slots`;
 }
 
 function serviceIcon(slug: string) {
@@ -80,11 +82,130 @@ function serviceIcon(slug: string) {
       return <UsersRound {...props} />;
     case "community-celebration":
       return <Star {...props} />;
-    case "photo-session":
+    case PHOTO_SERVICE_SLUG:
       return <Camera {...props} />;
+    case ZOOM_SERVICE_SLUG:
+      return <Video {...props} />;
     default:
       return <Sparkles {...props} />;
   }
+}
+
+function isoDate(year: number, monthIndex: number, day: number) {
+  return `${year}-${String(monthIndex + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+
+function todayIso() {
+  const now = new Date();
+  return isoDate(now.getFullYear(), now.getMonth(), now.getDate());
+}
+
+function monthKey(value: string) {
+  return value.slice(0, 7);
+}
+
+function shiftMonth(key: string, delta: number) {
+  const [year, month] = key.split("-").map(Number);
+  const shifted = new Date(year, month - 1 + delta, 1);
+  return `${shifted.getFullYear()}-${String(shifted.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function servicesForDay(services: SchedulerService[], rule: SchedulerDayRule | null) {
+  const active = services.filter((service) => service.active !== false);
+  if (!rule || rule.mode === "normal") return active;
+  if (rule.mode === "blocked") return [];
+  if (rule.mode === "photos_only") return active.filter((service) => service.slug === PHOTO_SERVICE_SLUG);
+  const allowed = new Set(rule.allowedServiceSlugs ?? []);
+  return active.filter((service) => allowed.has(service.slug));
+}
+
+function scrollToStep(element: HTMLElement | null) {
+  if (!element) return;
+  window.requestAnimationFrame(() => {
+    element.scrollIntoView({ behavior: "smooth", block: "start" });
+    element.focus({ preventScroll: true });
+  });
+}
+
+function BookingCalendar({
+  settings,
+  dayRules,
+  selectedDate,
+  onSelect,
+}: {
+  settings: SchedulerSettings;
+  dayRules: SchedulerDayRule[];
+  selectedDate: string;
+  onSelect: (date: string) => void;
+}) {
+  const firstOpenDate = todayIso() > settings.seasonStart ? todayIso() : settings.seasonStart;
+  const lastDate = settings.seasonEnd;
+  const [visibleMonth, setVisibleMonth] = useState(() => monthKey(selectedDate || firstOpenDate));
+  const shownMonth = visibleMonth < monthKey(firstOpenDate) ? monthKey(firstOpenDate) : visibleMonth;
+  const rulesByDate = useMemo(() => new Map(dayRules.map((rule) => [rule.date, rule])), [dayRules]);
+
+  const [year, month] = shownMonth.split("-").map(Number);
+  const leadingBlanks = new Date(year, month - 1, 1).getDay();
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const monthTitle = new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" }).format(new Date(year, month - 1, 1));
+  const canGoBack = shownMonth > monthKey(firstOpenDate);
+  const canGoForward = shownMonth < monthKey(lastDate);
+
+  return (
+    <div className="booking-calendar">
+      <div className="booking-calendar__header">
+        <button type="button" className="booking-calendar__nav" onClick={() => setVisibleMonth(shiftMonth(shownMonth, -1))} disabled={!canGoBack}>
+          <ChevronLeft size={20} aria-hidden="true" /> <span>Previous</span>
+        </button>
+        <h4 aria-live="polite">{monthTitle}</h4>
+        <button type="button" className="booking-calendar__nav" onClick={() => setVisibleMonth(shiftMonth(shownMonth, 1))} disabled={!canGoForward}>
+          <span>Next</span> <ChevronRight size={20} aria-hidden="true" />
+        </button>
+      </div>
+      <div className="booking-calendar__grid" role="group" aria-label={`Days in ${monthTitle}`}>
+        {WEEKDAYS.map((weekday) => <span className="booking-calendar__weekday" key={weekday} aria-hidden="true">{weekday}</span>)}
+        {Array.from({ length: leadingBlanks }, (_, index) => <span className="booking-calendar__blank" key={`blank-${index}`} aria-hidden="true" />)}
+        {Array.from({ length: daysInMonth }, (_, index) => {
+          const day = index + 1;
+          const date = isoDate(year, month - 1, day);
+          const rule = rulesByDate.get(date);
+          const outOfRange = date < firstOpenDate || date > lastDate;
+          const blocked = rule?.mode === "blocked";
+          const photoOnly = rule?.mode === "photos_only";
+          const selected = date === selectedDate;
+          const classes = [
+            "booking-calendar__day",
+            photoOnly && !outOfRange ? "booking-calendar__day--photo" : "",
+            selected ? "booking-calendar__day--selected" : "",
+          ].filter(Boolean).join(" ");
+          const note = outOfRange ? "" : blocked ? "Unavailable" : photoOnly ? "Photos only" : "";
+          return (
+            <button
+              type="button"
+              key={date}
+              className={classes}
+              disabled={outOfRange || blocked}
+              aria-pressed={selected}
+              aria-label={`${dateLabel(date)}${note ? `, ${note}` : ""}`}
+              onClick={() => onSelect(date)}
+            >
+              <span className="booking-calendar__number">{day}</span>
+              {note ? (
+                <span className="booking-calendar__tag">
+                  {photoOnly ? <Camera size={12} aria-hidden="true" /> : null}
+                  {note}
+                </span>
+              ) : null}
+            </button>
+          );
+        })}
+      </div>
+      <div className="booking-calendar__legend">
+        <span><span className="booking-calendar__swatch booking-calendar__swatch--photo" aria-hidden="true" /> Pictures with Santa day: only photo sessions</span>
+        <span><span className="booking-calendar__swatch booking-calendar__swatch--open" aria-hidden="true" /> Open for any visit</span>
+      </div>
+    </div>
+  );
 }
 
 export function InquiryForm() {
@@ -95,16 +216,20 @@ export function InquiryForm() {
   const [scheduler, setScheduler] = useState<SchedulerConfig | null>(null);
   const [schedulerError, setSchedulerError] = useState("");
   const [loadingScheduler, setLoadingScheduler] = useState(true);
-  const [selectedService, setSelectedService] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
+  const [selectedService, setSelectedService] = useState("");
   const [slots, setSlots] = useState<SchedulerSlot[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<SchedulerSlot | null>(null);
+  const [openStartTime, setOpenStartTime] = useState("");
+  const [openEndTime, setOpenEndTime] = useState("");
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [availabilityMessage, setAvailabilityMessage] = useState("");
   const [availabilityVersion, setAvailabilityVersion] = useState(0);
   const successRef = useRef<HTMLDivElement>(null);
-  const serviceGroupRef = useRef<HTMLDivElement>(null);
-  const timeGroupRef = useRef<HTMLDivElement>(null);
+  const dateStepRef = useRef<HTMLDivElement>(null);
+  const serviceStepRef = useRef<HTMLDivElement>(null);
+  const timeStepRef = useRef<HTMLDivElement>(null);
+  const detailsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (submitted) successRef.current?.focus();
@@ -134,43 +259,24 @@ export function InquiryForm() {
     return () => { cancelled = true; };
   }, []);
 
-  const selectedServiceDetails = useMemo(
-    () => scheduler?.services.find((service) => service.slug === selectedService) ?? null,
-    [scheduler, selectedService],
-  );
-
   const selectedRule = useMemo(
     () => scheduler?.dayRules.find((rule) => rule.date === selectedDate) ?? null,
     [scheduler, selectedDate],
   );
 
-  const dateAllowsService = useMemo(() => {
-    if (!selectedDate || !selectedService || !scheduler) return false;
-    if (selectedDate < scheduler.settings.seasonStart || selectedDate > scheduler.settings.seasonEnd) return false;
-    if (!selectedRule || selectedRule.mode === "normal") return true;
-    if (selectedRule.mode === "blocked") return false;
-    if (selectedRule.mode === "photos_only") return selectedService === "photo-session";
-    return selectedRule.allowedServiceSlugs?.includes(selectedService) ?? false;
-  }, [scheduler, selectedDate, selectedRule, selectedService]);
+  const dayServices = useMemo(
+    () => (scheduler && selectedDate ? servicesForDay(scheduler.services, selectedRule) : []),
+    [scheduler, selectedDate, selectedRule],
+  );
+
+  const selectedServiceDetails = dayServices.find((service) => service.slug === selectedService) ?? null;
+  const slotMode = usesTimeSlots(selectedService);
+  const isZoom = selectedService === ZOOM_SERVICE_SLUG;
 
   useEffect(() => {
-    if (!selectedDate || !selectedService || !scheduler) {
+    if (!selectedDate || !selectedServiceDetails || !slotMode) {
       setSlots([]);
-      setSelectedSlot(null);
       setAvailabilityMessage("");
-      return;
-    }
-
-    if (!dateAllowsService) {
-      setSlots([]);
-      setSelectedSlot(null);
-      if (selectedRule?.mode === "photos_only") {
-        setAvailabilityMessage("This is a Pictures with Santa day. Only photo sessions can be requested.");
-      } else if (selectedRule?.mode === "blocked") {
-        setAvailabilityMessage("Santa Jim has blocked this date from booking requests.");
-      } else {
-        setAvailabilityMessage("That experience is not available on this date. Please choose another date.");
-      }
       return;
     }
 
@@ -188,12 +294,12 @@ export function InquiryForm() {
         }
         if (!cancelled) {
           setSlots(result.slots);
-          setAvailabilityMessage(result.slots.length ? "" : "No times remain for this experience on that date.");
+          setAvailabilityMessage(result.slots.length ? "" : "All photo times on this day are taken. Please pick another day.");
         }
-      } catch (error) {
+      } catch {
         if (!cancelled) {
           setSlots([]);
-          setAvailabilityMessage(error instanceof Error ? error.message : "Available times could not be loaded.");
+          setAvailabilityMessage("Photo times could not be loaded right now. Please try again in a few minutes.");
         }
       } finally {
         if (!cancelled) setLoadingSlots(false);
@@ -201,27 +307,32 @@ export function InquiryForm() {
     }
     loadSlots();
     return () => { cancelled = true; };
-  }, [scheduler, selectedDate, selectedService, selectedRule, dateAllowsService, availabilityVersion]);
-
-  function chooseService(slug: string) {
-    setSelectedService(slug);
-    setSelectedDate("");
-    setSlots([]);
-    setSelectedSlot(null);
-    setAvailabilityMessage("");
-    setErrors((current) => ({ ...current, eventType: "", preferredDate: "", startTime: "" }));
-  }
+  }, [selectedDate, selectedService, selectedServiceDetails, slotMode, availabilityVersion]);
 
   function chooseDate(value: string) {
     setSelectedDate(value);
-    setSlots([]);
+    setSelectedService("");
     setSelectedSlot(null);
-    setErrors((current) => ({ ...current, preferredDate: "", startTime: "" }));
+    setOpenStartTime("");
+    setOpenEndTime("");
+    setErrors({});
+    setDeliveryError("");
+    scrollToStep(serviceStepRef.current);
+  }
+
+  function chooseService(slug: string) {
+    setSelectedService(slug);
+    setSelectedSlot(null);
+    setOpenStartTime("");
+    setOpenEndTime("");
+    setErrors((current) => ({ ...current, eventType: "", startTime: "", endTime: "" }));
+    scrollToStep(timeStepRef.current);
   }
 
   function chooseSlot(slot: SchedulerSlot) {
     setSelectedSlot(slot);
     setErrors((current) => ({ ...current, startTime: "", endTime: "" }));
+    scrollToStep(detailsRef.current);
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -229,13 +340,15 @@ export function InquiryForm() {
     const form = event.currentTarget;
     const values = Object.fromEntries(new FormData(form).entries()) as Record<string, string>;
     const nextErrors = validateInquiry(values);
+    if (!slotMode && values.startTime && !values.endTime) nextErrors.endTime = "Choose an end time.";
     setErrors(nextErrors);
     setDeliveryError("");
 
     const firstInvalid = Object.keys(nextErrors)[0];
     if (firstInvalid) {
-      if (firstInvalid === "eventType") serviceGroupRef.current?.focus();
-      else if (firstInvalid === "startTime") timeGroupRef.current?.focus();
+      if (firstInvalid === "preferredDate") scrollToStep(dateStepRef.current);
+      else if (firstInvalid === "eventType") scrollToStep(serviceStepRef.current);
+      else if (firstInvalid === "startTime" || firstInvalid === "endTime") scrollToStep(timeStepRef.current);
       else form.querySelector<HTMLElement>(`[name="${firstInvalid}"]`)?.focus();
       return;
     }
@@ -247,10 +360,10 @@ export function InquiryForm() {
     } catch (error) {
       const message = error instanceof Error ? error.message : "We could not send your request. Please try again.";
       setDeliveryError(message);
-      if (/time|available|requested|conflict/i.test(message)) {
+      if (slotMode && /time|available|requested|conflict/i.test(message)) {
         setSelectedSlot(null);
         setAvailabilityVersion((version) => version + 1);
-        timeGroupRef.current?.focus();
+        scrollToStep(timeStepRef.current);
       }
     } finally {
       setSending(false);
@@ -259,10 +372,12 @@ export function InquiryForm() {
 
   function resetRequest() {
     setSubmitted(false);
-    setSelectedService("");
     setSelectedDate("");
+    setSelectedService("");
     setSlots([]);
     setSelectedSlot(null);
+    setOpenStartTime("");
+    setOpenEndTime("");
     setErrors({});
     setDeliveryError("");
     setAvailabilityMessage("");
@@ -274,7 +389,7 @@ export function InquiryForm() {
         <span className="success-icon" aria-hidden="true"><Check size={24} /></span>
         <p className="eyebrow">Request received</p>
         <h3>Your request is pending Santa Jim&apos;s approval.</h3>
-        <p>The requested time is being held while Santa Jim reviews the details. This is not a confirmed booking until the request is approved.</p>
+        <p>Santa Jim will review the details and follow up. This is not a confirmed booking until the request is approved.</p>
         <button className="button button--quiet" type="button" onClick={resetRequest}>Send another request</button>
       </div>
     );
@@ -284,142 +399,161 @@ export function InquiryForm() {
     ? <span className="field-error" id={`${name}-error`} role="alert">{errors[name]}</span>
     : null;
 
+  const startTimeValue = slotMode ? selectedSlot?.startTime ?? "" : openStartTime;
+  const endTimeValue = slotMode ? selectedSlot?.endTime ?? "" : openEndTime;
+  const timeChosen = Boolean(startTimeValue && endTimeValue && endTimeValue > startTimeValue);
+
   return (
     <form className="inquiry-form" noValidate onSubmit={handleSubmit}>
       <input name="_honey" tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ display: "none" }} />
+      <input type="hidden" name="preferredDate" value={selectedDate} />
       <input type="hidden" name="eventType" value={selectedService} />
-      <input type="hidden" name="startTime" value={selectedSlot?.startTime ?? ""} />
-      <input type="hidden" name="endTime" value={selectedSlot?.endTime ?? ""} />
+      <input type="hidden" name="startTime" value={startTimeValue} />
+      <input type="hidden" name="endTime" value={endTimeValue} />
 
       <div className="scheduler-panel">
         <div className="scheduler-heading">
           <div>
-            <p className="eyebrow">Request a date</p>
-            <h3>Find a time that works</h3>
+            <p className="eyebrow">Request a visit</p>
+            <h3>Pick a day on Santa&apos;s calendar</h3>
           </div>
           <span className="scheduler-heading__icon" aria-hidden="true"><Sparkles size={20} /></span>
         </div>
 
-        <div className="scheduler-step">
+        <div className="scheduler-step" ref={dateStepRef} tabIndex={-1}>
           <div className="scheduler-step__title">
             <span className="scheduler-step__number">1</span>
             <div>
-              <strong>Choose an experience</strong>
-              <span>Dates and times adjust to the kind of visit you choose.</span>
+              <strong>Choose a day</strong>
+              <span>Tap any open day. Gold days are Pictures with Santa days.</span>
             </div>
           </div>
-          <div
-            className="scheduler-services"
-            id="scheduler-service"
-            ref={serviceGroupRef}
-            tabIndex={-1}
-            aria-describedby={errors.eventType ? "eventType-error" : undefined}
-          >
-            {loadingScheduler ? <p className="scheduler-status">Loading Santa Jim&apos;s experiences…</p> : null}
-            {schedulerError ? <p className="scheduler-status scheduler-status--warning" role="alert">{schedulerError}</p> : null}
-            {scheduler?.services.map((service) => {
-              const active = selectedService === service.slug;
-              return (
-                <button
-                  className={`scheduler-service${active ? " scheduler-service--selected" : ""}`}
-                  type="button"
-                  key={service.slug}
-                  onClick={() => chooseService(service.slug)}
-                  aria-pressed={active}
-                >
-                  <span className="scheduler-service__icon">{serviceIcon(service.slug)}</span>
-                  <span className="scheduler-service__copy">
-                    <span>{service.name}</span>
-                    <small>{serviceDurationLabel(service)}</small>
-                  </span>
-                  <ChevronRight className="scheduler-service__chevron" size={18} aria-hidden="true" />
-                </button>
-              );
-            })}
-          </div>
-          {errorFor("eventType")}
+          {loadingScheduler ? <p className="scheduler-status">Loading Santa Jim&apos;s calendar…</p> : null}
+          {schedulerError ? <p className="scheduler-status scheduler-status--warning" role="alert">{schedulerError}</p> : null}
+          {scheduler ? (
+            <BookingCalendar
+              settings={scheduler.settings}
+              dayRules={scheduler.dayRules}
+              selectedDate={selectedDate}
+              onSelect={chooseDate}
+            />
+          ) : null}
+          {errorFor("preferredDate")}
         </div>
 
-        <div className="scheduler-step">
+        <div className={`scheduler-step${selectedDate ? "" : " scheduler-step--waiting"}`} ref={serviceStepRef} tabIndex={-1}>
           <div className="scheduler-step__title">
             <span className="scheduler-step__number">2</span>
             <div>
-              <strong>Choose a date</strong>
-              <span>Special photo-only and blocked days are enforced automatically.</span>
+              <strong>What would you like to schedule?</strong>
+              <span>{selectedDate ? dateLabel(selectedDate) : "Pick a day on the calendar first."}</span>
             </div>
           </div>
-          <label className="field scheduler-date-field">
-            <span><CalendarDays size={16} aria-hidden="true" /> Preferred date *</span>
-            <input
-              name="preferredDate"
-              type="date"
-              value={selectedDate}
-              min={scheduler?.settings.seasonStart}
-              max={scheduler?.settings.seasonEnd}
-              disabled={!selectedService || loadingScheduler || Boolean(schedulerError)}
-              onChange={(event) => chooseDate(event.target.value)}
-              aria-invalid={Boolean(errors.preferredDate)}
-              aria-describedby={errors.preferredDate ? "preferredDate-error" : undefined}
-            />
-            {errorFor("preferredDate")}
-          </label>
-          {selectedDate ? (
-            <p className="scheduler-date-caption">
-              {dateLabel(selectedDate)}
-              {selectedRule?.mode === "photos_only" ? " · Pictures with Santa only" : ""}
-              {selectedRule?.mode === "custom" ? " · Special availability" : ""}
-            </p>
+          {selectedDate && selectedRule?.mode === "photos_only" ? (
+            <p className="scheduler-photo-day"><Camera size={18} aria-hidden="true" /> This is a Pictures with Santa day. Only photo sessions can be booked.</p>
           ) : null}
+          {selectedDate ? (
+            <div className="scheduler-services">
+              {dayServices.length === 0 ? <p className="scheduler-status scheduler-status--warning">Nothing can be booked on this day. Please pick another day.</p> : null}
+              {dayServices.map((service) => {
+                const active = selectedService === service.slug;
+                return (
+                  <button
+                    className={`scheduler-service${active ? " scheduler-service--selected" : ""}`}
+                    type="button"
+                    key={service.slug}
+                    onClick={() => chooseService(service.slug)}
+                    aria-pressed={active}
+                  >
+                    <span className="scheduler-service__icon">{serviceIcon(service.slug)}</span>
+                    <span className="scheduler-service__copy">
+                      <span>{service.name}</span>
+                      <small>{serviceDetailLabel(service)}</small>
+                    </span>
+                    <ChevronRight className="scheduler-service__chevron" size={18} aria-hidden="true" />
+                  </button>
+                );
+              })}
+            </div>
+          ) : null}
+          {errorFor("eventType")}
         </div>
 
-        <div className="scheduler-step scheduler-step--last">
+        <div className={`scheduler-step scheduler-step--last${selectedServiceDetails ? "" : " scheduler-step--waiting"}`} ref={timeStepRef} tabIndex={-1}>
           <div className="scheduler-step__title">
             <span className="scheduler-step__number">3</span>
             <div>
-              <strong>Choose an available time</strong>
-              <span>{selectedServiceDetails ? `${selectedServiceDetails.name} · ${serviceDurationLabel(selectedServiceDetails)}` : "Choose an experience and date first."}</span>
+              <strong>{!selectedServiceDetails ? "Choose a time" : slotMode ? "Pick a photo time" : "Choose your start and end time"}</strong>
+              <span>
+                {!selectedServiceDetails
+                  ? "Choose what you would like to schedule first."
+                  : slotMode
+                    ? `${selectedServiceDetails.name} · ${selectedServiceDetails.durationMinutes} minutes`
+                    : `${selectedServiceDetails.name} · Pick the times that fit your celebration.`}
+              </span>
             </div>
           </div>
-          <div
-            className="scheduler-times"
-            id="scheduler-times"
-            ref={timeGroupRef}
-            tabIndex={-1}
-            aria-describedby={errors.startTime ? "startTime-error" : undefined}
-          >
-            {loadingSlots ? <p className="scheduler-status"><Clock size={16} aria-hidden="true" /> Checking available times…</p> : null}
-            {!loadingSlots && availabilityMessage ? <p className="scheduler-status scheduler-status--warning">{availabilityMessage}</p> : null}
-            {!loadingSlots && slots.map((slot) => {
-              const active = selectedSlot?.startTime === slot.startTime;
-              return (
-                <button
-                  className={`scheduler-time${active ? " scheduler-time--selected" : ""}`}
-                  type="button"
-                  key={slot.startTime}
-                  onClick={() => chooseSlot(slot)}
-                  aria-pressed={active}
-                >
-                  <Clock size={15} aria-hidden="true" />
-                  <span>{timeLabel(slot.startTime)}</span>
-                </button>
-              );
-            })}
-          </div>
+          {selectedServiceDetails && slotMode ? (
+            <div className="scheduler-times">
+              {loadingSlots ? <p className="scheduler-status"><Clock size={16} aria-hidden="true" /> Checking photo times…</p> : null}
+              {!loadingSlots && availabilityMessage ? <p className="scheduler-status scheduler-status--warning">{availabilityMessage}</p> : null}
+              {!loadingSlots && slots.map((slot) => {
+                const active = selectedSlot?.startTime === slot.startTime;
+                return (
+                  <button
+                    className={`scheduler-time${active ? " scheduler-time--selected" : ""}`}
+                    type="button"
+                    key={slot.startTime}
+                    onClick={() => chooseSlot(slot)}
+                    aria-pressed={active}
+                  >
+                    <Clock size={15} aria-hidden="true" />
+                    <span>{timeLabel(slot.startTime)}</span>
+                  </button>
+                );
+              })}
+            </div>
+          ) : null}
+          {selectedServiceDetails && !slotMode ? (
+            <div className="scheduler-open-times">
+              <label className="field">
+                <span><Clock size={16} aria-hidden="true" /> Start time *</span>
+                <input
+                  type="time"
+                  value={openStartTime}
+                  onChange={(event) => { setOpenStartTime(event.target.value); setErrors((current) => ({ ...current, startTime: "", endTime: "" })); }}
+                  aria-invalid={Boolean(errors.startTime)}
+                  aria-describedby={errors.startTime ? "startTime-error" : undefined}
+                />
+              </label>
+              <label className="field">
+                <span><Clock size={16} aria-hidden="true" /> End time *</span>
+                <input
+                  type="time"
+                  value={openEndTime}
+                  onChange={(event) => { setOpenEndTime(event.target.value); setErrors((current) => ({ ...current, endTime: "" })); }}
+                  aria-invalid={Boolean(errors.endTime)}
+                  aria-describedby={errors.endTime ? "endTime-error" : undefined}
+                />
+              </label>
+            </div>
+          ) : null}
           {errorFor("startTime")}
-          {selectedSlot && selectedServiceDetails ? (
+          {errorFor("endTime")}
+          {selectedServiceDetails && timeChosen ? (
             <div className="scheduler-summary" role="status">
               <Check size={17} aria-hidden="true" />
               <span>
-                Requesting <strong>{selectedServiceDetails.name}</strong> on <strong>{dateLabel(selectedDate)}</strong> from <strong>{timeLabel(selectedSlot.startTime)}</strong> to <strong>{timeLabel(selectedSlot.endTime)}</strong>.
+                Requesting <strong>{selectedServiceDetails.name}</strong> on <strong>{dateLabel(selectedDate)}</strong> from <strong>{timeLabel(startTimeValue)}</strong> to <strong>{timeLabel(endTimeValue)}</strong>.
               </span>
             </div>
           ) : null}
         </div>
       </div>
 
-      <div className="scheduler-details-heading">
+      <div className="scheduler-details-heading" ref={detailsRef} tabIndex={-1}>
         <p className="eyebrow">Your details</p>
-        <h3>Tell Santa Jim where the magic is happening</h3>
+        <h3>{isZoom ? "Tell Santa Jim about your Zoom call" : "Tell Santa Jim where the magic is happening"}</h3>
       </div>
 
       <div className="field-grid">
@@ -437,11 +571,15 @@ export function InquiryForm() {
           <span>Phone number</span>
           <input name="phone" type="tel" autoComplete="tel" />
         </label>
-        <label className="field">
-          <span><MapPin size={16} aria-hidden="true" /> Event location *</span>
-          <input name="location" autoComplete="address-level2" placeholder="City and state" aria-invalid={Boolean(errors.location)} aria-describedby={errors.location ? "location-error" : undefined} />
-          {errorFor("location")}
-        </label>
+        {isZoom ? (
+          <input type="hidden" name="location" value="Zoom (online)" />
+        ) : (
+          <label className="field">
+            <span><MapPin size={16} aria-hidden="true" /> Event location *</span>
+            <input name="location" autoComplete="address-level2" placeholder="City and state" aria-invalid={Boolean(errors.location)} aria-describedby={errors.location ? "location-error" : undefined} />
+            {errorFor("location")}
+          </label>
+        )}
         <label className="field">
           <span>Estimated guest count</span>
           <input name="guestCount" type="number" min="1" inputMode="numeric" aria-invalid={Boolean(errors.guestCount)} aria-describedby={errors.guestCount ? "guestCount-error" : undefined} />
@@ -453,9 +591,9 @@ export function InquiryForm() {
         </label>
       </div>
       <div className="form-footer">
-        <p>Submitting holds this time as a pending request until Santa Jim accepts or declines it.</p>
+        <p>Submitting sends a pending request until Santa Jim accepts or declines it.</p>
         <button className="button button--gold" type="submit" disabled={sending || loadingScheduler || Boolean(schedulerError)}>
-          {sending ? "Sending request…" : "Request this time"} <ArrowRight size={17} aria-hidden="true" />
+          {sending ? "Sending request…" : "Send my request"} <ArrowRight size={17} aria-hidden="true" />
         </button>
       </div>
       {deliveryError ? <p className="field-error form-delivery-error" role="alert">{deliveryError}</p> : null}

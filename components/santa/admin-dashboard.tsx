@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { CalendarDays, Check, Clock, LogOut, Save, ShieldCheck, Trash2, UserRoundCheck, X } from "lucide-react";
 import { SANTA_SUPABASE_PUBLISHABLE_KEY, SANTA_SUPABASE_URL } from "@/lib/santa-config";
+import { PHOTO_SERVICE_SLUG } from "@/lib/santa-scheduler.mjs";
 
 type BookingStatus = "pending" | "confirmed" | "declined" | "cancelled" | "expired";
 type DayMode = "normal" | "photos_only" | "blocked" | "custom";
@@ -78,6 +79,10 @@ function timeLabel(value: string) {
 function dateLabel(value: string) {
   const [year, month, day] = value.split("-").map(Number);
   return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(new Date(year, month - 1, day, 12));
+}
+
+function bookingTimeLabel(booking: Booking) {
+  return `${timeLabel(booking.local_start_time)}–${timeLabel(booking.local_end_time)}`;
 }
 
 function titleFromSlug(value: string) {
@@ -633,7 +638,7 @@ export function AdminDashboard() {
                   <h3>{booking.customer_name}</h3>
                   <p>{titleFromSlug(booking.service_slug)}</p>
                 </div>
-                <div className="admin-booking-time"><CalendarDays size={16} /> {dateLabel(booking.local_date)}<br /><Clock size={16} /> {timeLabel(booking.local_start_time)}–{timeLabel(booking.local_end_time)}</div>
+                <div className="admin-booking-time"><CalendarDays size={16} /> {dateLabel(booking.local_date)}<br /><Clock size={16} /> {bookingTimeLabel(booking)}</div>
               </div>
               <dl className="admin-booking-details">
                 <div><dt>Email</dt><dd>{booking.customer_email}</dd></div>
@@ -686,8 +691,9 @@ export function AdminDashboard() {
             <label><span>Pending hold (minutes)</span><input type="number" min="15" max="10080" value={settings.pendingHoldMinutes} onChange={(event) => setSettings({ ...settings, pendingHoldMinutes: Number(event.target.value) })} /></label>
           </div>
           <div className="admin-service-settings">
-            <h3>Experience duration &amp; buffer</h3>
-            {services.map((service, index) => <div className="admin-service-row" key={service.slug}><div><strong>{service.name}</strong><label className="admin-check"><input type="checkbox" checked={service.active} onChange={(event) => setServices((current) => current.map((item, itemIndex) => itemIndex === index ? { ...item, active: event.target.checked } : item))} /> <span>Active</span></label></div><label><span>Duration</span><input type="number" min="5" max="720" value={service.durationMinutes} onChange={(event) => setServices((current) => current.map((item, itemIndex) => itemIndex === index ? { ...item, durationMinutes: Number(event.target.value) } : item))} /></label><label><span>Buffer</span><input type="number" min="0" max="240" value={service.bufferMinutes} onChange={(event) => setServices((current) => current.map((item, itemIndex) => itemIndex === index ? { ...item, bufferMinutes: Number(event.target.value) } : item))} /></label></div>)}
+            <h3>Experiences</h3>
+            <p className="admin-service-note">Photo sessions use fixed time slots. Every other experience lets the family choose their own start and end time.</p>
+            {services.map((service, index) => <div className="admin-service-row" key={service.slug}><div><strong>{service.name}</strong><label className="admin-check"><input type="checkbox" checked={service.active} onChange={(event) => setServices((current) => current.map((item, itemIndex) => itemIndex === index ? { ...item, active: event.target.checked } : item))} /> <span>Active</span></label></div>{service.slug !== PHOTO_SERVICE_SLUG ? <p className="admin-service-open">Family chooses start &amp; end time</p> : <><label><span>Slot length (min)</span><input type="number" min="5" max="720" value={service.durationMinutes} onChange={(event) => setServices((current) => current.map((item, itemIndex) => itemIndex === index ? { ...item, durationMinutes: Number(event.target.value) } : item))} /></label><label><span>Buffer</span><input type="number" min="0" max="240" value={service.bufferMinutes} onChange={(event) => setServices((current) => current.map((item, itemIndex) => itemIndex === index ? { ...item, bufferMinutes: Number(event.target.value) } : item))} /></label></>}</div>)}
           </div>
         </section>
       ) : null}
@@ -709,7 +715,7 @@ export function AdminDashboard() {
                   <div><dt>Location</dt><dd>{booking.event_location}</dd></div>
                   <div><dt>Guests</dt><dd>{booking.guest_count ?? "Not provided"}</dd></div>
                   <div><dt>Date</dt><dd>{dateLabel(booking.local_date)}</dd></div>
-                  <div><dt>Time</dt><dd>{timeLabel(booking.local_start_time)}–{timeLabel(booking.local_end_time)}</dd></div>
+                  <div><dt>Time</dt><dd>{bookingTimeLabel(booking)}</dd></div>
                   <div><dt>Experience</dt><dd>{titleFromSlug(booking.service_slug)}</dd></div>
                   <div><dt>Calendar</dt><dd>{booking.calendar_sync_status === "synced" ? "Added to Google Calendar" : booking.calendar_sync_status.replaceAll("_", " ")}</dd></div>
                 </dl>

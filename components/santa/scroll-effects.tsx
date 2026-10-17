@@ -58,7 +58,7 @@ export function ScrollEffects() {
 
     items.forEach((item, index) => {
       item.classList.add("scroll-reveal");
-      item.style.setProperty("--reveal-delay", `${Math.min((index % 6) * 70, 350)}ms`);
+      item.style.setProperty("--reveal-delay", `${(index % 4) * 45}ms`);
 
       if (item.matches(".experience-story")) {
         const siblings = Array.from(item.parentElement?.children ?? []);
@@ -68,6 +68,18 @@ export function ScrollEffects() {
     });
 
     root.classList.add("motion-ready");
+
+    const sections = Array.from(
+      document.querySelectorAll<HTMLElement>(sectionSelectors.join(",")),
+    );
+
+    sections.forEach((section) => section.classList.add("motion-section"));
+
+    if (!("IntersectionObserver" in window)) {
+      items.forEach((item) => item.classList.add("is-visible"));
+      sections.forEach((section) => section.classList.add("is-section-visible"));
+      return;
+    }
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -79,18 +91,12 @@ export function ScrollEffects() {
         });
       },
       {
-        threshold: 0.12,
-        rootMargin: "0px 0px -8% 0px",
+        threshold: 0.08,
+        rootMargin: "0px 0px -5% 0px",
       },
     );
 
     items.forEach((item) => observer.observe(item));
-
-    const sections = Array.from(
-      document.querySelectorAll<HTMLElement>(sectionSelectors.join(",")),
-    );
-
-    sections.forEach((section) => section.classList.add("motion-section"));
 
     const sectionObserver = new IntersectionObserver(
       (entries) => {
@@ -112,12 +118,7 @@ export function ScrollEffects() {
     let frame = 0;
     const updateScroll = () => {
       frame = 0;
-      const y = window.scrollY;
-      root.classList.toggle("is-scrolled", y > 24);
-      root.style.setProperty("--parallax-slow", `${Math.min(y * 0.035, 42)}px`);
-      root.style.setProperty("--parallax-fast", `${Math.min(y * 0.065, 78)}px`);
-      root.style.setProperty("--trim-left", `${Math.min(y * 0.022, 30)}px`);
-      root.style.setProperty("--trim-right", `${Math.max(y * -0.018, -26)}px`);
+      root.classList.toggle("is-scrolled", window.scrollY > 24);
     };
 
     const onScroll = () => {
@@ -125,24 +126,13 @@ export function ScrollEffects() {
       frame = window.requestAnimationFrame(updateScroll);
     };
 
-    const finePointer = window.matchMedia("(pointer: fine)").matches;
-    const onPointerMove = (event: PointerEvent) => {
-      if (!finePointer) return;
-      const x = event.clientX / window.innerWidth - 0.5;
-      const y = event.clientY / window.innerHeight - 0.5;
-      root.style.setProperty("--pointer-x", `${(x * 12).toFixed(2)}px`);
-      root.style.setProperty("--pointer-y", `${(y * 9).toFixed(2)}px`);
-    };
-
     updateScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("pointermove", onPointerMove, { passive: true });
 
     return () => {
       observer.disconnect();
       sectionObserver.disconnect();
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("pointermove", onPointerMove);
       if (frame) window.cancelAnimationFrame(frame);
     };
   }, []);

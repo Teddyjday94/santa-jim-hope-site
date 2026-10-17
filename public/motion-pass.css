@@ -1,0 +1,187 @@
+/* One-time entrances and responsive feedback for the editorial layout. */
+.site-page {
+  --motion-ease: cubic-bezier(.2, .72, .22, 1);
+  --motion-fast: 220ms;
+}
+
+@keyframes jim-copy-arrive {
+  from { opacity: 0; transform: translate3d(0, 18px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes jim-photo-arrive {
+  from { opacity: .55; transform: translate3d(18px, 0, 0) scale(.985); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@keyframes jim-menu-arrive {
+  from { opacity: 0; transform: translate3d(0, -8px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .home-page .home-hero__copy > *,
+  .site-page .page-hero__copy > *,
+  .site-page .page-banner > * {
+    animation: jim-copy-arrive 560ms var(--motion-ease) both;
+  }
+
+  .home-page .home-hero__copy > :nth-child(1),
+  .site-page .page-hero__copy > :nth-child(1),
+  .site-page .page-banner > :nth-child(1) { animation-delay: 35ms; }
+
+  .home-page .home-hero__copy > :nth-child(2),
+  .site-page .page-hero__copy > :nth-child(2),
+  .site-page .page-banner > :nth-child(2) { animation-delay: 115ms; }
+
+  .home-page .home-hero__copy > :nth-child(3),
+  .site-page .page-hero__copy > :nth-child(3),
+  .site-page .page-banner > :nth-child(3) { animation-delay: 195ms; }
+
+  .home-page .home-hero__copy > :nth-child(4),
+  .site-page .page-hero__copy > :nth-child(4) { animation-delay: 265ms; }
+
+  .home-page .home-hero__copy > :nth-child(n+5),
+  .site-page .page-hero__copy > :nth-child(n+5) { animation-delay: 320ms; }
+
+  .home-page .home-hero__portrait,
+  .site-page .page-hero__image {
+    animation: jim-photo-arrive 760ms var(--motion-ease) 80ms both;
+  }
+
+  .site-page.motion-ready .scroll-reveal {
+    opacity: 0;
+    filter: none;
+    transform: translate3d(0, 18px, 0);
+    transition: opacity 500ms ease-out, transform 500ms var(--motion-ease);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+
+  .site-page.motion-ready .scroll-reveal--left,
+  .site-page.motion-ready .scroll-reveal--right {
+    transform: translate3d(0, 18px, 0);
+  }
+
+  .site-page.motion-ready .scroll-reveal.is-visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+
+  .home-page.motion-ready .home-story__frame.scroll-reveal,
+  .home-page.motion-ready .home-invite__panel.scroll-reveal {
+    transform: translate3d(0, 18px, 0);
+  }
+
+  .home-page.motion-ready .home-story__frame.scroll-reveal.is-visible,
+  .home-page.motion-ready .home-invite__panel.scroll-reveal.is-visible {
+    transform: translate3d(0, 0, 0);
+  }
+
+  .site-page .site-header__menu[open] nav {
+    animation: jim-menu-arrive 240ms var(--motion-ease) both;
+  }
+}
+
+/* The section rule draws once as the heading enters. */
+.home-page .section-title-row { position: relative; padding-bottom: 1.2rem; }
+.home-page .section-title-row::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 1px;
+  background: rgba(216, 191, 134, .4);
+  transform-origin: left center;
+}
+.home-page .visit-path .section-title-row::after { background: rgba(23, 58, 46, .25); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .home-page.motion-ready .motion-section .section-title-row::after {
+    transform: scaleX(0);
+    transition: transform 700ms var(--motion-ease) 110ms;
+  }
+  .home-page.motion-ready .motion-section.is-section-visible .section-title-row::after {
+    transform: scaleX(1);
+  }
+}
+
+/* The card remains still after its entrance; imagery and links answer interaction. */
+.home-page .home-experience-card,
+.home-page .home-gallery__item { box-shadow: none; }
+.home-page .home-experience-card__image img,
+.home-page .home-gallery__photo {
+  transition: transform 520ms var(--motion-ease);
+}
+.home-page .home-experience-card__body .text-link svg,
+.site-page .text-link svg,
+.site-page .button svg,
+.site-page .site-footer__invite svg {
+  transition: transform var(--motion-fast) var(--motion-ease);
+}
+.home-page .home-gallery__item figcaption {
+  transition: transform 340ms var(--motion-ease);
+}
+.home-page .home-experience-card:focus-within {
+  border-color: rgba(216, 191, 134, .65);
+}
+.home-page .home-experience-card:focus-within .home-experience-card__image img {
+  transform: scale(1.035);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .home-page .home-experience-card:hover .home-experience-card__image img {
+    transform: scale(1.035);
+  }
+  .home-page .home-gallery__item:hover .home-gallery__photo { transform: scale(1.035); }
+  .home-page .home-gallery__item:hover figcaption { transform: translateY(-3px); }
+  .site-page .button:hover,
+  .site-page .header-cta:hover { transform: translateY(-2px); }
+}
+
+.site-page .button:focus-visible svg,
+.site-page .text-link:focus-visible svg,
+.site-page .site-footer__invite:focus-visible svg,
+.home-page .home-experience-card:focus-within .text-link svg {
+  transform: translateX(4px);
+}
+.site-page .button:active,
+.site-page .header-cta:active { transform: translateY(0); }
+
+@media (max-width: 760px) and (prefers-reduced-motion: no-preference) {
+  .home-page .home-hero__portrait { animation-delay: 0ms; }
+  .home-page .home-hero__copy > :nth-child(1) { animation-delay: 180ms; }
+  .home-page .home-hero__copy > :nth-child(2) { animation-delay: 240ms; }
+  .home-page .home-hero__copy > :nth-child(3) { animation-delay: 300ms; }
+  .home-page .home-hero__copy > :nth-child(n+4) { animation-delay: 360ms; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-page .home-hero__copy > *,
+  .site-page .home-hero__portrait,
+  .site-page .page-hero__copy > *,
+  .site-page .page-hero__image,
+  .site-page .page-banner > *,
+  .site-page .site-header__menu nav {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .home-page .section-title-row::after { transform: none !important; transition: none !important; }
+  .site-page .scroll-reveal,
+  .site-page .scroll-reveal.is-visible {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .home-page .home-experience-card__image img,
+  .home-page .home-gallery__photo,
+  .home-page .home-gallery__item figcaption,
+  .site-page .button,
+  .site-page .header-cta,
+  .site-page .text-link svg,
+  .site-page .button svg {
+    transform: none !important;
+    transition: none !important;
+  }
+}

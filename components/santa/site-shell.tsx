@@ -17,6 +17,8 @@ export function SiteShell({
       <link rel="stylesheet" href="/multipage.css?v=gallery-fix-20260921-3" />
       <link rel="stylesheet" href="/home-polish.css?v=20260928-1" />
       <link rel="stylesheet" href="/experience-detail-polish.css?v=20260928-1" />
+      <link rel="stylesheet" href="/editorial-refresh.css?v=20261016-1" />
+      <link rel="stylesheet" href="/motion-pass.css?v=20261016-1" />
       <ScrollEffects />
       <div className="ambient-backdrop" aria-hidden="true">
         {ambientOrbs.map((orb) => (

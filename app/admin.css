@@ -185,6 +185,8 @@
 .admin-booking-card__top p { color: var(--cream-200); font-size: .84rem; }
 .admin-status { display: inline-flex; padding: .25rem .55rem; border-radius: 999px; font-size: .7rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
 .admin-status--pending { color: var(--gold-300); background: rgba(207, 169, 91, .12); }
+.admin-status--deposit { color: #f5c7a0; background: rgba(214, 120, 60, .16); }
+.admin-deposit-link { overflow-wrap: anywhere; font-size: .78rem; }
 .admin-booking-time { display: grid; grid-template-columns: auto 1fr; align-content: start; gap: .25rem .4rem; color: var(--cream-200); font-size: .8rem; text-align: right; }
 .admin-booking-details { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .7rem; margin: 0; }
 .admin-booking-details div { min-width: 0; }

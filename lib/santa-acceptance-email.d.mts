@@ -20,6 +20,26 @@ export function buildAcceptanceEmail(args: {
   testRecipient: string;
   from: string;
 }): AcceptanceEmail;
+export function buildDepositRequestEmail(args: {
+  booking: AcceptanceBookingRecord;
+  depositUrl: string;
+  amountCents: number;
+  holdUntil: Date;
+  deliveryMode?: string;
+  testRecipient: string;
+  from?: string;
+}): AcceptanceEmail;
+export function sendDepositRequestEmail(args: {
+  booking: AcceptanceBookingRecord;
+  depositUrl: string;
+  amountCents: number;
+  holdUntil: Date;
+  apiKey?: string;
+  deliveryMode?: string;
+  testRecipient: string;
+  from?: string;
+  fetchImpl?: typeof fetch;
+}): Promise<AcceptanceEmailResult>;
 export function sendAcceptanceEmail(args: {
   booking: AcceptanceBookingRecord;
   apiKey?: string;

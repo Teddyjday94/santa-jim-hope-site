@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { CalendarDays, Check, Clock, LogOut, Save, ShieldCheck, Trash2, UserRoundCheck, X } from "lucide-react";
+import { CalendarDays, Check, Clock, Copy, LogOut, Save, ShieldCheck, Trash2, UserRoundCheck, X } from "lucide-react";
 import { SANTA_SUPABASE_PUBLISHABLE_KEY, SANTA_SUPABASE_URL } from "@/lib/santa-config";
 import { PHOTO_SERVICE_SLUG } from "@/lib/santa-scheduler.mjs";
 
@@ -22,6 +22,10 @@ type Booking = {
   local_end_time: string;
   status: BookingStatus;
   hold_expires_at: string | null;
+  deposit_status: "not_required" | "awaiting" | "paid";
+  deposit_amount_cents: number | null;
+  deposit_token: string | null;
+  deposit_paid_at: string | null;
   calendar_sync_status: string;
   calendar_sync_error: string | null;
   google_event_id: string | null;
@@ -52,6 +56,8 @@ type ScheduleSettings = {
   slotStepMinutes: number;
   pendingHoldMinutes: number;
   timezone: string;
+  depositCents: number;
+  depositHoldHours: number;
 };
 
 type CalendarConnection = {
@@ -79,6 +85,19 @@ function timeLabel(value: string) {
 function dateLabel(value: string) {
   const [year, month, day] = value.split("-").map(Number);
   return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(new Date(year, month - 1, day, 12));
+}
+
+function moneyLabel(cents: number | null) {
+  return cents ? `$${(cents / 100).toFixed(2).replace(/\.00$/, "")}` : "";
+}
+
+function holdLabel(value: string | null) {
+  if (!value) return "";
+  return new Intl.DateTimeFormat("en-US", { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(value));
+}
+
+function depositLink(booking: Booking) {
+  return booking.deposit_token ? `${window.location.origin}/deposit/${booking.deposit_token}` : "";
 }
 
 function bookingTimeLabel(booking: Booking) {
@@ -119,7 +138,9 @@ export function AdminDashboard() {
   const [calendarWorking, setCalendarWorking] = useState(false);
   const [updatingBookingId, setUpdatingBookingId] = useState("");
 
-  const pendingBookings = useMemo(() => bookings.filter((booking) => booking.status === "pending"), [bookings]);
+  const pendingBookings = useMemo(() => bookings.filter((booking) => booking.status === "pending" && booking.deposit_status !== "awaiting"), [bookings]);
+  const awaitingDepositBookings = useMemo(() => bookings.filter((booking) => booking.status === "pending" && booking.deposit_status === "awaiting"), [bookings]);
+  const depositAmount = settings?.depositCents ? moneyLabel(settings.depositCents) : "";
   const upcomingBookings = useMemo(() => bookings.filter((booking) => booking.status === "confirmed"), [bookings]);
 
   useEffect(() => {
@@ -256,6 +277,8 @@ export function AdminDashboard() {
           slotStepMinutes: Number(settingsData.settings.slot_step_minutes),
           pendingHoldMinutes: Number(settingsData.settings.pending_hold_minutes),
           timezone: String(settingsData.settings.timezone),
+          depositCents: Number(settingsData.settings.deposit_cents ?? 0),
+          depositHoldHours: Number(settingsData.settings.deposit_hold_hours ?? 48),
         });
       }
       setServices((settingsData.services ?? []).map((service) => ({
@@ -316,8 +339,19 @@ export function AdminDashboard() {
     setCalendar(null);
   }
 
-  async function updateBooking(id: string, status: "confirmed" | "declined" | "cancelled") {
+  async function copyDepositLink(booking: Booking) {
+    const link = depositLink(booking);
+    try {
+      await navigator.clipboard.writeText(link);
+      setNotice(`Deposit link for ${booking.customer_name} copied. Paste it into a text or email to the family.`);
+    } catch {
+      window.prompt("Copy this deposit link:", link);
+    }
+  }
+
+  async function updateBooking(id: string, status: "confirmed" | "declined" | "cancelled" | "deposit", options: { skipDeposit?: boolean } = {}) {
     if (status === "cancelled" && !window.confirm("Cancel this confirmed booking and remove its Google Calendar event? The time will become available again.")) return;
+    if (options.skipDeposit && !window.confirm("Confirm this booking without an online deposit? Use this if the family paid another way.")) return;
     setUpdatingBookingId(id);
     setNotice("");
     setDashboardError("");
@@ -330,12 +364,17 @@ export function AdminDashboard() {
         error?: string;
         warning?: string;
         notificationMode?: "test" | "live";
+        depositUrl?: string;
       };
       if (!response.ok) {
         setDashboardError(result.error || "The booking request could not be updated.");
         return;
       }
-      const successMessage = status === "confirmed"
+      const successMessage = status === "deposit"
+        ? result.notificationMode === "live"
+          ? "Request accepted. The family was emailed a link to pay the deposit. It is listed under Waiting for deposit."
+          : "Request accepted. Use Copy link under Waiting for deposit to send the family their payment link."
+        : status === "confirmed"
         ? result.notificationMode === "live"
           ? "Request accepted. The acceptance email was sent to the customer."
           : "Request accepted. A test acceptance email was sent to the business inbox."
@@ -648,13 +687,51 @@ export function AdminDashboard() {
               </dl>
               {booking.notes ? <p className="admin-booking-notes">{booking.notes}</p> : null}
               <div className="admin-booking-actions">
-                <button className="button button--gold" type="button" disabled={updatingBookingId === booking.id} onClick={() => void updateBooking(booking.id, "confirmed")}><UserRoundCheck size={17} /> Accept</button>
+                {depositAmount ? (
+                  <button className="button button--gold" type="button" disabled={updatingBookingId === booking.id} onClick={() => void updateBooking(booking.id, "deposit")}><UserRoundCheck size={17} /> Accept &amp; request {depositAmount} deposit</button>
+                ) : (
+                  <button className="button button--gold" type="button" disabled={updatingBookingId === booking.id} onClick={() => void updateBooking(booking.id, "confirmed")}><UserRoundCheck size={17} /> Accept</button>
+                )}
                 <button className="button button--quiet" type="button" disabled={updatingBookingId === booking.id} onClick={() => void updateBooking(booking.id, "declined")}><X size={17} /> Decline</button>
               </div>
             </article>
           ))}
         </div>
       </section>
+
+      {awaitingDepositBookings.length > 0 ? (
+        <section className="admin-section">
+          <div className="admin-section__heading">
+            <div><p className="eyebrow">Accepted, not paid yet</p><h2>Waiting for deposit</h2></div>
+          </div>
+          <p className="admin-service-note">These dates are held until the family pays. If they don&apos;t pay in time, the hold ends and the date opens up again.</p>
+          <div className="admin-bookings">
+            {awaitingDepositBookings.map((booking) => (
+              <article className="admin-booking-card" key={booking.id}>
+                <div className="admin-booking-card__top">
+                  <div>
+                    <span className="admin-status admin-status--deposit">Waiting for {moneyLabel(booking.deposit_amount_cents)} deposit</span>
+                    <h3>{booking.customer_name}</h3>
+                    <p>{titleFromSlug(booking.service_slug)}</p>
+                  </div>
+                  <div className="admin-booking-time"><CalendarDays size={16} /> {dateLabel(booking.local_date)}<br /><Clock size={16} /> {bookingTimeLabel(booking)}</div>
+                </div>
+                <dl className="admin-booking-details">
+                  <div><dt>Email</dt><dd>{booking.customer_email}</dd></div>
+                  <div><dt>Phone</dt><dd>{booking.customer_phone || "Not provided"}</dd></div>
+                  <div><dt>Held until</dt><dd>{holdLabel(booking.hold_expires_at)}</dd></div>
+                  <div><dt>Payment link</dt><dd className="admin-deposit-link">{depositLink(booking)}</dd></div>
+                </dl>
+                <div className="admin-booking-actions">
+                  <button className="button button--gold" type="button" onClick={() => void copyDepositLink(booking)}><Copy size={17} /> Copy link</button>
+                  <button className="button button--quiet" type="button" disabled={updatingBookingId === booking.id} onClick={() => void updateBooking(booking.id, "confirmed", { skipDeposit: true })}><Check size={17} /> Confirm without deposit</button>
+                  <button className="button button--quiet" type="button" disabled={updatingBookingId === booking.id} onClick={() => void updateBooking(booking.id, "declined")}><X size={17} /> Decline</button>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section className="admin-section admin-section--split">
         <div>
@@ -689,6 +766,8 @@ export function AdminDashboard() {
             <label><span>Default end</span><input type="time" value={settings.defaultEndTime} onChange={(event) => setSettings({ ...settings, defaultEndTime: event.target.value })} /></label>
             <label><span>Time-slot step (minutes)</span><input type="number" min="5" max="120" value={settings.slotStepMinutes} onChange={(event) => setSettings({ ...settings, slotStepMinutes: Number(event.target.value) })} /></label>
             <label><span>Pending hold (minutes)</span><input type="number" min="15" max="10080" value={settings.pendingHoldMinutes} onChange={(event) => setSettings({ ...settings, pendingHoldMinutes: Number(event.target.value) })} /></label>
+            <label><span>Deposit amount ($, 0 = off)</span><input type="number" min="0" max="1000" step="1" value={settings.depositCents / 100} onChange={(event) => setSettings({ ...settings, depositCents: Math.round(Number(event.target.value) * 100) })} /></label>
+            <label><span>Hold date for deposit (hours)</span><input type="number" min="1" max="336" value={settings.depositHoldHours} onChange={(event) => setSettings({ ...settings, depositHoldHours: Number(event.target.value) })} /></label>
           </div>
           <div className="admin-service-settings">
             <h3>Experiences</h3>
@@ -718,6 +797,7 @@ export function AdminDashboard() {
                   <div><dt>Time</dt><dd>{bookingTimeLabel(booking)}</dd></div>
                   <div><dt>Experience</dt><dd>{titleFromSlug(booking.service_slug)}</dd></div>
                   <div><dt>Calendar</dt><dd>{booking.calendar_sync_status === "synced" ? "Added to Google Calendar" : booking.calendar_sync_status.replaceAll("_", " ")}</dd></div>
+                  <div><dt>Deposit</dt><dd>{booking.deposit_status === "paid" ? `${moneyLabel(booking.deposit_amount_cents)} paid${booking.deposit_paid_at ? ` ${holdLabel(booking.deposit_paid_at)}` : ""}` : "None (confirmed without deposit)"}</dd></div>
                 </dl>
                 {booking.notes ? <p className="admin-booking-notes"><strong>Notes:</strong> {booking.notes}</p> : null}
                 {booking.calendar_sync_error ? <p className="admin-calendar-warning">Calendar note: {booking.calendar_sync_error}</p> : null}

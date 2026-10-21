@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
   if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const [settingsResponse, servicesResponse] = await Promise.all([
-    supabaseRest(`santa_schedule_settings?site_id=eq.${SANTA_SITE_ID}&select=season_start,season_end,default_start_time,default_end_time,slot_step_minutes,pending_hold_minutes,timezone&limit=1`, {}, token),
+    supabaseRest(`santa_schedule_settings?site_id=eq.${SANTA_SITE_ID}&select=season_start,season_end,default_start_time,default_end_time,slot_step_minutes,pending_hold_minutes,timezone,deposit_cents,deposit_hold_hours&limit=1`, {}, token),
     supabaseRest(`santa_services?site_id=eq.${SANTA_SITE_ID}&select=slug,name,duration_minutes,buffer_minutes,active,sort_order&order=sort_order.asc`, {}, token),
   ]);
   if (!settingsResponse.ok || !servicesResponse.ok) {
@@ -47,6 +47,8 @@ export async function PUT(request: NextRequest) {
       defaultEndTime?: string;
       slotStepMinutes?: number;
       pendingHoldMinutes?: number;
+      depositCents?: number;
+      depositHoldHours?: number;
     };
     services?: Array<{ slug?: string; durationMinutes?: number; bufferMinutes?: number; active?: boolean }>;
   } | null;
@@ -64,6 +66,15 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ error: "Scheduler intervals are outside the allowed range." }, { status: 400 });
   }
 
+  const depositCents = Number(settings.depositCents ?? 0);
+  const depositHoldHours = Number(settings.depositHoldHours ?? 48);
+  if (!Number.isInteger(depositCents) || depositCents < 0 || depositCents > 100000 || (depositCents > 0 && depositCents < 100)) {
+    return NextResponse.json({ error: "The deposit must be $0 (off) or between $1 and $1,000." }, { status: 400 });
+  }
+  if (!Number.isInteger(depositHoldHours) || depositHoldHours < 1 || depositHoldHours > 336) {
+    return NextResponse.json({ error: "The deposit hold must be between 1 and 336 hours." }, { status: 400 });
+  }
+
   const PATCH = "PATCH";
   const settingsResponse = await supabaseRest(
     `santa_schedule_settings?site_id=eq.${SANTA_SITE_ID}`,
@@ -77,6 +88,8 @@ export async function PUT(request: NextRequest) {
         default_end_time: settings.defaultEndTime,
         slot_step_minutes: slotStepMinutes,
         pending_hold_minutes: pendingHoldMinutes,
+        deposit_cents: depositCents,
+        deposit_hold_hours: depositHoldHours,
         updated_at: new Date().toISOString(),
       }),
     },

@@ -12,6 +12,12 @@ const nextConfig: NextConfig = {
         ],
       },
       {
+        source: "/deposit/:path*",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },
+        ],
+      },
+      {
         source: "/api/:path*",
         headers: [
           { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { sendAcceptanceEmail } from "@/lib/santa-acceptance-email.mjs";
+import { sendAcceptanceEmail, sendDepositRequestEmail } from "@/lib/santa-acceptance-email.mjs";
 import { bookingTransitionPlan } from "@/lib/santa-booking-actions.mjs";
 import { sendBookingDecisionNotification } from "@/lib/santa-booking-notifications.mjs";
 import { SANTA_SITE_ID, SANTA_TEST_NOTIFICATION_EMAIL } from "@/lib/santa-config";
@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
   if (!authorized) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const response = await supabaseRest(
-    `santa_booking_requests?site_id=eq.${SANTA_SITE_ID}&select=id,service_slug,customer_name,customer_email,customer_phone,event_location,guest_count,notes,local_date,local_start_time,local_end_time,status,hold_expires_at,calendar_sync_status,calendar_sync_error,google_event_id,created_at&order=local_date.asc,local_start_time.asc`,
+    `santa_booking_requests?site_id=eq.${SANTA_SITE_ID}&select=id,service_slug,customer_name,customer_email,customer_phone,event_location,guest_count,notes,local_date,local_start_time,local_end_time,status,hold_expires_at,calendar_sync_status,calendar_sync_error,google_event_id,created_at,deposit_status,deposit_amount_cents,deposit_token,deposit_requested_at,deposit_paid_at&order=local_date.asc,local_start_time.asc`,
     {},
     token,
   );
@@ -32,11 +32,61 @@ export async function PATCH(request: NextRequest) {
   if (!authorized) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await request.json().catch(() => null) as { id?: string; status?: string } | null;
-  if (!body?.id || !["confirmed", "declined", "cancelled"].includes(body.status ?? "")) {
+  if (!body?.id || !["confirmed", "declined", "cancelled", "deposit"].includes(body.status ?? "")) {
     return NextResponse.json({ error: "Invalid booking update." }, { status: 400 });
   }
 
   const bookingPath = `santa_booking_requests?id=eq.${encodeURIComponent(body.id)}&site_id=eq.${SANTA_SITE_ID}`;
+
+  // Accept and ask for a deposit: the booking stays pending, holding the date,
+  // until the family pays through the santa-deposit function.
+  if (body.status === "deposit") {
+    const settingsResponse = await supabaseRest(
+      `santa_schedule_settings?site_id=eq.${SANTA_SITE_ID}&select=deposit_cents,deposit_hold_hours&limit=1`,
+      {},
+      token,
+    );
+    const settingsRows = settingsResponse.ok ? await settingsResponse.json() as Array<{ deposit_cents?: number; deposit_hold_hours?: number }> : [];
+    const depositCents = Number(settingsRows[0]?.deposit_cents ?? 0);
+    const holdHours = Number(settingsRows[0]?.deposit_hold_hours ?? 48);
+    if (!depositCents) return NextResponse.json({ error: "Set a deposit amount in Scheduler settings first." }, { status: 400 });
+
+    const depositToken = `${crypto.randomUUID()}${crypto.randomUUID()}`.replaceAll("-", "");
+    const holdUntil = new Date(Date.now() + holdHours * 60 * 60 * 1000);
+    const response = await supabaseRest(`${bookingPath}&status=eq.pending&deposit_status=eq.not_required`, {
+      method: "PATCH",
+      headers: { Prefer: "return=representation" },
+      body: JSON.stringify({
+        deposit_status: "awaiting",
+        deposit_amount_cents: depositCents,
+        deposit_token: depositToken,
+        deposit_requested_at: new Date().toISOString(),
+        hold_expires_at: holdUntil.toISOString(),
+      }),
+    }, token);
+    if (!response.ok) return NextResponse.json({ error: "Could not request the deposit." }, { status: 502 });
+    const updated = await response.json() as BookingRecord[];
+    if (!updated[0]) return NextResponse.json({ error: "This request is no longer waiting for a decision." }, { status: 409 });
+
+    const depositUrl = `${request.nextUrl.origin}/deposit/${depositToken}`;
+    const notification = await sendDepositRequestEmail({
+      booking: updated[0],
+      depositUrl,
+      amountCents: depositCents,
+      holdUntil,
+      apiKey: process.env.RESEND_API_KEY,
+      deliveryMode: process.env.SANTA_EMAIL_DELIVERY_MODE,
+      testRecipient: SANTA_TEST_NOTIFICATION_EMAIL,
+      from: process.env.SANTA_EMAIL_FROM,
+    });
+    return NextResponse.json({
+      booking: updated[0],
+      depositUrl,
+      warning: notification.sent ? null : "The deposit was requested, but the email could not be sent. Copy the link and send it to the family.",
+      notificationSent: notification.sent,
+      notificationMode: notification.mode,
+    });
+  }
 
   if (body.status === "cancelled") {
     const currentResponse = await supabaseRest(

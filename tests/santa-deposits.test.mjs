@@ -2,8 +2,16 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
-import { checkoutExpiry, checkoutSessionForm, stripeSignature, verifyStripeSignature } from "../supabase/functions/santa-deposit/stripe.ts";
-import { calendarEventBody } from "../supabase/functions/santa-deposit/google-calendar.ts";
+import {
+  checkoutExpiry,
+  checkoutSessionForm,
+  isDuplicatePayment,
+  originAllowed,
+  priorSessionOutcome,
+  stripeSignature,
+  verifyStripeSignature,
+} from "../supabase/functions/santa-deposit/stripe.ts";
+import { calendarEventBody, offsetForDate } from "../supabase/functions/santa-deposit/google-calendar.ts";
 import { buildDepositRequestEmail } from "../lib/santa-acceptance-email.mjs";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
@@ -119,4 +127,44 @@ test("deposit pages are not indexed", async () => {
   assert.match(page, /robots: \{ index: false, follow: false \}/);
   assert.match(nextConfig, /\/deposit\/:path\*/);
   assert.match(page, /non-refundable/);
+});
+
+test("checkout return addresses allow the Vercel site and any custom domains in SANTA_SITE_ORIGIN", () => {
+  assert.equal(originAllowed("https://santa-jim-hope-site.vercel.app"), true);
+  assert.equal(originAllowed("https://santa-jim-hope-site-git-main-team.vercel.app"), true);
+  assert.equal(originAllowed("http://localhost:3000"), true);
+  assert.equal(originAllowed("https://santajim.com"), false);
+  assert.equal(originAllowed("https://santajim.com", "https://santajim.com, https://www.santajim.com/"), true);
+  assert.equal(originAllowed("https://www.santajim.com", "https://santajim.com, https://www.santajim.com/"), true);
+  assert.equal(originAllowed("https://evil.example", "https://santajim.com"), false);
+  assert.equal(originAllowed("", ""), false);
+});
+
+test("a new checkout page only opens once the previous one can no longer be paid", () => {
+  assert.equal(priorSessionOutcome(true, undefined), "released");
+  assert.equal(priorSessionOutcome(false, "expired"), "released");
+  assert.equal(priorSessionOutcome(false, "complete"), "paid");
+  assert.equal(priorSessionOutcome(false, "open"), "unknown");
+  assert.equal(priorSessionOutcome(false, undefined), "unknown");
+});
+
+test("a second paid checkout for an already-paid booking is flagged for refund", () => {
+  assert.equal(isDuplicatePayment("paid", "cs_first", "cs_second"), true);
+  assert.equal(isDuplicatePayment("paid", "cs_first", "cs_first"), false);
+  assert.equal(isDuplicatePayment("awaiting", "cs_first", "cs_second"), false);
+  assert.equal(isDuplicatePayment("paid", null, "cs_second"), false);
+});
+
+test("calendar clash checks use the booking date's Central offset, including daylight time", () => {
+  assert.equal(offsetForDate("2026-12-12", "America/Chicago"), "-06:00");
+  assert.equal(offsetForDate("2026-07-04", "America/Chicago"), "-05:00");
+  assert.equal(offsetForDate("2026-12-12", "UTC"), "+00:00");
+});
+
+test("paid deposits check Google Calendar for clashes and expire older checkout pages", async () => {
+  const fn = await read("supabase/functions/santa-deposit/index.ts");
+  const calendar = await read("supabase/functions/santa-deposit/google-calendar.ts");
+  assert.match(calendar, /freeBusy/);
+  assert.match(fn, /checkout\/sessions\/\$\{id\}\/expire/);
+  assert.match(fn, /isDuplicatePayment/);
 });

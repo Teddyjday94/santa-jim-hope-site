@@ -24,7 +24,7 @@ export type CalendarBooking = {
 };
 
 export type CalendarResult =
-  | { status: "synced"; eventId: string }
+  | { status: "synced"; eventId: string; warning?: string }
   | { status: "not_connected" }
   | { status: "error"; error: string };
 
@@ -37,6 +37,40 @@ function timeLabel(value: string) {
 function dateLabel(value: string) {
   return new Intl.DateTimeFormat("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric", timeZone: "UTC" })
     .format(new Date(`${value}T12:00:00Z`));
+}
+
+export const CALENDAR_CLASH_WARNING =
+  "Deposit paid and added to Google Calendar, but Google Calendar already had something else at this time. Review the clash and contact the family if needed.";
+
+/** UTC offset (e.g. "-06:00") for a local date in a time zone. */
+export function offsetForDate(date: string, timezone: string) {
+  const probe = new Date(`${date}T12:00:00Z`);
+  const part = new Intl.DateTimeFormat("en-US", { timeZone: timezone, timeZoneName: "longOffset" })
+    .formatToParts(probe).find((item) => item.type === "timeZoneName")?.value ?? "GMT-06:00";
+  return part === "GMT" ? "+00:00" : part.replace("GMT", "");
+}
+
+/**
+ * Is Google Calendar already busy at this time? The deposit is paid, so a
+ * clash never blocks the booking; it is flagged for Santa Jim instead. A
+ * failed check is treated as no clash rather than failing the webhook.
+ */
+async function calendarBusy(token: string, calendarId: string, booking: CalendarBooking, timezone: string) {
+  const offset = offsetForDate(booking.local_date, timezone);
+  const response = await fetch("https://www.googleapis.com/calendar/v3/freeBusy", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      timeMin: `${booking.local_date}T${booking.local_start_time.slice(0, 5)}:00${offset}`,
+      timeMax: `${booking.local_date}T${booking.local_end_time.slice(0, 5)}:00${offset}`,
+      timeZone: timezone,
+      items: [{ id: calendarId }],
+    }),
+  }).catch(() => null);
+  if (!response?.ok) return false;
+  const result = await response.json().catch(() => ({})) as { calendars?: Record<string, { busy?: unknown[] }> };
+  const first = Object.values(result.calendars ?? {})[0];
+  return Array.isArray(first?.busy) && first.busy.length > 0;
 }
 
 export function googleEventId(bookingId: string) {
@@ -114,6 +148,7 @@ export async function addBookingToCalendar(rest: Rest, siteId: string, booking: 
     const token = await accessToken(rest, siteId, connection);
     const calendarId = encodeURIComponent(connection.calendar_id || "primary");
     const body = calendarEventBody(booking, timezone);
+    const warning = await calendarBusy(token, connection.calendar_id || "primary", booking, timezone) ? CALENDAR_CLASH_WARNING : undefined;
     const response = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events?sendUpdates=none`, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
@@ -123,7 +158,7 @@ export async function addBookingToCalendar(rest: Rest, siteId: string, booking: 
     if (response.status === 409) return { status: "synced", eventId: body.id };
     const result = await response.json().catch(() => ({})) as { id?: string; error?: { message?: string } };
     if (!response.ok || !result.id) throw new Error(result.error?.message || "The Google Calendar event could not be created.");
-    return { status: "synced", eventId: result.id };
+    return { status: "synced", eventId: result.id, warning };
   } catch (error) {
     return { status: "error", error: error instanceof Error ? error.message : "Google Calendar could not be updated." };
   }

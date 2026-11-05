@@ -83,3 +83,39 @@ export function checkoutExpiry(holdExpiresAtMs: number, nowMs = Date.now()) {
   if (expires < earliest) return null;
   return Math.floor(expires / 1000);
 }
+
+const DEFAULT_ORIGINS = [
+  /^https:\/\/santa-jim-hope-site(?:-[a-z0-9-]+)?\.vercel\.app$/,
+  /^http:\/\/localhost:\d+$/,
+];
+
+/**
+ * Where Stripe may send families back to: the Vercel site, localhost, and any
+ * extra origins in SANTA_SITE_ORIGIN (comma separated, e.g. a custom domain
+ * with and without www).
+ */
+export function originAllowed(origin: string, extraOrigins = "") {
+  if (!origin) return false;
+  const extras = extraOrigins.split(",").map((value) => value.trim().replace(/\/$/, "")).filter(Boolean);
+  return extras.includes(origin) || DEFAULT_ORIGINS.some((pattern) => pattern.test(origin));
+}
+
+/**
+ * Before opening a new checkout page, the previous one is expired so a family
+ * cannot pay twice from two tabs. Given the previous session's Stripe status
+ * after the expire attempt: "released" means a new page may open, "paid"
+ * means the deposit is already in, "unknown" means stop and try again.
+ */
+export function priorSessionOutcome(expireSucceeded: boolean, status: string | undefined) {
+  if (expireSucceeded || status === "expired") return "released";
+  if (status === "complete") return "paid";
+  return "unknown";
+}
+
+/**
+ * A paid webhook for a booking whose deposit is already recorded under a
+ * different checkout session is a second charge that needs a refund.
+ */
+export function isDuplicatePayment(depositStatus: string, recordedSessionId: string | null, sessionId: string | undefined) {
+  return depositStatus === "paid" && Boolean(recordedSessionId) && Boolean(sessionId) && recordedSessionId !== sessionId;
+}

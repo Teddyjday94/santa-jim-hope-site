@@ -1,5 +1,12 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { checkoutExpiry, checkoutSessionForm, verifyStripeSignature } from "./stripe.ts";
+import {
+  checkoutExpiry,
+  checkoutSessionForm,
+  isDuplicatePayment,
+  originAllowed,
+  priorSessionOutcome,
+  verifyStripeSignature,
+} from "./stripe.ts";
 import { addBookingToCalendar } from "./google-calendar.ts";
 
 // Public deposit flow for accepted Santa Jim bookings. Deployed with
@@ -22,14 +29,11 @@ type BookingRow = {
   deposit_status: string;
   deposit_amount_cents: number | null;
   calendar_sync_status: string;
+  stripe_checkout_session_id: string | null;
 };
 
-const BOOKING_FIELDS = "id,service_slug,customer_name,customer_email,event_location,local_date,local_start_time,local_end_time,status,hold_expires_at,deposit_status,deposit_amount_cents,calendar_sync_status";
+const BOOKING_FIELDS = "id,service_slug,customer_name,customer_email,event_location,local_date,local_start_time,local_end_time,status,hold_expires_at,deposit_status,deposit_amount_cents,calendar_sync_status,stripe_checkout_session_id";
 const TOKEN_PATTERN = /^[a-f0-9]{48,96}$/;
-const ALLOWED_ORIGINS = [
-  /^https:\/\/santa-jim-hope-site(?:-[a-z0-9-]+)?\.vercel\.app$/,
-  /^http:\/\/localhost:\d+$/,
-];
 
 function json(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { "Content-Type": "application/json" } });
@@ -62,8 +66,21 @@ async function rest(path: string, init: RequestInit = {}) {
   return fetch(`${supabaseUrl}/rest/v1/${path}`, { ...init, headers });
 }
 
-function originAllowed(origin: string) {
-  return origin === extraOrigin || ALLOWED_ORIGINS.some((pattern) => pattern.test(origin));
+function stripe(path: string, init: RequestInit = {}) {
+  const headers = new Headers(init.headers);
+  headers.set("Authorization", `Bearer ${stripeSecretKey}`);
+  if (init.body) headers.set("Content-Type", "application/x-www-form-urlencoded");
+  return fetch(`https://api.stripe.com/v1/${path}`, { ...init, headers });
+}
+
+/** Close the family's previous checkout page so the deposit cannot be paid twice. */
+async function releasePriorSession(sessionId: string) {
+  const id = encodeURIComponent(sessionId);
+  const expired = await stripe(`checkout/sessions/${id}/expire`, { method: "POST" }).catch(() => null);
+  if (expired?.ok) return priorSessionOutcome(true, undefined);
+  const current = await stripe(`checkout/sessions/${id}`).catch(() => null);
+  const session = current?.ok ? await current.json().catch(() => ({})) as { status?: string } : {};
+  return priorSessionOutcome(false, session.status);
 }
 
 async function serviceName(slug: string) {
@@ -105,7 +122,7 @@ async function lookup(token: string) {
 
 async function checkout(token: string, origin: string) {
   if (!stripeSecretKey) return json({ error: "Online deposits are not set up yet. Please contact Santa Jim." }, 503);
-  if (!originAllowed(origin)) return json({ error: "Invalid return address." }, 400);
+  if (!originAllowed(origin, extraOrigin)) return json({ error: "Invalid return address." }, 400);
 
   const booking = await bookingBy(`deposit_token=eq.${token}`);
   if (!booking) return json({ error: "This deposit link was not found." }, 404);
@@ -114,6 +131,14 @@ async function checkout(token: string, origin: string) {
   const expiresAtSeconds = checkoutExpiry(Date.parse(booking.hold_expires_at ?? ""));
   if (!expiresAtSeconds || !booking.deposit_amount_cents) {
     return json({ error: "Your date hold is about to end. Please contact Santa Jim to finish booking.", state: "expired" }, 409);
+  }
+
+  if (booking.stripe_checkout_session_id) {
+    const prior = await releasePriorSession(booking.stripe_checkout_session_id);
+    if (prior === "paid") {
+      return json({ error: "We already have your deposit payment. It can take a minute to confirm, so please refresh this page shortly.", state: "awaiting" }, 409);
+    }
+    if (prior === "unknown") return json({ error: "The payment page could not be opened. Please try again." }, 502);
   }
 
   const name = await serviceName(booking.service_slug);
@@ -127,11 +152,7 @@ async function checkout(token: string, origin: string) {
     cancelUrl: `${origin}/deposit/${token}`,
     expiresAtSeconds,
   });
-  const response = await fetch("https://api.stripe.com/v1/checkout/sessions", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${stripeSecretKey}`, "Content-Type": "application/x-www-form-urlencoded" },
-    body: form,
-  });
+  const response = await stripe("checkout/sessions", { method: "POST", body: form });
   const session = await response.json().catch(() => ({})) as { id?: string; url?: string; error?: { message?: string } };
   if (!response.ok || !session.url || !session.id) {
     console.error("Stripe checkout failed", session.error?.message);
@@ -157,6 +178,14 @@ async function confirmPaidBooking(bookingId: string, session: { id?: string; pay
   const booking = await bookingBy(`id=eq.${encodeURIComponent(bookingId)}`);
   if (!booking) {
     console.error("Paid deposit for unknown booking", bookingId);
+    return;
+  }
+
+  if (isDuplicatePayment(booking.deposit_status, booking.stripe_checkout_session_id, session.id)) {
+    console.error("Second deposit payment for booking", booking.id, session.id);
+    await patchBooking(booking.id, "", {
+      calendar_sync_error: `A second deposit payment was received (Stripe checkout ${session.id}${typeof session.payment_intent === "string" ? `, payment ${session.payment_intent}` : ""}). Refund it in Stripe.`,
+    });
     return;
   }
 
@@ -206,7 +235,7 @@ async function confirmPaidBooking(bookingId: string, session: { id?: string; pay
   }, settingsRows[0]?.timezone || "America/Chicago");
 
   await patchBooking(booking.id, "", calendar.status === "synced"
-    ? { google_event_id: calendar.eventId, calendar_sync_status: "synced", calendar_sync_error: null }
+    ? { google_event_id: calendar.eventId, calendar_sync_status: "synced", calendar_sync_error: calendar.warning ?? null }
     : calendar.status === "not_connected"
       ? { calendar_sync_status: "not_connected", calendar_sync_error: null }
       : { calendar_sync_status: "error", calendar_sync_error: calendar.error });
